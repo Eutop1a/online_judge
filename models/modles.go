@@ -27,15 +27,15 @@ type User struct {
 // Problems 题目信息
 type Problems struct {
 	Model
-	ProblemID  int64       `gorm:"type:bigint;primaryKey;column:problemID" json:"problem_id"`                        // primary key
-	MaxRuntime int64       `gorm:"type:bigint;not null;column:maxRuntime" json:"max_runtime"`                        // 时间限制
-	MaxMemory  int64       `gorm:"type:bigint;not null;column:maxMemory" json:"max_memory"`                          // 内存限制
-	Title      string      `gorm:"type:varchar(255);not null;column:title" json:"title"`                             // problem title
-	Content    string      `gorm:"type:text;not null;column:content" json:"content"`                                 // problem description
-	Difficulty string      `gorm:"type:char(4);not null；column:difficulty" json:"difficulty"`                        // easy mid hard
-	PassNum    int         `gorm:"type:int;default:0;column:passNum" json:"pass_num"`                                // 通过测试样例数
-	SubmitNum  int         `gorm:"type:int;default:0;column:submitNum" json:"submit_num"`                            // 提交数
-	TestCases  []*TestCase `gorm:"foreignKey:PID;references:Problems(ProblemID);column:testCases" json:"test_cases"` // 测试样例集
+	ProblemID  int64       `gorm:"type:bigint;primaryKey;column:problemID" json:"problem_id"` // primary key
+	MaxRuntime int64       `gorm:"type:bigint;not null;column:maxRuntime" json:"max_runtime"` // 时间限制
+	MaxMemory  int64       `gorm:"type:bigint;not null;column:maxMemory" json:"max_memory"`   // 内存限制
+	Title      string      `gorm:"type:varchar(255);not null;column:title" json:"title"`      // problem title
+	Content    string      `gorm:"type:text;not null;column:content" json:"content"`          // problem description
+	Difficulty string      `gorm:"type:char(4);not null；column:difficulty" json:"difficulty"` // easy mid hard
+	PassNum    int         `gorm:"type:int;default:0;column:passNum" json:"pass_num"`         // 通过测试样例数
+	SubmitNum  int         `gorm:"type:int;default:0;column:submitNum" json:"submit_num"`     // 提交数
+	TestCases  []*TestCase `gorm:"foreignKey:PID;references:ProblemID" json:"test_cases"`     // 测试样例集
 }
 
 // Submission 提交记录

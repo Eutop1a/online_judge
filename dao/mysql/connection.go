@@ -28,9 +28,9 @@ func Init(cfg *setting.MySQLConfig) (err error) {
 
 	DB.AutoMigrate(&models.User{})
 	DB.AutoMigrate(&models.Problems{}) //
-	DB.AutoMigrate(&models.Submission{})
 	DB.AutoMigrate(&models.Judgement{})
 	DB.AutoMigrate(&models.ProgrammingLanguage{})
+	DB.AutoMigrate(&models.Submission{})
 	DB.AutoMigrate(&models.TestCase{}) //
 	DB.AutoMigrate(&models.SubmissionResult{})
 
