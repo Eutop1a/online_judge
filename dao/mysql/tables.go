@@ -20,8 +20,14 @@ type User struct {
 	Email            string    `gorm:"type:varchar(255);unique;not null;column:email" json:"email"`
 	RegistrationDate time.Time `gorm:"type:timestamp;not null;column:registrationDate" json:"registration_date"`
 	LastLoginData    time.Time `gorm:"type:timestamp;column:lastLoginData" json:"last_login_data"`
-	Role             bool      `gorm:"type:boolean;not null;column:role" json:"role"`
+	//Role             bool      `gorm:"type:boolean;not null;column:role" json:"role"`
 	// true is Admin, false is user
+}
+
+// Admin 管理员表 从用户表定位到ID，再来这里找
+type Admin struct {
+	Model
+	UserID int64 `gorm:"type:bigint;primaryKey;column:userID" json:"user_id"`
 }
 
 // Problems 题目信息

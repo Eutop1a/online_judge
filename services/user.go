@@ -20,11 +20,11 @@ type UserService struct {
 	Code             string    `form:"code" json:"code" validate:"required"`
 	RegistrationDate time.Time `form:"registration_date" json:"registration_date"`
 	LastLoginData    time.Time `form:"last_login_data" json:"last_login_data"`
-	Role             bool      `form:"role" json:"role"`
+	//Role             bool      `form:"role" json:"role"`
 	// true is Admin, false is user
 }
 
-// 用户注册服务
+// Register 用户注册服务
 func (u *UserService) Register() (response models.RegisterResponse) {
 
 	// 检查数据库中是否已经有这个email
@@ -182,7 +182,7 @@ func (u *UserService) Login() (response models.RegisterResponse) {
 	token := pkg.GenerateToken(u.UserName)
 	if err != nil {
 		response.Code = GenerateTokenError
-		zap.L().Error("generate token error")
+		zap.L().Error("generate token error" + err.Error())
 		return
 	}
 	// 设置响应的状态码和 token
@@ -191,22 +191,112 @@ func (u *UserService) Login() (response models.RegisterResponse) {
 	return
 }
 
-// 获取用户详细信息
-func (u *UserService) GetUserDetail() {
-
+// GetUserDetail 获取用户详细信息
+func (u *UserService) GetUserDetail() (response models.GetDetailResponse) {
+	// 检验是否有这个用户ID
+	var UserIDCount int64
+	err := mysql.CheckUserID(u.UserID, &UserIDCount)
+	if err != nil {
+		response.Code = SearchDBError
+		zap.L().Error("SearchDBError" + err.Error())
+		return
+	}
+	if UserIDCount == 0 {
+		zap.L().Error(fmt.Sprintf("Do not have this userID: %d", u.UserID))
+		response.Code = NotExistUserID
+		return
+	}
+	// 去数据库获取详细信息
+	data, err := mysql.GetUserDetail(u.UserID)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Db scan userID %d detail information failed", u.UserID) + err.Error())
+		response.Code = SearchDBError
+		return
+	}
+	response.Data = data
+	response.Code = Success
+	return
 }
 
-// 删除用户
-func (u *UserService) DeleteUser() {
-
+// DeleteUser 删除用户
+func (u *UserService) DeleteUser() (response models.DeleteUserResponse) {
+	// 检验是否有这个用户ID
+	var UserIDCount int64
+	err := mysql.CheckUserID(u.UserID, &UserIDCount)
+	if err != nil {
+		response.Code = SearchDBError
+		zap.L().Error("SearchDBError" + err.Error())
+		return
+	}
+	if UserIDCount == 0 {
+		zap.L().Error(fmt.Sprintf("Do not have this userID: %d", u.UserID) + err.Error())
+		response.Code = NotExistUserID
+		return
+	}
+	// 删除用户
+	err = mysql.DeleteUser(u.UserID)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Delete userID %d failed", u.UserID) + err.Error())
+		response.Code = DBDeleteError
+		return
+	}
+	// 删除成功
+	response.Code = Success
+	return
 }
 
-// 更新用户详细信息
-func (u *UserService) UpdateUserDetail() {
+// UpdateUserDetail 更新用户详细信息
+func (u *UserService) UpdateUserDetail() (response models.UpdateUserDetailResponse) {
+	// 检验是否有这个用户ID
+	var UserIDCount int64
+	err := mysql.CheckUserID(u.UserID, &UserIDCount)
+	if err != nil {
+		response.Code = SearchDBError
+		zap.L().Error("SearchDBError" + err.Error())
+		return
+	}
+	if UserIDCount == 0 {
+		zap.L().Error(fmt.Sprintf("Do not have this userID: %d", u.UserID))
+		response.Code = NotExistUserID
+		return
+	}
+	// 更新用户信息
+	if u.Email != "" {
+		//验证码获取及验证
+		code, err := redis.GetVerificationCode(u.Email)
+		// 验证码过期
+		if errors.Is(err, fmt.Errorf("verification code expired")) {
+			response.Code = ExpiredVerCode
+			return
+		}
+		// 验证码错误
+		if code != u.Code {
+			response.Code = ErrorVerCode
+			zap.L().Error(fmt.Sprintf("Error verfiction code %s:%s", u.Email, code) + err.Error())
+			return
+		}
+	}
 
+	if u.Password != "" {
+		// 密码加密
+		u.Password, err = pkg.CryptoPwd(u.Password)
+		if err != nil {
+			response.Code = EncryptPwdError
+			zap.L().Error("encrypt pwd error " + err.Error())
+			return
+		}
+	}
+	err = mysql.UpdateUserDetail(u.UserID, u.Email, u.Password)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Db update userID %d failed", u.UserID) + err.Error())
+		response.Code = SearchDBError
+		return
+	}
+	response.Code = Success
+	return
 }
 
-// 发送验证码接口
+// SendCode 发送验证码接口
 func SendCode(userEmail string) (resCode int) {
 	// 验证邮箱是否合法
 	if !pkg.ValidateEmail(userEmail) {

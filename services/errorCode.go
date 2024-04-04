@@ -8,6 +8,7 @@ const (
 	ErrorVerCode
 	ExpiredVerCode
 	NotExistUsername
+	NotExistUserID
 	ErrorPwd
 	UpdateLoginDataError
 )
@@ -17,6 +18,7 @@ const (
 	Success = 5000 + iota
 	SearchDBError
 	DBSaveError
+	DBDeleteError
 	GenerateNodeError
 	EncryptPwdError
 	InsertNewUserError

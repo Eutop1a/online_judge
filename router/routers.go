@@ -21,12 +21,12 @@ func SetUp(mode string) *gin.Engine {
 	api := r.Group("/api/v1")
 	{
 		// 用户相关
-		api.POST("/register", controller.Register)      // 注册
-		api.POST("/login", controller.Login)            // 登录
-		api.GET("/users/:id", controller.GetUserDetail) // 获取用户信息
-		api.DELETE("/users/:id", controller.DeleteUser) // 删除用户
-		api.PUT("/users", controller.UpdateUserDetail)  // 更新用户信息
-		api.POST("/sendCode", controller.SendCode)      // 发送验证码
+		api.POST("/register", controller.Register)              // 注册
+		api.POST("/login", controller.Login)                    // 登录
+		api.GET("/users/:user_id", controller.GetUserDetail)    // 获取用户信息
+		api.DELETE("/users/:user_id", controller.DeleteUser)    // 删除用户
+		api.PUT("/users/:user_id", controller.UpdateUserDetail) // 更新用户信息
+		api.POST("/sendCode", controller.SendCode)              // 发送验证码
 
 		// 题目相关
 		api.GET("/problems", controller.GetProblems)          // 获取题目列表

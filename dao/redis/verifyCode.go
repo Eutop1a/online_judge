@@ -2,7 +2,7 @@ package redis
 
 import (
 	"fmt"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"strconv"
 	"strings"
@@ -15,20 +15,20 @@ var (
 	Expired     int64 = 60000 //过期时间。单位：秒
 )
 
-// 存储验证码到Redis并设置过期时间
+// StoreVerificationCode 存储验证码到Redis并设置过期时间
 func StoreVerificationCode(email, code string, timestamp int64) error {
 	// 将时间戳转换为字符串
 	tsStr := strconv.FormatInt(timestamp, 10)
 
 	// 使用事务进行操作
-	_, err := Client.TxPipelined(func(pipe redis.Pipeliner) error {
+	_, err := Client.TxPipelined(Ctx, func(pipe redis.Pipeliner) error {
 		// 将验证码数据存储到哈希表中
-		if err := pipe.HSet("VerificationDataMap", email, code+"_"+tsStr).Err(); err != nil {
+		if err := pipe.HSet(Ctx, "VerificationDataMap", email, code+"_"+tsStr).Err(); err != nil {
 			return err
 		}
 
 		// 设置过期时间
-		if err := pipe.Expire("VerificationDataMap", time.Duration(Expired)*time.Second).Err(); err != nil {
+		if err := pipe.Expire(Ctx, "VerificationDataMap", time.Duration(Expired)*time.Second).Err(); err != nil {
 			return err
 		}
 
@@ -39,15 +39,15 @@ func StoreVerificationCode(email, code string, timestamp int64) error {
 		return err
 	}
 	// RDB持久化
-	Client.BgSave()
+	Client.BgSave(Ctx)
 
 	return nil
 }
 
-// 从Redis获取验证码
+// GetVerificationCode 从Redis获取验证码
 func GetVerificationCode(email string) (string, error) {
 	// 从哈希表中获取验证码数据
-	result, err := Client.HGet("VerificationDataMap", email).Result()
+	result, err := Client.HGet(Ctx, "VerificationDataMap", email).Result()
 	if err != nil {
 		return "", err
 	}

@@ -63,6 +63,11 @@ func Init(cfg *setting.MySQLConfig) (err error) {
 			fmt.Println("err in AutoMigrate(&models.User{}", err)
 		}
 	}
+	if !DB.Migrator().HasTable(&Admin{}) {
+		if DB.Debug().AutoMigrate(&Admin{}) != nil {
+			fmt.Println("err in AutoMigrate(&models.User{}", err)
+		}
+	}
 
 	if !DB.Migrator().HasTable(&Problems{}) {
 		if DB.Debug().AutoMigrate(&Problems{}) != nil {

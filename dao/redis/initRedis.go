@@ -4,7 +4,7 @@ import (
 	"OnlineJudge/setting"
 	"context"
 	"fmt"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 var (
@@ -20,7 +20,7 @@ func Init(cfg *setting.RedisConfig) (err error) {
 		DB:       cfg.DB,
 		PoolSize: cfg.PoolSize,
 	})
-	_, err = Client.Ping().Result()
+	_, err = Client.Ping(Ctx).Result()
 	return
 }
 
