@@ -1,9 +1,9 @@
 package redis
 
 import (
-	"OnlineJudge/dao/mysql"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -17,7 +17,26 @@ func NewUserCache(client *redis.Client) *UserCache {
 	}
 }
 
-func (u *UserCache) SetUser(user *mysql.User) error {
+type Model struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+// User 用户基本信息
+type User struct {
+	Model
+	UserID           int64     `gorm:"type:bigint;primaryKey;column:userID" json:"user_id"`
+	UserName         string    `gorm:"type:varchar(255);not null;column:userName" json:"user_name"`
+	Password         string    `gorm:"type:varchar(255);not null;column:password" json:"password"`
+	Email            string    `gorm:"type:varchar(255);unique;not null;column:email" json:"email"`
+	RegistrationDate time.Time `gorm:"type:timestamp;not null;column:registrationDate" json:"registration_date"`
+	LastLoginData    time.Time `gorm:"type:timestamp;column:lastLoginData" json:"last_login_data"`
+	//Role             bool      `gorm:"type:boolean;not null;column:role" json:"role"`
+	// true is Admin, false is user
+}
+
+func (u *UserCache) SetUser(user *User) error {
 	redisKey := fmt.Sprintf("user:%d", user.UserID)
 	err := u.redisClient.HMSet(Ctx, redisKey, map[string]interface{}{
 		"UserID":           user.UserID,
@@ -33,7 +52,7 @@ func (u *UserCache) SetUser(user *mysql.User) error {
 	return nil
 }
 
-func (u *UserCache) GetUser(userID int64) (*mysql.User, error) {
+func (u *UserCache) GetUser(userID int64) (*User, error) {
 	redisKey := fmt.Sprintf("user:%d", userID)
 	userInfo, err := u.redisClient.HGetAll(Ctx, redisKey).Result()
 	if err != nil {
@@ -43,7 +62,7 @@ func (u *UserCache) GetUser(userID int64) (*mysql.User, error) {
 	lastLoginData, _ := time.Parse("2006-01-02T15:04:05Z07:00", userInfo["LastLoginData"])
 	// 将从 Redis 中获取到的数据组装成 User 结构
 
-	user := &mysql.User{
+	user := &User{
 		UserID:   userID,
 		UserName: userInfo["UserName"],
 		Password: userInfo["Password"],
@@ -54,7 +73,7 @@ func (u *UserCache) GetUser(userID int64) (*mysql.User, error) {
 	}
 	return user, nil
 }
-func (u *UserCache) UpdateUser(user *mysql.User) error {
+func (u *UserCache) UpdateUser(user *User) error {
 	// 更新用户信息的缓存逻辑
 	redisKey := fmt.Sprintf("user:%d", user.UserID)
 	userInfo := map[string]interface{}{
