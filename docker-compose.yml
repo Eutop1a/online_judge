@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 
 services:
   mysql:
@@ -6,8 +6,10 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: OnlineJudge
     ports:
       - "33061:3306"
+    TZ: Asia/Shanghai
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -16,9 +18,18 @@ services:
     restart: always
     ports:
       - "63790:6379"
+    TZ: Asia/Shanghai
     volumes:
       - redis_data:/data
-
+  onlinejudge:
+    build: .
+    ports:
+      - "65533:65533"
+    TZ: Asia/Shanghai
+    depends_on:
+      - mysql
+      - redis
+    command: ["/app/wait-for-it.sh", "mysql:3306", "--", "/app/wait-for-it.sh", "redis:6379", "--", "./OnlineJudge"]
 volumes:
   mysql_data:
   redis_data:
