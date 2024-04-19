@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "Refactoring",
-        "title": "OnlineJudge",
+        "title": "online-judge",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "Eutop1a",

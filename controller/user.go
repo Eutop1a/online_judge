@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"OnlineJudge/models"
-	"OnlineJudge/pkg"
-	"OnlineJudge/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
+	"online-judge/models"
+	"online-judge/pkg"
+	"online-judge/services"
 	"strconv"
 )
 

@@ -1,6 +1,6 @@
 package controller
 
-import "OnlineJudge/dao/mysql"
+import "online-judge/dao/mysql"
 
 // _RegisterSuccess 注册成功返回结构体
 type _RegisterSuccess struct {

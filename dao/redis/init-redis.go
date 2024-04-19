@@ -1,10 +1,10 @@
 package redis
 
 import (
-	"OnlineJudge/setting"
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"online-judge/setting"
 )
 
 var (

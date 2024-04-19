@@ -1,11 +1,11 @@
 package mysql
 
 import (
-	"OnlineJudge/setting"
 	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"online-judge/setting"
 )
 
 var DB *gorm.DB

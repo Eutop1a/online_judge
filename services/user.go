@@ -1,14 +1,14 @@
 package services
 
 import (
-	"OnlineJudge/dao/mysql"
-	"OnlineJudge/dao/redis"
-	"OnlineJudge/models"
-	"OnlineJudge/pkg"
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"go.uber.org/zap"
+	"online-judge/dao/mysql"
+	"online-judge/dao/redis"
+	"online-judge/models"
+	"online-judge/pkg"
 	"time"
 )
 

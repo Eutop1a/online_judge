@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"OnlineJudge/pkg"
+	"online-judge/pkg"
 	"time"
 )
 

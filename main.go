@@ -1,24 +1,24 @@
 package main
 
 import (
-	"OnlineJudge/dao/mysql"
-	"OnlineJudge/dao/redis"
-	"OnlineJudge/logger"
-	"OnlineJudge/router"
-	"OnlineJudge/setting"
 	"context"
 	"fmt"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"online-judge/dao/mysql"
+	"online-judge/dao/redis"
+	"online-judge/logger"
+	"online-judge/router"
+	"online-judge/setting"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
 
-// @title OnlineJudge
+// @title online-judge
 // @version 1.0
 // @description Refactoring
 // @termsOfService http://swagger.io/terms/

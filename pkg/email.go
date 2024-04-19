@@ -1,13 +1,13 @@
 package pkg
 
 import (
-	"OnlineJudge/dao/redis"
 	"crypto/tls"
 	"fmt"
 	"github.com/jordan-wright/email"
 	"go.uber.org/zap"
 	"math/rand"
 	"net/smtp"
+	"online-judge/dao/redis"
 	"regexp"
 	"strconv"
 	"time"

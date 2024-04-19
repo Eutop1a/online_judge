@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"OnlineJudge/setting"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -10,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"online-judge/setting"
 	"os"
 	"runtime/debug"
 	"strings"

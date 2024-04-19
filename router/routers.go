@@ -1,12 +1,12 @@
 package router
 
 import (
-	"OnlineJudge/controller"
-	_ "OnlineJudge/docs"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
+	"online-judge/controller"
+	_ "online-judge/docs"
 )
 
 func SetUp(mode string) *gin.Engine {
@@ -26,7 +26,7 @@ func SetUp(mode string) *gin.Engine {
 		api.GET("/users/:user_id", controller.GetUserDetail)    // 获取用户信息
 		api.DELETE("/users/:user_id", controller.DeleteUser)    // 删除用户
 		api.PUT("/users/:user_id", controller.UpdateUserDetail) // 更新用户信息
-		api.POST("/sendCode", controller.SendCode)              // 发送验证码
+		api.POST("/send-code", controller.SendCode)             // 发送验证码
 
 		// 题目相关
 		api.GET("/problems", controller.GetProblems)          // 获取题目列表

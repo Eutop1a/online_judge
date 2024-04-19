@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: OnlineJudge
       TZ: Asia/Shanghai
     ports:
-      - "33061:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -20,7 +20,7 @@ services:
     environment:
       TZ: Asia/Shanghai
     ports:
-      - "63790:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
   onlinejudge:

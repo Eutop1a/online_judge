@@ -1,6 +1,6 @@
 package models
 
-import "OnlineJudge/dao/mysql"
+import "online-judge/dao/mysql"
 
 // RegisterResponse 包含注册操作的返回结果
 type RegisterResponse struct {
