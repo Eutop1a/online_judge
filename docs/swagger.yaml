@@ -229,7 +229,7 @@ paths:
           schema:
             $ref: '#/definitions/controller._RegisterError'
       summary: 用户注册
-  /sendCode:
+  /send-code:
     post:
       consumes:
       - multipart/form-data

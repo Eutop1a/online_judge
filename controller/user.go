@@ -276,7 +276,7 @@ Success
 // @Success 200 {object} _SendCodeSuccess "发送验证码成功"
 // @Failure 400 {object} _SendCodeError "邮箱格式错误"
 // @Failure 500 {object} _SendCodeError "服务器内部错误"
-// @Router /sendCode [POST]
+// @Router /send-code [POST]
 func SendCode(c *gin.Context) {
 	userEmail := c.PostForm("email") //从前端获取email信息
 	// 判断email是否合法

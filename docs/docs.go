@@ -166,7 +166,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sendCode": {
+        "/send-code": {
             "post": {
                 "description": "发送验证码接口",
                 "consumes": [

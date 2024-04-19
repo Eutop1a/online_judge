@@ -1,8 +1,8 @@
 module online-judge
 
-go 1.21
+go 1.22
 
-toolchain go1.21.0
+toolchain go1.22.0
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
