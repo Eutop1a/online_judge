@@ -5,6 +5,7 @@
 *.so
 *.dylib
 OnlineJudge
+online-judge
 
 
 # Test binary, built with `go test -c`
