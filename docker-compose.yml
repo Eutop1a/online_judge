@@ -7,25 +7,28 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: OnlineJudge
+      TZ: Asia/Shanghai
     ports:
       - "33061:3306"
-    TZ: Asia/Shanghai
     volumes:
       - mysql_data:/var/lib/mysql
+
 
   redis:
     image: redis:latest
     restart: always
+    environment:
+      TZ: Asia/Shanghai
     ports:
       - "63790:6379"
-    TZ: Asia/Shanghai
     volumes:
       - redis_data:/data
   onlinejudge:
     build: .
+    environment:
+      TZ: Asia/Shanghai
     ports:
       - "65533:65533"
-    TZ: Asia/Shanghai
     depends_on:
       - mysql
       - redis

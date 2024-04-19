@@ -22,7 +22,7 @@ RUN go mod download && go mod tidy
 COPY . .
 
 # 编译项目
-RUN chmod 777 ./wait-for-it.sh && swag init --parseDependency --parseInternal && go build -o OnlineJudge main.go
+RUN chmod 777 ./wait-for-it.sh && go build -o OnlineJudge main.go
 
 # 基于 centos 官方镜像
 FROM centos:latest
@@ -45,5 +45,5 @@ COPY --from=builder /app/wait-for-it.sh /app/wait-for-it.sh
 EXPOSE 65533
 
 # 启动你的应用程序
-CMD ["./OnlineJudge"]
+#CMD ["./OnlineJudge"]
 
