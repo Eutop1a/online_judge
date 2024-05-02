@@ -1,4 +1,4 @@
-package models
+package resp
 
 import "online-judge/dao/mysql"
 

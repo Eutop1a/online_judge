@@ -1,55 +1,124 @@
 package controller
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"online-judge/pkg"
+	"online-judge/pkg/resp"
+	"online-judge/services"
+	"strconv"
 )
 
-// GetProblems 获取题目列表
-func GetProblems(c *gin.Context) {
+// GetProblemList 获取题目列表
+func GetProblemList(c *gin.Context) {
+	var getProblemList services.Problem
+	getProblemList.GetProblemList()
 
 }
 
-// GetProblem 获取单个题目详细
-func GetProblem(c *gin.Context) {
+// GetProblemDetail 获取单个题目详细
+func GetProblemDetail(c *gin.Context) {
+	var getProblemDetail services.Problem
+	getProblemDetail.GetProblemDetail()
 
 }
 
-// CreateProblem 创建新题目
+// CreateProblem 创建新题目接口
+// @Summary 创建新题目
+// @Description 创建新题目接口
+// @Accept multipart/form-data
+// @Produce json,multipart/form-data
+// @Param title formData string true "题目标题"
+// @Param content formData string true "题目内容"
+// @Param difficulty formData string true "题目难度"
+// @Param max_runtime formData int true "时间限制"
+// @Param max_memory formData int true "内存限制"
+// @Param test_cases formData []string true "测试样例集" collectionFormat(multi)
+// @Success 200 {object} _Response "创建成功"
+// @Failure 200 {object} _Response "参数错误"
+// @Failure 200 {object} _Response "服务器内部错误"
+// @Router /problem-create [POST]
 func CreateProblem(c *gin.Context) {
-	//var problem Problems
-	//if err := c.ShouldBindJSON(&problem); err != nil {
+	var createProblem services.Problem
+	//if err := c.ShouldBindJSON(&createProblem); err != nil {
 	//	// 处理绑定问题数据失败的情况
-	//	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	//	zap.L().Error("controller-ShouldBindJSON error " + err.Error())
+	//	resp.ResponseError(c, resp.CodeInvalidParam)
 	//	return
 	//}
-	//
-	//// 在数据库中创建题目
-	//if err := mysql.Create(&problem).Error; err != nil {
-	//	// 处理创建题目失败的情况
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create problem"})
-	//	return
-	//}
-	//
-	//// 创建测试用例
-	//for _, testCase := range problem.TestCases {
-	//	testCase.PID = problem.ProblemID // 设置测试用例的题目ID为新创建的题目的ID
-	//	if err := db.Create(&testCase).Error; err != nil {
-	//		// 处理创建测试用例失败的情况
-	//		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create test cases"})
-	//		return
-	//	}
-	//}
-	//
-	//// 返回成功的响应
-	//c.JSON(http.StatusOK, problem)
+	title := c.PostForm("title")
+	content := c.PostForm("content")
+	difficulty := c.PostForm("difficulty")
+	maxRuntime, _ := strconv.Atoi(c.PostForm("max_runtime"))
+	maxMemory, _ := strconv.Atoi(c.PostForm("max_memory"))
+
+	testCase := c.PostFormArray("test_cases")
+	//fmt.Println(title)
+	//fmt.Println(content)
+	//fmt.Println(difficulty)
+	//fmt.Println(maxRuntime)
+	//fmt.Println(maxMemory)
+	//fmt.Println(testCase)
+	createProblem.ProblemID = pkg.GetUUID()
+	createProblem.Content = content
+	createProblem.Difficulty = difficulty
+	createProblem.Title = title
+	createProblem.MaxRuntime = maxRuntime
+	createProblem.MaxMemory = maxMemory
+
+	tCase := make([]*services.TestCase, 0)
+	for _, value := range testCase {
+		//fmt.Println("value:", value)
+		caseMap := make(map[string]string)
+		err := json.Unmarshal([]byte(value), &caseMap)
+		//fmt.Println("caseMap:", caseMap)
+		// 检测Map某个键是否存在
+		_, iok := caseMap["input"]
+		_, ook := caseMap["expected"]
+		if err != nil || !iok || !ook {
+			resp.ResponseError(c, resp.CodeTestCaseFormatError)
+			if err != nil {
+				zap.L().Error("caseMap unmarshal error " + err.Error())
+			}
+			return
+		}
+		tCase = append(tCase, &services.TestCase{
+			// PID
+			PID:      pkg.GetUUID(),
+			Input:    caseMap["input"],
+			Expected: caseMap["expected"],
+		})
+	}
+	createProblem.TestCases = tCase
+
+	response := createProblem.CreateProblem()
+	switch response.Code {
+	case resp.Success:
+		resp.ResponseSuccess(c, resp.CodeSuccess)
+
+	case resp.ProblemAlreadyExist:
+		resp.ResponseError(c, resp.CodeProblemExist)
+
+	case resp.CreateProblemError:
+		resp.ResponseError(c, resp.CodeInternalServerError)
+
+	default:
+		resp.ResponseError(c, resp.CodeInternalServerError)
+	}
+
 }
 
 // UpdateProblem 更新题目信息
 func UpdateProblem(c *gin.Context) {
+	var updateProblem services.Problem
+	updateProblem.UpdateProblem()
 
 }
 
 // DeleteProblem 删除题目
 func DeleteProblem(c *gin.Context) {
+	var deleteProblem services.Problem
+	deleteProblem.DeleteProblem()
 
 }

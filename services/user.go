@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
-	"online-judge/models"
 	"online-judge/pkg"
 	"online-judge/pkg/jwt"
 	my_captcha "online-judge/pkg/my-captcha"
@@ -16,19 +15,17 @@ import (
 )
 
 type UserService struct {
-	UserID           int64     `form:"user_id" json:"user_id"`
-	UserName         string    `form:"user_name" json:"user_name" validate:"required"`
-	Password         string    `form:"password" json:"password" validate:"required"`
-	Email            string    `form:"email" json:"email" validate:"required"`
-	Code             string    `form:"code" json:"code" validate:"required"`
-	RegistrationDate time.Time `form:"registration_date" json:"registration_date"`
-	LastLoginData    time.Time `form:"last_login_data" json:"last_login_data"`
+	UserID   int64  `form:"user_id" json:"user_id"`
+	UserName string `form:"user_name" json:"user_name" validate:"required"`
+	Password string `form:"password" json:"password" validate:"required"`
+	Email    string `form:"email" json:"email" validate:"required"`
+	Code     string `form:"code" json:"code" validate:"required"`
 	//Role             bool      `form:"role" json:"role"`
 	// true is Admin, false is user
 }
 
 // Register 用户注册服务
-func (u *UserService) Register() (response models.RegisterResponse) {
+func (u *UserService) Register() (response resp.RegisterResponse) {
 
 	// 检查数据库中是否已经有这个email
 	var countEmail, countUsername int64
@@ -80,9 +77,6 @@ func (u *UserService) Register() (response models.RegisterResponse) {
 		return
 	}
 
-	u.LastLoginData = time.Now()
-	u.RegistrationDate = time.Now()
-
 	// 生成唯一的ID
 	node, err := snowflake.NewNode(1)
 	if err != nil {
@@ -104,10 +98,8 @@ func (u *UserService) Register() (response models.RegisterResponse) {
 	userName := u.UserName
 	passWord := u.Password
 	email := u.Email
-	registrationDate := u.RegistrationDate
-	lastLoginData := u.LastLoginData
 	// 插入数据库
-	if err = mysql.InsertNewUser(uID, userName, passWord, email, registrationDate, lastLoginData); err != nil {
+	if err = mysql.InsertNewUser(uID, userName, passWord, email); err != nil {
 		response.Code = resp.InsertNewUserError
 		zap.L().Error("services-" + fmt.Sprintf("insert new user %s error", u.UserName) + err.Error())
 		return
@@ -126,7 +118,7 @@ func (u *UserService) Register() (response models.RegisterResponse) {
 }
 
 // Login 用户登录服务
-func (u *UserService) Login() (response models.RegisterResponse) {
+func (u *UserService) Login() (response resp.RegisterResponse) {
 	//验证码获取及验证
 	code, err := redis.GetVerificationCode(u.Email)
 	// 验证码过期
@@ -167,27 +159,10 @@ func (u *UserService) Login() (response models.RegisterResponse) {
 		zap.L().Error("services-Password error")
 		return
 	}
-	u.LastLoginData = time.Now()
-	T, err := mysql.UpdateLoginData(u.UserName, u.LastLoginData)
-	if err != nil {
-		if T == 0 {
-			response.Code = resp.SearchDBError
-			zap.L().Error("services-Find user error: " + err.Error())
-			return
-		} else if T == -1 {
-			response.Code = resp.DBSaveError
-			zap.L().Error("services-Save to DB: " + err.Error())
-			return
-		}
-	}
 	// 成功返回
 	// 生成token
 	token := jwt.GenerateToken(u.UserName)
-	if err != nil {
-		response.Code = resp.GenerateTokenError
-		zap.L().Error("services-generate token error" + err.Error())
-		return
-	}
+
 	// 设置响应的状态码和 token
 	response.Code = resp.Success
 	response.Token = token
@@ -195,7 +170,7 @@ func (u *UserService) Login() (response models.RegisterResponse) {
 }
 
 // GetUserDetail 获取用户详细信息
-func (u *UserService) GetUserDetail() (response models.GetDetailResponse) {
+func (u *UserService) GetUserDetail() (response resp.GetDetailResponse) {
 	// 检验是否有这个用户ID
 	var UserIDCount int64
 	err := mysql.CheckUserID(u.UserID, &UserIDCount)
@@ -222,7 +197,7 @@ func (u *UserService) GetUserDetail() (response models.GetDetailResponse) {
 }
 
 // DeleteUser 删除用户
-func (u *UserService) DeleteUser() (response models.DeleteUserResponse) {
+func (u *UserService) DeleteUser() (response resp.DeleteUserResponse) {
 	// 检验是否有这个用户ID
 	var UserIDCount int64
 	err := mysql.CheckUserID(u.UserID, &UserIDCount)
@@ -249,7 +224,7 @@ func (u *UserService) DeleteUser() (response models.DeleteUserResponse) {
 }
 
 // UpdateUserDetail 更新用户详细信息
-func (u *UserService) UpdateUserDetail() (response models.UpdateUserDetailResponse) {
+func (u *UserService) UpdateUserDetail() (response resp.UpdateUserDetailResponse) {
 	// 检验是否有这个用户ID
 	var UserIDCount int64
 	err := mysql.CheckUserID(u.UserID, &UserIDCount)

@@ -111,6 +111,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/problem-create": {
+            "post": {
+                "description": "创建新题目接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "summary": "创建新题目",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "题目标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目内容",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目难度",
+                        "name": "difficulty",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "时间限制",
+                        "name": "max_runtime",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "内存限制",
+                        "name": "max_memory",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "测试样例集",
+                        "name": "test_cases",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "用户注册接口",

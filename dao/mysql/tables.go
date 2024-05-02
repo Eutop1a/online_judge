@@ -14,12 +14,12 @@ type Model struct {
 // User 用户基本信息
 type User struct {
 	Model
-	UserID           int64     `gorm:"type:bigint;primaryKey;column:userID" json:"user_id"`
-	UserName         string    `gorm:"type:varchar(255);not null;column:userName" json:"user_name"`
-	Password         string    `gorm:"type:varchar(255);not null;column:password" json:"password"`
-	Email            string    `gorm:"type:varchar(255);unique;not null;column:email" json:"email"`
-	RegistrationDate time.Time `gorm:"type:timestamp;not null;column:registrationDate" json:"registration_date"`
-	LastLoginData    time.Time `gorm:"type:timestamp;column:lastLoginData" json:"last_login_data"`
+	UserID           int64  `gorm:"type:bigint;primaryKey;column:userID" json:"user_id"`
+	FinishProblemNum int64  `gorm:"column:passNum;type:int(11);default:0" json:"finishNum"`
+	UserName         string `gorm:"type:varchar(255);not null;column:userName" json:"user_name"`
+	Password         string `gorm:"type:varchar(255);not null;column:password" json:"password"`
+	Email            string `gorm:"type:varchar(255);unique;not null;column:email" json:"email"`
+
 	//Role             bool      `gorm:"type:boolean;not null;column:role" json:"role"`
 	// true is Admin, false is user
 }
@@ -33,15 +33,22 @@ type Admin struct {
 // Problems 题目信息
 type Problems struct {
 	Model
-	ProblemID  int64       `gorm:"type:bigint;primaryKey;column:problemID" json:"problem_id"` // primary key
-	MaxRuntime int64       `gorm:"type:bigint;not null;column:maxRuntime" json:"max_runtime"` // 时间限制
-	MaxMemory  int64       `gorm:"type:bigint;not null;column:maxMemory" json:"max_memory"`   // 内存限制
-	Title      string      `gorm:"type:varchar(255);not null;column:title" json:"title"`      // problem title
-	Content    string      `gorm:"type:text;not null;column:content" json:"content"`          // problem description
-	Difficulty string      `gorm:"type:char(4);not null；column:difficulty" json:"difficulty"` // easy mid hard
-	PassNum    int         `gorm:"type:int;default:0;column:passNum" json:"pass_num"`         // 通过测试样例数
-	SubmitNum  int         `gorm:"type:int;default:0;column:submitNum" json:"submit_num"`     // 提交数
-	TestCases  []*TestCase `gorm:"foreignKey:PID;references:ProblemID" json:"test_cases"`     // 测试样例集
+	ProblemID  string `gorm:"type:char(36);primaryKey;column:problemID" json:"problem_id"` // primary key
+	Title      string `gorm:"type:varchar(255);not null;column:title" json:"title"`        // problem title
+	Content    string `gorm:"type:text;not null;column:content" json:"content"`            // problem description
+	Difficulty string `gorm:"type:char(4);not null;column:difficulty" json:"difficulty"`   // easy mid hard
+	MaxRuntime int    `gorm:"type:bigint;not null;column:maxRuntime" json:"max_runtime"`   // 时间限制
+	MaxMemory  int    `gorm:"type:bigint;not null;column:maxMemory" json:"max_memory"`     // 内存限制
+
+	TestCases []*TestCase `gorm:"foreignKey:PID" json:"test_cases"` // 测试样例集
+}
+
+// TestCase 测试样例
+type TestCase struct {
+	Model
+	PID      string `gorm:"type:char(36);not null;column:PID" json:"PID"` // 对应的题目ID
+	Input    string `gorm:"type:text;column:input" json:"input"`          // 输入
+	Expected string `gorm:"type:text;column:expected" json:"expected"`    // 期望输出
 }
 
 // Submission 提交记录
@@ -70,14 +77,6 @@ type ProgrammingLanguage struct {
 	Model
 	Language string `gorm:"type:varchar(10);not null;primaryKey;column:language" json:"language"` // 语言名称
 	Version  string `gorm:"type:varchar(20);not null;column:version" json:"version"`              // 语言版本
-}
-
-// TestCase 测试样例
-type TestCase struct {
-	Model
-	PID      int64  `gorm:"type:bigint;not null;column:PID" json:"PID"` // 对应的题目ID
-	Input    string `gorm:"type:text;column:input" json:"input"`        // 输入
-	Expected string `gorm:"type:text;column:expected" json:"expected"`  // 期望输出
 }
 
 // SubmissionResult 测试样例集

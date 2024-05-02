@@ -20,6 +20,9 @@ const (
 	CodeInvalidateEmailFormat
 	CodeGeneratePicError
 	CodePictureError
+
+	CodeTestCaseFormatError
+	CodeProblemExist
 )
 
 // 客户端请求错误
@@ -33,6 +36,7 @@ const (
 	NotExistUserID
 	ErrorPwd
 	UpdateLoginDataError
+	ProblemAlreadyExist
 )
 
 // 服务端请求错误
@@ -47,6 +51,7 @@ const (
 	GenerateTokenError
 	SendCodeError
 	StoreVerCodeError
+	CreateProblemError
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -65,6 +70,8 @@ var codeMsgMap = map[ResCode]string{
 	CodeInvalidateEmailFormat: "邮箱格式错误",
 	CodeGeneratePicError:      "生成图片验证码失败",
 	CodePictureError:          "图片验证码错误",
+	CodeTestCaseFormatError:   "测试用例格式错误",
+	CodeProblemExist:          "该题目已存在",
 }
 
 func (c ResCode) Msg() string {

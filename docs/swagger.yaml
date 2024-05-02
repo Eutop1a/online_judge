@@ -80,6 +80,54 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 用户登录
+  /problem-create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 创建新题目接口
+      parameters:
+      - description: 题目标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 题目内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: 题目难度
+        in: formData
+        name: difficulty
+        required: true
+        type: string
+      - description: 时间限制
+        in: formData
+        name: max_runtime
+        required: true
+        type: integer
+      - description: 内存限制
+        in: formData
+        name: max_memory
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: 测试样例集
+        in: formData
+        items:
+          type: string
+        name: test_cases
+        required: true
+        type: array
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 创建新题目
   /register:
     post:
       consumes:

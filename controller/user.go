@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"online-judge/models"
 	"online-judge/pkg"
 	"online-judge/pkg/resp"
 	"online-judge/services"
@@ -46,7 +45,7 @@ func Register(c *gin.Context) {
 	//fmt.Println("email", newUser.Email)
 	//fmt.Println("code", newUser.Code)
 
-	var ret models.RegisterResponse
+	var ret resp.RegisterResponse
 	ret = newUser.Register()
 	switch ret.Code {
 
@@ -108,7 +107,7 @@ func Login(c *gin.Context) {
 	//fmt.Println("email", login.Email)
 	//fmt.Println("code", login.Code)
 
-	var ret models.RegisterResponse
+	var ret resp.RegisterResponse
 	ret = login.Login()
 	//fmt.Println("ret.Code = ", ret.Code)
 	switch ret.Code {
@@ -148,7 +147,7 @@ func Login(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param user_id query string true "用户ID"
-// @Success 200 {object} _Response "获取成功"
+// @Success 200 {object} _Response "获取用户信息成功"
 // @Failure 200 {object} _Response "参数错误"
 // @Failure 200 {object} _Response "没有此用户ID"
 // @Failure 200 {object} _Response "服务器内部错误"
@@ -162,7 +161,7 @@ func GetUserDetail(c *gin.Context) {
 		return
 	}
 	getDetail.UserID, _ = strconv.ParseInt(uid, 10, 64)
-	var ret models.GetDetailResponse
+	var ret resp.GetDetailResponse
 	ret = getDetail.GetUserDetail()
 
 	switch ret.Code {
@@ -189,7 +188,7 @@ func GetUserDetail(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param user_id query string true "用户ID"
-// @Success 200 {object} _Response "获取成功"
+// @Success 200 {object} _Response "删除用户成功"
 // @Failure 200 {object} _Response "参数错误"
 // @Failure 200 {object} _Response "没有此用户ID"
 // @Failure 200 {object} _Response "服务器内部错误"
@@ -203,7 +202,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 	deleteUser.UserID, _ = strconv.ParseInt(uid, 10, 64)
-	var ret models.DeleteUserResponse
+	var ret resp.DeleteUserResponse
 	ret = deleteUser.DeleteUser()
 
 	switch ret.Code {
@@ -232,7 +231,7 @@ func DeleteUser(c *gin.Context) {
 // @Param user_id formData string true "用户ID"
 // @Param password formData string false "用户密码"
 // @Param email formData string false "用户邮箱"
-// @Success 200 {object} _Response "获取成功"
+// @Success 200 {object} _Response "更新用户信息成功"
 // @Failure 200 {object} _Response "参数错误"
 // @Failure 200 {object} _Response "没有此用户ID or 验证码错误"
 // @Failure 200 {object} _Response "服务器内部错误"
@@ -244,7 +243,7 @@ func UpdateUserDetail(c *gin.Context) {
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
-	var ret models.UpdateUserDetailResponse
+	var ret resp.UpdateUserDetailResponse
 	ret = update.UpdateUserDetail()
 
 	switch ret.Code {

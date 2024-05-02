@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"online-judge/pkg"
-	"time"
 )
 
 // CheckEmail 检查是否有这个邮箱
@@ -24,27 +23,15 @@ func CheckUserID(UID int64, countUsername *int64) error {
 }
 
 // InsertNewUser 插入用户
-func InsertNewUser(uID int64, Username, password, email string, regData, loginData time.Time) error {
-	formattedRegData, err := time.Parse("2006-01-02T15:04:05Z07:00", regData.Format("2006-01-02T15:04:05Z07:00"))
-	if err != nil {
-		return err
-	}
-
-	formattedLoginData, err := time.Parse("2006-01-02T15:04:05Z07:00", loginData.Format("2006-01-02T15:04:05Z07:00"))
-	if err != nil {
-		return err
-	}
-
+func InsertNewUser(uID int64, Username, password, email string) error {
 	newUser := User{
-		UserID:           uID,
-		UserName:         Username,
-		Password:         password,
-		Email:            email,
-		RegistrationDate: formattedRegData,
-		LastLoginData:    formattedLoginData,
+		UserID:   uID,
+		UserName: Username,
+		Password: password,
+		Email:    email,
 	}
 
-	err = DB.Create(&newUser).Error
+	err := DB.Create(&newUser).Error
 	return err
 }
 
@@ -61,23 +48,6 @@ func CheckPwd(username, pwd string) (bool, error) {
 	} else {
 		return true, nil
 	}
-}
-
-// UpdateLoginData 更新最后登录时间
-func UpdateLoginData(username string, lastLoginTime time.Time) (T int, err error) {
-	var updateTmp User
-	if err = DB.Model(&User{}).First(&updateTmp).Where("userName=?", username).Error; err != nil {
-		return 0, err
-	}
-	// 将时间转换为 ISO 8601 格式的字符串
-	formattedTime := lastLoginTime.Format("2006-01-02T15:04:05Z07:00")
-
-	if err = DB.Model(&User{}).Where("userName=?", username).
-		Update("LastLoginData", formattedTime).Error; err != nil {
-		return -1, err
-	}
-
-	return 1, nil
 }
 
 // GetUserDetail 获取用户详细信息
