@@ -48,7 +48,7 @@ type RedisConfig struct {
 }
 
 func Init() (err error) {
-	viper.SetConfigFile("./conf/config-docker.yaml")
+	viper.SetConfigFile("./conf/config.yaml")
 
 	err = viper.ReadInConfig() // 读取配置信息
 	if err != nil {

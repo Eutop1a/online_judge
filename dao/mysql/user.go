@@ -106,3 +106,12 @@ func UpdateUserDetail(UID int64, email, pwd string) (err error) {
 	err = DB.Model(&User{}).Where("userID=?", UID).Updates(updateData).Error
 	return
 }
+
+func GetUserID(username string) (uid int64, err error) {
+	var user User
+	err = DB.Take(&user, "userName=?", username).Error
+	if err != nil {
+		return 0, err
+	}
+	return user.UserID, nil
+}

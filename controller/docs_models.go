@@ -63,3 +63,9 @@ type _UpdateUserDetailSuccess struct {
 type _UpdateUserDetailError struct {
 	Error string `json:"error" example:"update user information error" format:"string"`
 }
+
+type _Response struct {
+	Code int         `json:"code"`
+	Msg  interface{} `json:"msg"`
+	Data interface{} `json:"data"` // omitempty 字段为空就忽略
+}
