@@ -180,6 +180,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/problem-list": {
+            "get": {
+                "description": "获取题目列表接口",
+                "summary": "获取题目列表",
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/{problem_id}": {
+            "get": {
+                "description": "获取单个题目详细接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "summary": "获取单个题目详细",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "用户注册接口",
@@ -372,6 +416,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "用户邮箱",
                         "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "邮箱验证码",
+                        "name": "code",
                         "in": "formData"
                     }
                 ],

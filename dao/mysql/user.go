@@ -12,13 +12,13 @@ func CheckEmail(email string, countEmail *int64) error {
 
 // CheckUsername 检查是否有这个用户名
 func CheckUsername(username string, countUsername *int64) error {
-	err := DB.Model(&User{}).Where("userName=?", username).Count(countUsername).Error
+	err := DB.Model(&User{}).Where("username=?", username).Count(countUsername).Error
 	return err
 }
 
 // CheckUserID 检查是否有这个用户ID
 func CheckUserID(UID int64, countUsername *int64) error {
-	err := DB.Model(&User{}).Where("userID=?", UID).Count(countUsername).Error
+	err := DB.Model(&User{}).Where("user_id=?", UID).Count(countUsername).Error
 	return err
 }
 
@@ -38,7 +38,7 @@ func InsertNewUser(uID int64, Username, password, email string) error {
 // CheckPwd 检查密码是否正确
 func CheckPwd(username, pwd string) (bool, error) {
 	var checkTmp User
-	err := DB.Model(&User{}).First(&checkTmp).Where("userName=?", username).Error
+	err := DB.Model(&User{}).First(&checkTmp).Where("username=?", username).Error
 	if err != nil {
 		return false, err
 	}
@@ -52,8 +52,8 @@ func CheckPwd(username, pwd string) (bool, error) {
 
 // GetUserDetail 获取用户详细信息
 func GetUserDetail(UID int64) (data User, err error) {
-	err = DB.Model(&User{}).Select("userID, userName, email, registrationDate, lastLoginData").
-		First(&data).Where("userID=?", UID).Error
+	err = DB.Model(&User{}).Select("user_id, username, email").
+		First(&data).Where("user_id=?", UID).Error
 	return
 }
 
@@ -73,13 +73,13 @@ func UpdateUserDetail(UID int64, email, pwd string) (err error) {
 		updateData["password"] = pwd
 	}
 
-	err = DB.Model(&User{}).Where("userID=?", UID).Updates(updateData).Error
+	err = DB.Model(&User{}).Where("user_id=?", UID).Updates(updateData).Error
 	return
 }
 
 func GetUserID(username string) (uid int64, err error) {
 	var user User
-	err = DB.Take(&user, "userName=?", username).Error
+	err = DB.Take(&user, "username=?", username).Error
 	if err != nil {
 		return 0, err
 	}

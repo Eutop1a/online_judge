@@ -16,7 +16,7 @@ import (
 
 type UserService struct {
 	UserID   int64  `form:"user_id" json:"user_id"`
-	UserName string `form:"user_name" json:"user_name" validate:"required"`
+	UserName string `form:"username" json:"username" validate:"required"`
 	Password string `form:"password" json:"password" validate:"required"`
 	Email    string `form:"email" json:"email" validate:"required"`
 	Code     string `form:"code" json:"code" validate:"required"`
@@ -34,7 +34,7 @@ func (u *UserService) Register() (response resp.RegisterResponse) {
 	switch {
 	case err != nil:
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	case countEmail > 0:
 		response.Code = resp.EmailAlreadyExist
@@ -47,7 +47,7 @@ func (u *UserService) Register() (response resp.RegisterResponse) {
 	switch {
 	case err != nil:
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	case countUsername > 0:
 		response.Code = resp.UsernameAlreadyExist
@@ -81,7 +81,7 @@ func (u *UserService) Register() (response resp.RegisterResponse) {
 	node, err := snowflake.NewNode(1)
 	if err != nil {
 		response.Code = resp.GenerateNodeError
-		zap.L().Error("services-generate new node error" + err.Error())
+		zap.L().Error("services-generate new node error", zap.Error(err))
 		return
 	}
 
@@ -90,7 +90,7 @@ func (u *UserService) Register() (response resp.RegisterResponse) {
 	u.Password, err = pkg.CryptoPwd(u.Password)
 	if err != nil {
 		response.Code = resp.EncryptPwdError
-		zap.L().Error("services-encrypt pwd error " + err.Error())
+		zap.L().Error("services-encrypt pwd error ", zap.Error(err))
 		return
 	}
 
@@ -101,7 +101,7 @@ func (u *UserService) Register() (response resp.RegisterResponse) {
 	// 插入数据库
 	if err = mysql.InsertNewUser(uID, userName, passWord, email); err != nil {
 		response.Code = resp.InsertNewUserError
-		zap.L().Error("services-" + fmt.Sprintf("insert new user %s error", u.UserName) + err.Error())
+		zap.L().Error("services-"+fmt.Sprintf("insert new user %s error", u.UserName), zap.Error(err))
 		return
 	}
 	// 生成token
@@ -137,7 +137,7 @@ func (u *UserService) Login() (response resp.RegisterResponse) {
 	err = mysql.CheckUsername(u.UserName, &UserNameCount)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	}
 	if UserNameCount == 0 {
@@ -150,7 +150,7 @@ func (u *UserService) Login() (response resp.RegisterResponse) {
 	ok, err := mysql.CheckPwd(u.UserName, u.Password)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-Search DB error: " + err.Error())
+		zap.L().Error("services-Search DB error: ", zap.Error(err))
 		return
 	}
 	// 密码错误
@@ -176,7 +176,7 @@ func (u *UserService) GetUserDetail() (response resp.GetDetailResponse) {
 	err := mysql.CheckUserID(u.UserID, &UserIDCount)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	}
 	if UserIDCount == 0 {
@@ -187,7 +187,7 @@ func (u *UserService) GetUserDetail() (response resp.GetDetailResponse) {
 	// 去数据库获取详细信息
 	data, err := mysql.GetUserDetail(u.UserID)
 	if err != nil {
-		zap.L().Error("services-" + fmt.Sprintf("Db scan userID %d detail information failed", u.UserID) + err.Error())
+		zap.L().Error("services-"+fmt.Sprintf("Db scan userID %d detail information failed", u.UserID), zap.Error(err))
 		response.Code = resp.SearchDBError
 		return
 	}
@@ -203,18 +203,18 @@ func (u *UserService) DeleteUser() (response resp.DeleteUserResponse) {
 	err := mysql.CheckUserID(u.UserID, &UserIDCount)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	}
 	if UserIDCount == 0 {
-		zap.L().Error("services-" + fmt.Sprintf("Do not have this userID: %d", u.UserID) + err.Error())
+		zap.L().Error("services-"+fmt.Sprintf("Do not have this userID: %d", u.UserID), zap.Error(err))
 		response.Code = resp.NotExistUserID
 		return
 	}
 	// 删除用户
 	err = mysql.DeleteUser(u.UserID)
 	if err != nil {
-		zap.L().Error("services-" + fmt.Sprintf("Delete userID %d failed", u.UserID) + err.Error())
+		zap.L().Error("services-"+fmt.Sprintf("Delete userID %d failed", u.UserID), zap.Error(err))
 		response.Code = resp.DBDeleteError
 		return
 	}
@@ -230,11 +230,11 @@ func (u *UserService) UpdateUserDetail() (response resp.UpdateUserDetailResponse
 	err := mysql.CheckUserID(u.UserID, &UserIDCount)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	}
 	if UserIDCount == 0 {
-		zap.L().Error("services-" + fmt.Sprintf("Do not have this userID: %d", u.UserID))
+		zap.L().Error("services-" + fmt.Sprintf("Do not have this user_id: %d", u.UserID))
 		response.Code = resp.NotExistUserID
 		return
 	}
@@ -250,7 +250,7 @@ func (u *UserService) UpdateUserDetail() (response resp.UpdateUserDetailResponse
 		// 验证码错误
 		if code != u.Code {
 			response.Code = resp.ErrorVerCode
-			zap.L().Error("services-" + fmt.Sprintf("Error verfiction code %s:%s", u.Email, code) + err.Error())
+			zap.L().Error("services-"+fmt.Sprintf("Error verfiction code %s:%s", u.Email, code), zap.Error(err))
 			return
 		}
 	}
@@ -260,13 +260,13 @@ func (u *UserService) UpdateUserDetail() (response resp.UpdateUserDetailResponse
 		u.Password, err = pkg.CryptoPwd(u.Password)
 		if err != nil {
 			response.Code = resp.EncryptPwdError
-			zap.L().Error("services-encrypt pwd error " + err.Error())
+			zap.L().Error("services-encrypt pwd error ", zap.Error(err))
 			return
 		}
 	}
 	err = mysql.UpdateUserDetail(u.UserID, u.Email, u.Password)
 	if err != nil {
-		zap.L().Error("services-" + fmt.Sprintf("Db update userID %d failed", u.UserID) + err.Error())
+		zap.L().Error("services-"+fmt.Sprintf("Db update userID %d failed", u.UserID), zap.Error(err))
 		response.Code = resp.SearchDBError
 		return
 	}
@@ -316,12 +316,14 @@ func SendCode(username string) (pic string, err error) {
 	return b64s, nil
 }
 
-func CheckCode(username, code string) (ok bool, err error) {
+func CheckCode(username, code string) (bool, error) {
 	ans, err := redis.GetPictureCode(username)
 	if err != nil {
+		zap.L().Error("services-CheckCode error ", zap.Error(err))
 		return true, err
 	}
 	if ans != code {
+		zap.L().Error("services-CheckCode error wrong picture code from: " + username)
 		return false, nil
 	}
 
@@ -331,7 +333,7 @@ func CheckCode(username, code string) (ok bool, err error) {
 func GetUserID(username string) (uid int64, err error) {
 	uid, err = mysql.GetUserID(username)
 	if err != nil {
-		zap.L().Error("services-GetUserID " + username + "err: " + err.Error())
+		zap.L().Error("services-GetUserID "+username+"err: ", zap.Error(err))
 		return 0, err
 	}
 	return uid, nil

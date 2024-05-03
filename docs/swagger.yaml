@@ -128,6 +128,35 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 创建新题目
+  /problem-list:
+    get:
+      description: 获取题目列表接口
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 获取题目列表
+  /problem/{problem_id}:
+    get:
+      consumes:
+      - multipart/form-data
+      description: 获取单个题目详细接口
+      parameters:
+      - description: 题目ID
+        in: query
+        name: problem_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 获取单个题目详细
   /register:
     post:
       consumes:
@@ -273,6 +302,10 @@ paths:
       - description: 用户邮箱
         in: formData
         name: email
+        type: string
+      - description: 邮箱验证码
+        in: formData
+        name: code
         type: string
       produces:
       - application/json

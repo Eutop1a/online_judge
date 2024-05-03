@@ -25,23 +25,32 @@ type TestCase struct {
 	Expected string `form:"expected" json:"expected"` // 期望输出
 }
 
-func (p *Problem) GetProblemList() {
-
+func (p *Problem) GetProblemList() (*[]mysql.Problems, error) {
+	data, err := mysql.GetProblemList()
+	if err != nil {
+		zap.L().Error("mysql.GetProblemList() failed", zap.Error(err))
+		return nil, err
+	}
+	return data, nil
 }
 
-func (p *Problem) GetProblemDetail() {
-
+func (p *Problem) GetProblemDetail() (*mysql.Problems, error) {
+	data, err := mysql.GetProblemDetail(p.ProblemID)
+	if err != nil {
+		zap.L().Error("mysql.GetProblemDetail() error", zap.Error(err))
+		return nil, err
+	}
+	return data, nil
 }
 
 func (p *Problem) CreateProblem() (response resp.RegisterResponse) {
-
 	// 检查题目标题是否重复
 	var problemNum int64
 	err := mysql.CheckProblemTitle(p.Title, &problemNum)
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	case problemNum > 0: // 题目已经存在
 		response.Code = resp.ProblemAlreadyExist
@@ -73,7 +82,7 @@ func (p *Problem) CreateProblem() (response resp.RegisterResponse) {
 	err = mysql.CreateProblem(&problems)
 	if err != nil {
 		response.Code = resp.CreateProblemError
-		zap.L().Error("services-SearchDBError" + err.Error())
+		zap.L().Error("services-SearchDBError", zap.Error(err))
 		return
 	}
 	response.Code = resp.Success

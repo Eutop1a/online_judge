@@ -32,11 +32,11 @@ func SetUp(mode string) *gin.Engine {
 		api.POST("/user-id", controller.GetUserID)                   // 获取用户ID
 
 		// 题目相关
-		api.GET("/problem-list", controller.GetProblemList)   // 获取题目列表
-		api.GET("/problems/:id", controller.GetProblemDetail) // 获取单个题目详细
-		api.POST("/problem-create", controller.CreateProblem) // 创建新题目
-		api.PUT("/problems/:id", controller.UpdateProblem)    // 更新题目信息
-		api.DELETE("/problems/:id", controller.DeleteProblem) // 删除题目
+		api.GET("/problem-list", controller.GetProblemList)          // 获取题目列表
+		api.GET("/problem/:problem_id", controller.GetProblemDetail) // 获取单个题目详细
+		api.POST("/problem-create", controller.CreateProblem)        // 创建新题目
+		api.PUT("/problem/:problem_id", controller.UpdateProblem)    // 更新题目信息
+		api.DELETE("/problem/:problem_id", controller.DeleteProblem) // 删除题目
 
 		// 提交相关
 		submissions := api.Group("/submissions")

@@ -23,6 +23,7 @@ const (
 
 	CodeTestCaseFormatError
 	CodeProblemExist
+	CodeProblemIDNotExist
 )
 
 // 客户端请求错误
@@ -72,6 +73,7 @@ var codeMsgMap = map[ResCode]string{
 	CodePictureError:          "图片验证码错误",
 	CodeTestCaseFormatError:   "测试用例格式错误",
 	CodeProblemExist:          "该题目已存在",
+	CodeProblemIDNotExist:     "题目ID不存在",
 }
 
 func (c ResCode) Msg() string {

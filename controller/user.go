@@ -231,6 +231,7 @@ func DeleteUser(c *gin.Context) {
 // @Param user_id formData string true "用户ID"
 // @Param password formData string false "用户密码"
 // @Param email formData string false "用户邮箱"
+// @Param code formData string false "邮箱验证码"
 // @Success 200 {object} _Response "更新用户信息成功"
 // @Failure 200 {object} _Response "参数错误"
 // @Failure 200 {object} _Response "没有此用户ID or 验证码错误"
