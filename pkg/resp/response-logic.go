@@ -2,6 +2,10 @@ package resp
 
 import "online-judge/dao/mysql"
 
+type Response struct {
+	Code int `json:"code"`
+}
+
 // RegisterResponse 包含注册操作的返回结果
 type RegisterResponse struct {
 	Code  int    `json:"code"`

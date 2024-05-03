@@ -10,11 +10,12 @@ import (
 )
 
 // Register 用户注册接口
+// @Tags User API
 // @Summary 用户注册
 // @Description 用户注册接口
 // @Accept multipart/form-data
-// @Produce json
-// @Param user_name formData string true "用户名"
+// @Produce json,multipart/form-data
+// @Param username formData string true "用户名"
 // @Param password formData string true "密码"
 // @Param email formData string true "邮箱"
 // @Param code formData string true "验证码"
@@ -80,11 +81,12 @@ func Register(c *gin.Context) {
 }
 
 // Login 用户登录接口
+// @Tags User API
 // @Summary 用户登录
 // @Description 用户登录接口
 // @Accept multipart/form-data
-// @Produce json
-// @Param user_name formData string true "用户名"
+// @Produce json,xml
+// @Param username formData string true "用户名"
 // @Param password formData string true "密码"
 // @Param email formData string true "邮箱"
 // @Param code formData string true "验证码"
@@ -142,6 +144,7 @@ func Login(c *gin.Context) {
 }
 
 // GetUserDetail 获取用户详细信息接口
+// @Tags User API
 // @Summary 获取用户详细信息
 // @Description 获取用户详细信息接口
 // @Accept multipart/form-data
@@ -183,6 +186,7 @@ func GetUserDetail(c *gin.Context) {
 }
 
 // DeleteUser 删除用户接口
+// @Tags User API
 // @Summary 删除用户
 // @Description 删除用户接口
 // @Accept multipart/form-data
@@ -224,6 +228,7 @@ func DeleteUser(c *gin.Context) {
 }
 
 // UpdateUserDetail 更新用户详细信息接口
+// @Tags User API
 // @Summary 更新用户详细信息
 // @Description 更新用户详细信息接口
 // @Accept multipart/form-data
@@ -273,6 +278,7 @@ func UpdateUserDetail(c *gin.Context) {
 }
 
 // SendEmailCode 发送邮箱验证码接口
+// @Tags Verification Code API
 // @Summary 发送邮箱验证码
 // @Description 发送邮箱验证码接口
 // @Accept multipart/form-data
@@ -310,6 +316,7 @@ func SendEmailCode(c *gin.Context) {
 }
 
 // SendCode 发送图片验证码接口
+// @Tags Verification Code API
 // @Summary 发送图片验证码
 // @Description 发送图片验证码接口
 // @Accept multipart/form-data
@@ -331,6 +338,7 @@ func SendCode(c *gin.Context) {
 }
 
 // CheckPictureCode 检查图片验证码接口
+// @Tags Verification Code API
 // @Summary 检查图片验证码
 // @Description 检查图片验证码
 // @Accept multipart/form-data
@@ -359,6 +367,7 @@ func CheckPictureCode(c *gin.Context) {
 }
 
 // GetUserID 获取用户ID接口
+// @Tags User API
 // @Summary 获取用户ID
 // @Description 获取用户ID接口
 // @Accept multipart/form-data

@@ -34,6 +34,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Verification Code API"
+                ],
                 "summary": "检查图片验证码",
                 "parameters": [
                     {
@@ -68,14 +71,18 @@ const docTemplate = `{
                     "multipart/form-data"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "User API"
                 ],
                 "summary": "用户登录",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "用户名",
-                        "name": "user_name",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     },
@@ -120,6 +127,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json",
                     "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem API"
                 ],
                 "summary": "创建新题目",
                 "parameters": [
@@ -183,6 +193,9 @@ const docTemplate = `{
         "/problem-list": {
             "get": {
                 "description": "获取题目列表接口",
+                "tags": [
+                    "Problem API"
+                ],
                 "summary": "获取题目列表",
                 "responses": {
                     "200": {
@@ -204,7 +217,110 @@ const docTemplate = `{
                     "application/json",
                     "multipart/form-data"
                 ],
+                "tags": [
+                    "Problem API"
+                ],
                 "summary": "获取单个题目详细",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "更新题目信息接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "更新题目信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目标题",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目内容",
+                        "name": "content",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目难度",
+                        "name": "difficulty",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "时间限制",
+                        "name": "max_runtime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "内存限制",
+                        "name": "max_memory",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "测试样例集",
+                        "name": "test_cases",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除题目接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "删除题目",
                 "parameters": [
                     {
                         "type": "string",
@@ -231,14 +347,18 @@ const docTemplate = `{
                     "multipart/form-data"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "User API"
                 ],
                 "summary": "用户注册",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "用户名",
-                        "name": "user_name",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     },
@@ -283,6 +403,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Verification Code API"
+                ],
                 "summary": "发送图片验证码",
                 "parameters": [
                     {
@@ -311,6 +434,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Verification Code API"
                 ],
                 "summary": "发送邮箱验证码",
                 "parameters": [
@@ -341,6 +467,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "User API"
+                ],
                 "summary": "获取用户ID",
                 "parameters": [
                     {
@@ -370,6 +499,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "User API"
+                ],
                 "summary": "获取用户详细信息",
                 "parameters": [
                     {
@@ -396,6 +528,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "User API"
                 ],
                 "summary": "更新用户详细信息",
                 "parameters": [
@@ -441,6 +576,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "User API"
                 ],
                 "summary": "删除用户",
                 "parameters": [

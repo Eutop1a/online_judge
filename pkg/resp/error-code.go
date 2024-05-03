@@ -22,7 +22,7 @@ const (
 	CodePictureError
 
 	CodeTestCaseFormatError
-	CodeProblemExist
+	CodeProblemTitleExist
 	CodeProblemIDNotExist
 )
 
@@ -38,6 +38,7 @@ const (
 	ErrorPwd
 	UpdateLoginDataError
 	ProblemAlreadyExist
+	ProblemNotExist
 )
 
 // 服务端请求错误
@@ -53,6 +54,7 @@ const (
 	SendCodeError
 	StoreVerCodeError
 	CreateProblemError
+	InternalServerError
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -72,7 +74,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeGeneratePicError:      "生成图片验证码失败",
 	CodePictureError:          "图片验证码错误",
 	CodeTestCaseFormatError:   "测试用例格式错误",
-	CodeProblemExist:          "该题目已存在",
+	CodeProblemTitleExist:     "该题目标题已存在",
 	CodeProblemIDNotExist:     "题目ID不存在",
 }
 

@@ -46,6 +46,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 检查图片验证码
+      tags:
+      - Verification Code API
   /login:
     post:
       consumes:
@@ -54,7 +56,7 @@ paths:
       parameters:
       - description: 用户名
         in: formData
-        name: user_name
+        name: username
         required: true
         type: string
       - description: 密码
@@ -74,12 +76,15 @@ paths:
         type: string
       produces:
       - application/json
+      - text/xml
       responses:
         "200":
           description: 服务器内部错误
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 用户登录
+      tags:
+      - User API
   /problem-create:
     post:
       consumes:
@@ -128,6 +133,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 创建新题目
+      tags:
+      - Problem API
   /problem-list:
     get:
       description: 获取题目列表接口
@@ -137,7 +144,29 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 获取题目列表
+      tags:
+      - Problem API
   /problem/{problem_id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: 删除题目接口
+      parameters:
+      - description: 题目ID
+        in: query
+        name: problem_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 删除题目
+      tags:
+      - Problem API
     get:
       consumes:
       - multipart/form-data
@@ -157,6 +186,55 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 获取单个题目详细
+      tags:
+      - Problem API
+    put:
+      consumes:
+      - multipart/form-data
+      description: 更新题目信息接口
+      parameters:
+      - description: 题目ID
+        in: query
+        name: problem_id
+        required: true
+        type: string
+      - description: 题目标题
+        in: formData
+        name: title
+        type: string
+      - description: 题目内容
+        in: formData
+        name: content
+        type: string
+      - description: 题目难度
+        in: formData
+        name: difficulty
+        type: string
+      - description: 时间限制
+        in: formData
+        name: max_runtime
+        type: string
+      - description: 内存限制
+        in: formData
+        name: max_memory
+        type: string
+      - collectionFormat: multi
+        description: 测试样例集
+        in: formData
+        items:
+          type: string
+        name: test_cases
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 更新题目信息
+      tags:
+      - Problem API
   /register:
     post:
       consumes:
@@ -165,7 +243,7 @@ paths:
       parameters:
       - description: 用户名
         in: formData
-        name: user_name
+        name: username
         required: true
         type: string
       - description: 密码
@@ -185,12 +263,15 @@ paths:
         type: string
       produces:
       - application/json
+      - multipart/form-data
       responses:
         "200":
           description: OK
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 用户注册
+      tags:
+      - User API
   /send-code:
     post:
       consumes:
@@ -210,6 +291,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 发送图片验证码
+      tags:
+      - Verification Code API
   /send-email-code:
     post:
       consumes:
@@ -229,6 +312,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 发送邮箱验证码
+      tags:
+      - Verification Code API
   /user-id:
     post:
       consumes:
@@ -248,6 +333,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 获取用户ID
+      tags:
+      - User API
   /users/{user_id}:
     delete:
       consumes:
@@ -267,6 +354,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 删除用户
+      tags:
+      - User API
     get:
       consumes:
       - multipart/form-data
@@ -285,6 +374,8 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 获取用户详细信息
+      tags:
+      - User API
     put:
       consumes:
       - multipart/form-data
@@ -315,4 +406,6 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 更新用户详细信息
+      tags:
+      - User API
 swagger: "2.0"
