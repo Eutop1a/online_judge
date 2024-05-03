@@ -41,12 +41,7 @@ func GetProblemDetail(c *gin.Context) {
 // @Router /problem-create [POST]
 func CreateProblem(c *gin.Context) {
 	var createProblem services.Problem
-	//if err := c.ShouldBindJSON(&createProblem); err != nil {
-	//	// 处理绑定问题数据失败的情况
-	//	zap.L().Error("controller-ShouldBindJSON error " + err.Error())
-	//	resp.ResponseError(c, resp.CodeInvalidParam)
-	//	return
-	//}
+
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	difficulty := c.PostForm("difficulty")
@@ -54,6 +49,11 @@ func CreateProblem(c *gin.Context) {
 	maxMemory, _ := strconv.Atoi(c.PostForm("max_memory"))
 
 	testCase := c.PostFormArray("test_cases")
+	if len(testCase) == 0 {
+		zap.L().Error("testCase is empty")
+		resp.ResponseError(c, resp.CodeInvalidParam)
+		return
+	}
 	//fmt.Println(title)
 	//fmt.Println(content)
 	//fmt.Println(difficulty)
@@ -69,10 +69,8 @@ func CreateProblem(c *gin.Context) {
 
 	tCase := make([]*services.TestCase, 0)
 	for _, value := range testCase {
-		//fmt.Println("value:", value)
 		caseMap := make(map[string]string)
 		err := json.Unmarshal([]byte(value), &caseMap)
-		//fmt.Println("caseMap:", caseMap)
 		// 检测Map某个键是否存在
 		_, iok := caseMap["input"]
 		_, ook := caseMap["expected"]
@@ -84,14 +82,13 @@ func CreateProblem(c *gin.Context) {
 			return
 		}
 		tCase = append(tCase, &services.TestCase{
-			// PID
-			PID:      pkg.GetUUID(),
+			TID:      pkg.GetUUID(),
+			PID:      createProblem.ProblemID,
 			Input:    caseMap["input"],
 			Expected: caseMap["expected"],
 		})
 	}
 	createProblem.TestCases = tCase
-
 	response := createProblem.CreateProblem()
 	switch response.Code {
 	case resp.Success:

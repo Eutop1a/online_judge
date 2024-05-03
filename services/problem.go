@@ -19,6 +19,7 @@ type Problem struct {
 
 // TestCase 测试样例
 type TestCase struct {
+	TID      string `form:"TID" json:"TID"`           // testCase ID
 	PID      string `form:"PID" json:"PID"`           // 对应的题目ID
 	Input    string `form:"input" json:"input"`       // 输入
 	Expected string `form:"expected" json:"expected"` // 期望输出
@@ -47,18 +48,29 @@ func (p *Problem) CreateProblem() (response resp.RegisterResponse) {
 		zap.L().Error("services-" + fmt.Sprintf("Title %s aleardy exist", p.Title))
 		return
 	}
+	var problems mysql.Problems
+	problems.ProblemID = p.ProblemID
+	problems.Title = p.Title
+	problems.Content = p.Content
+	problems.Difficulty = p.Difficulty
+	problems.MaxRuntime = p.MaxRuntime
+	problems.MaxMemory = p.MaxMemory
+
 	// 提前转换类型
 	var convertedTestCases []*mysql.TestCase
 	for _, tc := range p.TestCases {
 		// 进行类型转换
 		convertedTestCases = append(convertedTestCases, &mysql.TestCase{
+			TID:      tc.TID,
 			PID:      tc.PID,
 			Input:    tc.Input,
 			Expected: tc.Expected,
 		})
 	}
+
+	problems.TestCases = convertedTestCases
 	// 创建题目
-	err = mysql.CreateProblem(p.ProblemID, p.Title, p.Content, p.Difficulty, p.MaxRuntime, p.MaxMemory, convertedTestCases)
+	err = mysql.CreateProblem(&problems)
 	if err != nil {
 		response.Code = resp.CreateProblemError
 		zap.L().Error("services-SearchDBError" + err.Error())

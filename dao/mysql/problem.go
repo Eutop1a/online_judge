@@ -15,18 +15,8 @@ func GetProblemList() ([]Problems, error) {
 	return problemList, nil
 }
 
-func CreateProblem(pid, title, content, difficulty string, runtime, memory int, testCase []*TestCase) error {
-	var problemDetail Problems
-
-	problemDetail.ProblemID = pid
-	problemDetail.Title = title
-	problemDetail.Content = content
-	problemDetail.Difficulty = difficulty
-	problemDetail.MaxRuntime = runtime
-	problemDetail.MaxMemory = memory
-	problemDetail.TestCases = testCase
-
-	return DB.Create(&problemDetail).Error
+func CreateProblem(problemDetail *Problems) error {
+	return DB.Create(problemDetail).Error
 }
 
 func CheckProblemTitle(title string, num *int64) error {

@@ -46,6 +46,7 @@ type Problems struct {
 // TestCase 测试样例
 type TestCase struct {
 	Model
+	TID      string `gorm:"type:char(36);column:TID" json:"TID"`
 	PID      string `gorm:"type:char(36);not null;column:PID" json:"PID"` // 对应的题目ID
 	Input    string `gorm:"type:text;column:input" json:"input"`          // 输入
 	Expected string `gorm:"type:text;column:expected" json:"expected"`    // 期望输出
