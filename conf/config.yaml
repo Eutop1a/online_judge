@@ -27,3 +27,4 @@ redis:
   password: ""
   db: 0
   pool_size: 100
+kafka:

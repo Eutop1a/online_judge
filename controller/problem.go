@@ -237,3 +237,25 @@ func DeleteProblem(c *gin.Context) {
 	}
 	return
 }
+
+// GetProblemID 获取题目ID接口
+// @Tags Problem API
+// @Summary 获取题目ID
+// @Description 获取题目ID接口
+// @Accept multipart/form-data
+// @Produce json
+// @Param title formData string true "标题"
+// @Success 200 {object} _Response "获取题目ID成功"
+// @Failure 200 {object} _Response "题目title不存在"
+// @Router /problem-id [POST]
+func GetProblemID(c *gin.Context) {
+	var getProblemID services.Problem
+	title := c.PostForm("title")
+	getProblemID.Title = title
+	uid, err := getProblemID.GetProblemID()
+	if err != nil {
+		resp.ResponseError(c, resp.CodeProblemTitleNotExist)
+		return
+	}
+	resp.ResponseSuccess(c, uid)
+}

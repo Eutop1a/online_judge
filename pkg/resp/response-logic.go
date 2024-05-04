@@ -5,6 +5,10 @@ import "online-judge/dao/mysql"
 type Response struct {
 	Code int `json:"code"`
 }
+type ResponseWithData struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
+}
 
 // RegisterResponse 包含注册操作的返回结果
 type RegisterResponse struct {

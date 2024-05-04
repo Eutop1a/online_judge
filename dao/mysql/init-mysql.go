@@ -81,11 +81,11 @@ func Init(cfg *setting.MySQLConfig) (err error) {
 		}
 	}
 
-	if !DB.Migrator().HasTable(&ProgrammingLanguage{}) {
-		if DB.Debug().AutoMigrate(&ProgrammingLanguage{}) != nil {
-			fmt.Println("err in AutoMigrate(&models.ProgrammingLanguage{}", err)
-		}
-	}
+	//if !DB.Migrator().HasTable(&ProgrammingLanguage{}) {
+	//	if DB.Debug().AutoMigrate(&ProgrammingLanguage{}) != nil {
+	//		fmt.Println("err in AutoMigrate(&models.ProgrammingLanguage{}", err)
+	//	}
+	//}
 
 	if !DB.Migrator().HasTable(&Submission{}) {
 		if DB.Debug().AutoMigrate(&Submission{}) != nil {

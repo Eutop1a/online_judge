@@ -48,6 +48,21 @@ paths:
       summary: 检查图片验证码
       tags:
       - Verification Code API
+  /leaderboard/user:
+    get:
+      consumes:
+      - multipart/form-data
+      description: 获取用户题解排名接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 获取用户题解排名
+      tags:
+      - Rank API
   /login:
     post:
       consumes:
@@ -133,6 +148,27 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 创建新题目
+      tags:
+      - Problem API
+  /problem-id:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 获取题目ID接口
+      parameters:
+      - description: 标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 题目title不存在
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 获取题目ID
       tags:
       - Problem API
   /problem-list:
@@ -314,6 +350,42 @@ paths:
       summary: 发送邮箱验证码
       tags:
       - Verification Code API
+  /submissions/code:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 提交代码接口
+      parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - description: 题目id
+        in: formData
+        name: problem_id
+        required: true
+        type: string
+      - description: 语言
+        in: formData
+        name: language
+        required: true
+        type: string
+      - description: 代码
+        in: formData
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 提交代码
+      tags:
+      - Submission API
   /user-id:
     post:
       consumes:
@@ -329,7 +401,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 用户ID不存在
+          description: 用户名不存在
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 获取用户ID

@@ -181,3 +181,13 @@ func (p *Problem) DeleteProblem() (response resp.Response) {
 	response.Code = resp.Success
 	return
 }
+
+// GetProblemID 获取题目ID
+func (p *Problem) GetProblemID() (problemID string, err error) {
+	problemID, err = mysql.GetProblemID(p.Title)
+	if err != nil {
+		zap.L().Error("services-GetProblemID", zap.Error(err))
+		return "", err
+	}
+	return
+}

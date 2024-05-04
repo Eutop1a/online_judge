@@ -55,12 +55,12 @@ type TestCase struct {
 // Submission 提交记录
 type Submission struct {
 	Model
-	SubmissionID   int64     `gorm:"type:bigint;primaryKey;column:submission_id" json:"submission_id"`                                               // 提交ID
-	UserID         int64     `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`                          //用户ID
-	ProblemID      int64     `gorm:"type:bigint;foreignKey:problem_id;references:problems(problem_id);column:problem_id" json:"problem_id"`          //题目ID
-	Language       string    `gorm:"type:varchar(16);foreignKey:language;references:programming_language(language);column:language" json:"language"` //编程语言
-	Code           string    `gorm:"type:text;column:code" json:"code"`                                                                              // 代码
-	SubmissionTime time.Time `gorm:"type:timestamp;column:submission_time" json:"submission_time"`                                                   // 提交时间
+	UserID         int64     `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`                   //用户ID
+	SubmissionID   string    `gorm:"type:char(36);primaryKey;column:submission_id" json:"submission_id"`                                      // 提交ID
+	ProblemID      string    `gorm:"type:char(36);foreignKey:problem_id;references:problems(problem_id);column:problem_id" json:"problem_id"` //题目ID
+	Language       string    `gorm:"type:varchar(16);column:language" json:"language"`                                                        //编程语言
+	Code           string    `gorm:"type:text;column:code" json:"code"`                                                                       // 代码
+	SubmissionTime time.Time `gorm:"type:timestamp;column:submission_time" json:"submission_time"`                                            // 提交时间
 }
 
 // Judgement 评测结果
@@ -73,12 +73,13 @@ type Judgement struct {
 	Runtime      int64  `gorm:"type:bigint;not null;column:runtime" json:"runtime"`                                                                  // 运行时间
 }
 
-// ProgrammingLanguage 支持的编程语言信息
-type ProgrammingLanguage struct {
-	Model
-	Language string `gorm:"type:varchar(10);not null;primaryKey;column:language" json:"language"` // 语言名称
-	Version  string `gorm:"type:varchar(20);not null;column:version" json:"version"`              // 语言版本
-}
+//
+//// ProgrammingLanguage 支持的编程语言信息
+//type ProgrammingLanguage struct {
+//	Model
+//	Language string `gorm:"type:varchar(10);not null;primaryKey;column:language" json:"language"` // 语言名称
+//	Version  string `gorm:"type:varchar(20);not null;column:version" json:"version"`              // 语言版本
+//}
 
 // SubmissionResult 测试样例集
 type SubmissionResult struct {
@@ -112,9 +113,9 @@ func (j *Judgement) TableName() string {
 	return "judgement"
 }
 
-func (p *ProgrammingLanguage) TableName() string {
-	return "programming_language"
-}
+//func (p *ProgrammingLanguage) TableName() string {
+//	return "programming_language"
+//}
 
 func (s *SubmissionResult) TableName() string {
 	return "submission_result"

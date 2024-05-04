@@ -374,7 +374,7 @@ func CheckPictureCode(c *gin.Context) {
 // @Produce json
 // @Param username formData string true "用户名"
 // @Success 200 {object} _Response "获取用户ID成功"
-// @Failure 200 {object} _Response "用户ID不存在"
+// @Failure 200 {object} _Response "用户名不存在"
 // @Router /user-id [POST]
 func GetUserID(c *gin.Context) {
 	username := c.PostForm("username")

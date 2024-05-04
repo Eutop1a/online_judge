@@ -7,6 +7,7 @@ const (
 	CodeInvalidParam
 	CodeUserExist
 	CodeUseNotExist
+	CodeUseIDNotExist
 	CodeInvalidPassword
 	CodeServerBusy
 
@@ -23,7 +24,10 @@ const (
 
 	CodeTestCaseFormatError
 	CodeProblemTitleExist
+	CodeProblemTitleNotExist
 	CodeProblemIDNotExist
+
+	CodeGetUserRankError
 )
 
 // 客户端请求错误
@@ -55,6 +59,7 @@ const (
 	StoreVerCodeError
 	CreateProblemError
 	InternalServerError
+	GetUserRankError
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -62,6 +67,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeInvalidParam:          "请求参数错误",
 	CodeUserExist:             "用户名已存在",
 	CodeUseNotExist:           "用户名不存在",
+	CodeUseIDNotExist:         "用ID不存在",
 	CodeInvalidPassword:       "用户名或密码错误",
 	CodeServerBusy:            "服务繁忙",
 	CodeNeedLogin:             "需要登录",
@@ -76,6 +82,8 @@ var codeMsgMap = map[ResCode]string{
 	CodeTestCaseFormatError:   "测试用例格式错误",
 	CodeProblemTitleExist:     "该题目标题已存在",
 	CodeProblemIDNotExist:     "题目ID不存在",
+	CodeProblemTitleNotExist:  "该题目标题不存在",
+	CodeGetUserRankError:      "获取用户排名失败",
 }
 
 func (c ResCode) Msg() string {

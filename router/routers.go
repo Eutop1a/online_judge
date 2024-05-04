@@ -37,15 +37,13 @@ func SetUp(mode string) *gin.Engine {
 		api.POST("/problem-create", controller.CreateProblem)        // 创建新题目
 		api.PUT("/problem/:problem_id", controller.UpdateProblem)    // 更新题目信息
 		api.DELETE("/problem/:problem_id", controller.DeleteProblem) // 删除题目
+		api.POST("/problem-id", controller.GetProblemID)             // 获取题目ID
 
 		// 提交相关
-		submissions := api.Group("/submissions")
-		{
-			submissions.POST("/", controller.SubmitCode)                              // 提交代码
-			submissions.GET("/:id", controller.GetSubmissionDetail)                   // 获取单个提交详细
-			submissions.GET("/user/:user_id", controller.GetUserSubmissions)          // 获取用户的提交记录
-			submissions.GET("/problem/:problem_id", controller.GetProblemSubmissions) // 获取题目的提交记录
-		}
+		api.POST("/submissions/code", controller.SubmitCode)                          // 提交代码
+		api.GET("/submissions/:id", controller.GetSubmissionDetail)                   // 获取单个提交详细
+		api.GET("/submissions/user/:user_id", controller.GetUserSubmissions)          // 获取用户的提交记录
+		api.GET("/submissions/problem/:problem_id", controller.GetProblemSubmissions) // 获取题目的提交记录
 
 		// 评测相关
 		evaluations := api.Group("/evaluations")
@@ -58,7 +56,7 @@ func SetUp(mode string) *gin.Engine {
 		// 排行榜相关
 		api.GET("/leaderboard", controller.GetLeaderboard)                            // 获取全站排行榜
 		api.GET("/leaderboard/problem/:problem_id", controller.GetProblemLeaderboard) // 获取题目排行榜
-		api.GET("/leaderboard/user/:user_id", controller.GetUserLeaderboard)          // 获取用户排行榜
+		api.GET("/leaderboard/user", controller.GetUserLeaderboard)                   // 获取用户排行榜
 
 		api.GET("/status", controller.GetStatus) // 获取系统状态
 		api.GET("/config", controller.GetConfig) // 获取系统配置

@@ -93,3 +93,12 @@ func CheckProblemTitle(title string, num *int64) error {
 func CheckProblemID(id string, num *int64) error {
 	return DB.Model(&Problems{}).Where("problem_id = ?", id).Count(num).Error
 }
+
+func GetProblemID(title string) (problemID string, err error) {
+	var problem Problems
+	err = DB.Model(&Problems{}).Where("title = ?", title).First(&problem).Error
+	if err != nil {
+		return "", err
+	}
+	return problem.ProblemID, nil
+}

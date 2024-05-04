@@ -64,6 +64,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/leaderboard/user": {
+            "get": {
+                "description": "获取用户题解排名接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rank API"
+                ],
+                "summary": "获取用户题解排名",
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "用户登录接口",
@@ -183,6 +206,38 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/problem-id": {
+            "post": {
+                "description": "获取题目ID接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "获取题目ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "题目title不存在",
                         "schema": {
                             "$ref": "#/definitions/controller._Response"
                         }
@@ -458,6 +513,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/submissions/code": {
+            "post": {
+                "description": "提交代码接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Submission API"
+                ],
+                "summary": "提交代码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目id",
+                        "name": "problem_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "语言",
+                        "name": "language",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "代码",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
         "/user-id": {
             "post": {
                 "description": "获取用户ID接口",
@@ -482,7 +590,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "用户ID不存在",
+                        "description": "用户名不存在",
                         "schema": {
                             "$ref": "#/definitions/controller._Response"
                         }
