@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-type MyClaims struct {
-	Username  string `json:"username"`
-	TokenType string `json:"token-type"`
+type Claims struct {
+	UserID   int64  `json:"user_id"`
+	Username string `json:"username"`
 	jwt.StandardClaims
 }
 type Token struct {
@@ -24,22 +24,37 @@ type Result struct {
 
 const TokenTime = time.Hour * 24
 
-var Secret = []byte("Author:Eutop1a")
+var jwtSecret = []byte("Author:Eutop1a")
 
 const Author = "Eutop1a"
 
-func GenerateToken(username string) string {
-	c := MyClaims{
-		username, "AccessToken", jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TokenTime).Unix(),
+// GenerateToken 签发用户token
+func GenerateToken(id int64, username string) (string, error) {
+	nowTime := time.Now()
+	expireTime := nowTime.Add(TokenTime)
+	claims := Claims{
+		UserID:   id,
+		Username: username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expireTime.Unix(),
 			Issuer:    Author,
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
-	res, _ := token.SignedString(Secret)
-	return res
+	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := tokenClaims.SignedString(jwtSecret)
+	return token, err
 }
 
-func ParseToken() {
+// ParseToken 验证用户token
+func ParseToken(token string) (*Claims, error) {
+	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+	if tokenClaims != nil {
+		if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
+			return claims, nil
+		}
+	}
+	return nil, err
 
 }
