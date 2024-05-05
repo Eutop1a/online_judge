@@ -10,17 +10,6 @@ type Claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
-type Token struct {
-	TokenString string // token
-}
-
-type Result struct {
-	UserName string // 返回的username
-	Status   string // 状态：
-	// case 0: "" (success)
-	// case 1: "Token has expired"
-	// case 2: "Error parsing token:"
-}
 
 const TokenTime = time.Hour * 24
 

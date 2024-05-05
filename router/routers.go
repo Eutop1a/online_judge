@@ -32,18 +32,21 @@ func SetUp(mode string) *gin.Engine {
 		api.POST("/user-id", controller.GetUserID)                   // 获取用户ID
 
 		// 题目相关
-		api.GET("/problem-list", controller.GetProblemList)          // 获取题目列表
-		api.GET("/problem/:problem_id", controller.GetProblemDetail) // 获取单个题目详细
-		api.POST("/problem-create", controller.CreateProblem)        // 创建新题目
-		api.PUT("/problem/:problem_id", controller.UpdateProblem)    // 更新题目信息
-		api.DELETE("/problem/:problem_id", controller.DeleteProblem) // 删除题目
-		api.POST("/problem-id", controller.GetProblemID)             // 获取题目ID
+		problem := api.Group("/problem")
+
+		problem.GET("/list", controller.GetProblemList)          // 获取题目列表
+		problem.GET("/:problem_id", controller.GetProblemDetail) // 获取单个题目详细
+		problem.POST("/create", controller.CreateProblem)        // 创建新题目
+		problem.PUT("/:problem_id", controller.UpdateProblem)    // 更新题目信息
+		problem.DELETE("/:problem_id", controller.DeleteProblem) // 删除题目
+		problem.POST("/id", controller.GetProblemID)             // 获取题目ID
 
 		// 提交相关
-		api.POST("/submissions/code", controller.SubmitCode)                          // 提交代码
-		api.GET("/submissions/:id", controller.GetSubmissionDetail)                   // 获取单个提交详细
-		api.GET("/submissions/user/:user_id", controller.GetUserSubmissions)          // 获取用户的提交记录
-		api.GET("/submissions/problem/:problem_id", controller.GetProblemSubmissions) // 获取题目的提交记录
+		submissions := api.Group("/submissions")
+		submissions.POST("/code", controller.SubmitCode)                          // 提交代码
+		submissions.GET("/:id", controller.GetSubmissionDetail)                   // 获取单个提交详细
+		submissions.GET("/user/:user_id", controller.GetUserSubmissions)          // 获取用户的提交记录
+		submissions.GET("/problem/:problem_id", controller.GetProblemSubmissions) // 获取题目的提交记录
 
 		// 评测相关
 		evaluations := api.Group("/evaluations")

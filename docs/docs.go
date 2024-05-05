@@ -141,7 +141,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/problem-create": {
+        "/problem/create": {
             "post": {
                 "description": "创建新题目接口",
                 "consumes": [
@@ -213,7 +213,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/problem-id": {
+        "/problem/id": {
             "post": {
                 "description": "获取题目ID接口",
                 "consumes": [
@@ -245,7 +245,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/problem-list": {
+        "/problem/list": {
             "get": {
                 "description": "获取题目列表接口",
                 "tags": [

@@ -11,8 +11,8 @@ type Leaderboard struct{}
 func (l *Leaderboard) GetUserLeaderboard() (response resp.ResponseWithData, err error) {
 	data, err := mysql.GetUserLeaderboard()
 	if err != nil {
-		zap.L().Error("services-GetUserLeaderboard ", zap.Error(err))
 		response.Code = resp.GetUserRankError
+		zap.L().Error("services-GetUserLeaderboard-GetUserLeaderboard ", zap.Error(err))
 		return response, err
 	}
 	response.Code = resp.Success

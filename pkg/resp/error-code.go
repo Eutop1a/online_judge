@@ -6,6 +6,7 @@ const (
 	CodeSuccess ResCode = 1000 + iota
 	CodeInvalidParam
 	CodeUserExist
+	CodeUsernameNotExist
 	CodeUseNotExist
 	CodeUseIDNotExist
 	CodeInvalidPassword
@@ -84,6 +85,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeProblemIDNotExist:     "题目ID不存在",
 	CodeProblemTitleNotExist:  "该题目标题不存在",
 	CodeGetUserRankError:      "获取用户排名失败",
+	CodeUsernameNotExist:      "用户名不存在",
 }
 
 func (c ResCode) Msg() string {

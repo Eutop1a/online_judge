@@ -36,24 +36,27 @@ func InsertNewUser(uID int64, Username, password, email string) error {
 }
 
 // CheckPwd 检查密码是否正确
-func CheckPwd(username, pwd string) (bool, error) {
+func CheckPwd(username, plainText string) error {
 	var checkTmp User
-	err := DB.Model(&User{}).First(&checkTmp).Where("username=?", username).Error
+	//fmt.Println("in mysql package", username)
+	err := DB.Model(&User{}).Where("username=?", username).First(&checkTmp).Error
+	// 数据库搜索不到
 	if err != nil {
-		return false, err
+		return err
 	}
-	ok := pkg.DecryptPwd(checkTmp.Password, pwd)
-	if !ok {
-		return false, nil
-	} else {
-		return true, nil
+	err = pkg.DecryptPwd(checkTmp.Password, plainText)
+	// 密码错误
+	if err != nil {
+		return err
 	}
+	// 密码正确
+	return nil
 }
 
 // GetUserDetail 获取用户详细信息
 func GetUserDetail(UID int64) (data User, err error) {
 	err = DB.Model(&User{}).Select("user_id, username, email").
-		First(&data).Where("user_id=?", UID).Error
+		Where("user_id=?", UID).First(&data).Error
 	return
 }
 

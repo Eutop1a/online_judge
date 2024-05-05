@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"online-judge/pkg"
@@ -71,10 +72,6 @@ func Register(c *gin.Context) {
 		resp.ResponseError(c, resp.CodeEmailExist)
 
 	// 服务器内部错误
-	case resp.GenerateNodeError, resp.SearchDBError, resp.EncryptPwdError,
-		resp.InsertNewUserError, resp.GenerateTokenError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
-
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
@@ -99,7 +96,7 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 	var login services.UserService
 
-	if err := c.ShouldBind(&login); err != nil { //
+	if err := c.ShouldBind(&login); err != nil {
 		zap.L().Error("Login.ShouldBind error " + err.Error())
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
@@ -135,9 +132,6 @@ func Login(c *gin.Context) {
 		resp.ResponseError(c, resp.CodeInvalidPassword)
 
 	// 内部错误
-	case resp.GenerateNodeError, resp.GenerateTokenError, resp.SearchDBError, resp.EncryptPwdError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
-
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
@@ -292,9 +286,10 @@ func SendEmailCode(c *gin.Context) {
 	userEmail := c.PostForm("email") //从前端获取email信息
 	// 判断email是否合法
 
-	//fmt.Println("email:", userEmail)
 	if !pkg.ValidateEmail(userEmail) {
 		resp.ResponseError(c, resp.CodeInvalidateEmailFormat)
+		zap.L().Error("controller-SendEmailCode-ValidateEmail " +
+			fmt.Sprintf("invalid email %s ", userEmail))
 		return
 	}
 	resCode := services.SendEmailCode(userEmail)
@@ -355,7 +350,7 @@ func CheckPictureCode(c *gin.Context) {
 	ok, err := services.CheckCode(username, code)
 	// 从 redis 中获取失败
 	if err != nil {
-		resp.ResponseError(c, resp.CodeInternalServerError)
+		resp.ResponseError(c, resp.CodeUsernameNotExist)
 		return
 	}
 	if !ok {

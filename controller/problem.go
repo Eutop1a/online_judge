@@ -16,12 +16,13 @@ import (
 // @Description 获取题目列表接口
 // @Success 200 {object} _Response "获取题目列表成功"
 // @Failure 200 {object} _Response "服务器内部错误"
-// @Router /problem-list [GET]
+// @Router /problem/list [GET]
 func GetProblemList(c *gin.Context) {
 	var getProblemList services.Problem
 	data, err := getProblemList.GetProblemList()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeInternalServerError)
+		zap.L().Error("controller-GetProblemList-GetProblemList ", zap.Error(err))
 		return
 	}
 	resp.ResponseSuccess(c, data)
@@ -46,6 +47,7 @@ func GetProblemDetail(c *gin.Context) {
 	data, err := getProblemDetail.GetProblemDetail()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
+		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))
 		return
 	}
 	resp.ResponseSuccess(c, data)
@@ -66,7 +68,7 @@ func GetProblemDetail(c *gin.Context) {
 // @Success 200 {object} _Response "创建成功"
 // @Failure 200 {object} _Response "参数错误"
 // @Failure 200 {object} _Response "服务器内部错误"
-// @Router /problem-create [POST]
+// @Router /problem/create [POST]
 func CreateProblem(c *gin.Context) {
 	var createProblem services.Problem
 
@@ -78,7 +80,7 @@ func CreateProblem(c *gin.Context) {
 
 	testCase := c.PostFormArray("test_cases")
 	if len(testCase) == 0 {
-		zap.L().Error("testCase is empty")
+		zap.L().Error("controller-CreateProblem-PostFormArray testCase is empty")
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
@@ -105,7 +107,7 @@ func CreateProblem(c *gin.Context) {
 		if err != nil || !iok || !ook {
 			resp.ResponseError(c, resp.CodeTestCaseFormatError)
 			if err != nil {
-				zap.L().Error("caseMap unmarshal error ", zap.Error(err))
+				zap.L().Error("controller-CreateProblem-Unmarshal caseMap unmarshal error ", zap.Error(err))
 			}
 			return
 		}
@@ -131,7 +133,6 @@ func CreateProblem(c *gin.Context) {
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
-
 }
 
 // UpdateProblem 更新题目信息接口
@@ -181,7 +182,7 @@ func UpdateProblem(c *gin.Context) {
 		if err != nil || !iok || !ook {
 			resp.ResponseError(c, resp.CodeTestCaseFormatError)
 			if err != nil {
-				zap.L().Error("caseMap unmarshal error ", zap.Error(err))
+				zap.L().Error("controller-UpdateProblem-Unmarshal caseMap unmarshal error ", zap.Error(err))
 			}
 			return
 		}
@@ -247,7 +248,7 @@ func DeleteProblem(c *gin.Context) {
 // @Param title formData string true "标题"
 // @Success 200 {object} _Response "获取题目ID成功"
 // @Failure 200 {object} _Response "题目title不存在"
-// @Router /problem-id [POST]
+// @Router /problem/id [POST]
 func GetProblemID(c *gin.Context) {
 	var getProblemID services.Problem
 	title := c.PostForm("title")
@@ -255,6 +256,7 @@ func GetProblemID(c *gin.Context) {
 	uid, err := getProblemID.GetProblemID()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeProblemTitleNotExist)
+		zap.L().Error("controller-GetProblemID-GetProblemID ", zap.Error(err))
 		return
 	}
 	resp.ResponseSuccess(c, uid)

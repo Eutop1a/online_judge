@@ -25,11 +25,12 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SubmitCode", zap.Error(err))
+		zap.L().Error("services-SubmitCode-CheckUserID ", zap.Error(err))
 		return
 	case idNum == 0: // 用户id不存在
 		response.Code = resp.NotExistUserID
-		zap.L().Error("services-SubmitCode" + fmt.Sprintf(" user_id %d do not exist", s.UserID))
+		zap.L().Error("services-SubmitCode-CheckUserID " +
+			fmt.Sprintf(" user_id %d do not exist ", s.UserID))
 		return
 	}
 	idNum = 0
@@ -38,11 +39,12 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SubmitCode SearchDBError", zap.Error(err))
+		zap.L().Error("services-SubmitCode-CheckProblemID ", zap.Error(err))
 		return
 	case idNum == 0: // 题目id不存在
 		response.Code = resp.ProblemNotExist
-		zap.L().Error("services-SubmitCode" + fmt.Sprintf(" id %s do not exist", s.ProblemID))
+		zap.L().Error("services-SubmitCode-CheckProblemID " +
+			fmt.Sprintf("problemID %s do not exist ", s.ProblemID))
 		return
 	}
 	tmp := mysql.Submission{
@@ -57,7 +59,7 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 	err = mysql.SubmitCode(&tmp)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SubmitCode ", zap.Error(err))
+		zap.L().Error("services-SubmitCode-SubmitCode  ", zap.Error(err))
 		return
 	}
 	response.Code = resp.Success

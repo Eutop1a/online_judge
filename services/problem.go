@@ -30,7 +30,7 @@ type TestCase struct {
 func (p *Problem) GetProblemList() (*[]mysql.Problems, error) {
 	data, err := mysql.GetProblemList()
 	if err != nil {
-		zap.L().Error("mysql.GetProblemList() failed", zap.Error(err))
+		zap.L().Error("services-GetProblemList-GetProblemList ", zap.Error(err))
 		return nil, err
 	}
 	return data, nil
@@ -40,7 +40,7 @@ func (p *Problem) GetProblemList() (*[]mysql.Problems, error) {
 func (p *Problem) GetProblemDetail() (*mysql.Problems, error) {
 	data, err := mysql.GetProblemDetail(p.ProblemID)
 	if err != nil {
-		zap.L().Error("mysql.GetProblemDetail() error", zap.Error(err))
+		zap.L().Error("services-GetProblemDetail-GetProblemDetail ", zap.Error(err))
 		return nil, err
 	}
 	return data, nil
@@ -54,11 +54,12 @@ func (p *Problem) CreateProblem() (response resp.Response) {
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError", zap.Error(err))
+		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
 		return
 	case problemNum > 0: // 题目已经存在
 		response.Code = resp.ProblemAlreadyExist
-		zap.L().Error("services-" + fmt.Sprintf("Title %s aleardy exist", p.Title))
+		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
+			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
 	}
 	var problems mysql.Problems
@@ -86,7 +87,7 @@ func (p *Problem) CreateProblem() (response resp.Response) {
 	err = mysql.CreateProblem(&problems)
 	if err != nil {
 		response.Code = resp.CreateProblemError
-		zap.L().Error("services-SearchDBError", zap.Error(err))
+		zap.L().Error("services-CreateProblem-CreateProblem ", zap.Error(err))
 		return
 	}
 	response.Code = resp.Success
@@ -101,11 +102,12 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError", zap.Error(err))
+		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
 	case idNum == 0: // 题目id不存在
 		response.Code = resp.ProblemNotExist
-		zap.L().Error("services-" + fmt.Sprintf("id %s do not exist", p.ProblemID))
+		zap.L().Error("services-UpdateProblem-CheckProblemID " +
+			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
 	}
 
@@ -115,11 +117,12 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError", zap.Error(err))
+		zap.L().Error("services-UpdateProblem-CheckProblemTitle", zap.Error(err))
 		return
 	case titleNum != 0: // 题目title已存在
 		response.Code = resp.ProblemAlreadyExist
-		zap.L().Error("services-" + fmt.Sprintf("title %s already exist", p.Title))
+		zap.L().Error("services-UpdateProblem-CheckProblemTitle" +
+			fmt.Sprintf("problem title %s already exist", p.Title))
 		return
 	}
 
@@ -148,7 +151,7 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 
 	err = mysql.UpdateProblem(&problems)
 	if err != nil {
-		zap.L().Error("services-UpdateProblem", zap.Error(err))
+		zap.L().Error("services-UpdateProblem-UpdateProblem ", zap.Error(err))
 		response.Code = resp.InternalServerError
 		return
 	}
@@ -164,18 +167,19 @@ func (p *Problem) DeleteProblem() (response resp.Response) {
 	switch {
 	case err != nil: // 搜索数据库错误
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SearchDBError", zap.Error(err))
+		zap.L().Error("services-DeleteProblem-CheckProblemID ", zap.Error(err))
 		return
 	case idNum == 0: // 题目id不存在
 		response.Code = resp.ProblemNotExist
-		zap.L().Error("services-" + fmt.Sprintf("id %s do not exist", p.ProblemID))
+		zap.L().Error("services-DeleteProblem-CheckProblemID " +
+			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
 	}
 	// 删除题目
 	err = mysql.DeleteProblem(p.ProblemID)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-DeleteProblem", zap.Error(err))
+		zap.L().Error("services-DeleteProblem-DeleteProblem  ", zap.Error(err))
 		return
 	}
 	response.Code = resp.Success
@@ -186,7 +190,7 @@ func (p *Problem) DeleteProblem() (response resp.Response) {
 func (p *Problem) GetProblemID() (problemID string, err error) {
 	problemID, err = mysql.GetProblemID(p.Title)
 	if err != nil {
-		zap.L().Error("services-GetProblemID", zap.Error(err))
+		zap.L().Error("services-GetProblemID-GetProblemID", zap.Error(err))
 		return "", err
 	}
 	return

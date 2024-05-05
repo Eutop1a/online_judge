@@ -1,9 +1,7 @@
 # Binaries for programs and plugins
 *.exe
-*.exe~
 *.dll
 *.so
-*.dylib
 OnlineJudge
 online-judge
 
@@ -30,3 +28,7 @@ private.key
 *.log
 **@**
 data
+
+test
+
+go.sum
