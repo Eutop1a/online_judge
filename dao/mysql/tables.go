@@ -18,7 +18,7 @@ type User struct {
 	FinishProblemNum int64  `gorm:"type:int(11);default:0;column:finish_num" json:"finish_num"`
 	UserName         string `gorm:"type:varchar(255);not null;column:username" json:"username"`
 	Password         string `gorm:"type:varchar(255);not null;column:password" json:"password"`
-	Email            string `gorm:"type:varchar(255);unique;not null;column:email" json:"email"`
+	Email            string `gorm:"type:varchar(255);not null;column:email" json:"email"`
 
 	//Role             bool      `gorm:"type:boolean;not null;column:role" json:"role"`
 	// true is Admin, false is user
