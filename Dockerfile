@@ -22,7 +22,7 @@ RUN go mod download && go mod tidy
 COPY . .
 
 # 编译项目
-RUN chmod 777 ./wait-for-it.sh && go build -o OnlineJudge main.go
+RUN chmod 777 ./wait-for-it.sh && go build -o online-judge main.go
 
 # 基于 centos 官方镜像
 FROM centos:latest

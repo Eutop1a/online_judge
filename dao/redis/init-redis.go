@@ -21,6 +21,7 @@ func Init(cfg *setting.RedisConfig) (err error) {
 		PoolSize: cfg.PoolSize,
 	})
 	_, err = Client.Ping(Ctx).Result()
+
 	return
 }
 

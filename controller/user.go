@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"online-judge/pkg"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 	"online-judge/services"
 	"strconv"
 )
@@ -47,7 +47,7 @@ func Register(c *gin.Context) {
 	//fmt.Println("email", newUser.Email)
 	//fmt.Println("code", newUser.Code)
 
-	var ret resp.RegisterResponse
+	var ret resp.Response
 	ret = newUser.Register()
 	switch ret.Code {
 
@@ -85,8 +85,6 @@ func Register(c *gin.Context) {
 // @Produce json,xml
 // @Param username formData string true "用户名"
 // @Param password formData string true "密码"
-// @Param email formData string true "邮箱"
-// @Param code formData string true "验证码"
 // @Success 200 {object} _Response "登录成功"
 // @Failure 200 {object} _Response "用户名不存在或验证码错误"
 // @Failure 200 {object} _Response "验证码过期"
@@ -106,14 +104,14 @@ func Login(c *gin.Context) {
 	//fmt.Println("email", login.Email)
 	//fmt.Println("code", login.Code)
 
-	var ret resp.RegisterResponse
+	var ret resp.ResponseWithData
 	ret = login.Login()
 	//fmt.Println("ret.Code = ", ret.Code)
 	switch ret.Code {
 
 	// 成功，返回token
 	case resp.Success:
-		resp.ResponseSuccess(c, ret.Token)
+		resp.ResponseSuccess(c, ret.Data)
 
 	// 验证码错误
 	case resp.ErrorVerCode:
@@ -158,7 +156,7 @@ func GetUserDetail(c *gin.Context) {
 		return
 	}
 	getDetail.UserID, _ = strconv.ParseInt(uid, 10, 64)
-	var ret resp.GetDetailResponse
+	var ret resp.ResponseWithData
 	ret = getDetail.GetUserDetail()
 
 	switch ret.Code {
@@ -200,7 +198,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 	deleteUser.UserID, _ = strconv.ParseInt(uid, 10, 64)
-	var ret resp.DeleteUserResponse
+	var ret resp.Response
 	ret = deleteUser.DeleteUser()
 
 	switch ret.Code {
@@ -243,7 +241,7 @@ func UpdateUserDetail(c *gin.Context) {
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
-	var ret resp.UpdateUserDetailResponse
+	var ret resp.Response
 	ret = update.UpdateUserDetail()
 
 	switch ret.Code {
@@ -286,7 +284,7 @@ func SendEmailCode(c *gin.Context) {
 	userEmail := c.PostForm("email") //从前端获取email信息
 	// 判断email是否合法
 
-	if !pkg.ValidateEmail(userEmail) {
+	if !utils.ValidateEmail(userEmail) {
 		resp.ResponseError(c, resp.CodeInvalidateEmailFormat)
 		zap.L().Error("controller-SendEmailCode-ValidateEmail " +
 			fmt.Sprintf("invalid email %s ", userEmail))

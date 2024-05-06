@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"online-judge/pkg"
+	"online-judge/pkg/utils"
 )
 
 // CheckEmail 检查是否有这个邮箱
@@ -44,7 +44,7 @@ func CheckPwd(username, plainText string) error {
 	if err != nil {
 		return err
 	}
-	err = pkg.DecryptPwd(checkTmp.Password, plainText)
+	err = utils.DecryptPwd(checkTmp.Password, plainText)
 	// 密码错误
 	if err != nil {
 		return err

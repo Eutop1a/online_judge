@@ -69,7 +69,7 @@ services:
     environment:
       DYNAMIC_CONFIG_ENABLED: "TRUE"
 
-  onlinejudge:
+  online-judge:
     build: .
     environment:
       TZ: Asia/Shanghai
@@ -78,7 +78,7 @@ services:
     depends_on:
       - mysql
       - redis
-    command: ["/app/wait-for-it.sh", "mysql:3306", "--", "/app/wait-for-it.sh", "redis:6379", "--", "./OnlineJudge"]
+    command: ["/app/wait-for-it.sh", "mysql:3306", "--", "/app/wait-for-it.sh", "redis:6379", "--", "./online-judge"]
 volumes:
   mysql_data:
   redis_data:

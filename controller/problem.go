@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"online-judge/pkg"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 	"online-judge/services"
 	"strconv"
 )
@@ -90,7 +90,7 @@ func CreateProblem(c *gin.Context) {
 	//fmt.Println(maxRuntime)
 	//fmt.Println(maxMemory)
 	//fmt.Println(testCase)
-	createProblem.ProblemID = pkg.GetUUID()
+	createProblem.ProblemID = utils.GetUUID()
 	createProblem.Content = content
 	createProblem.Difficulty = difficulty
 	createProblem.Title = title
@@ -112,7 +112,7 @@ func CreateProblem(c *gin.Context) {
 			return
 		}
 		tCase = append(tCase, &services.TestCase{
-			TID:      pkg.GetUUID(),
+			TID:      utils.GetUUID(),
 			PID:      createProblem.ProblemID,
 			Input:    caseMap["input"],
 			Expected: caseMap["expected"],
@@ -187,7 +187,7 @@ func UpdateProblem(c *gin.Context) {
 			return
 		}
 		tCase = append(tCase, &services.TestCase{
-			TID:      pkg.GetUUID(),
+			TID:      utils.GetUUID(),
 			PID:      updateProblem.ProblemID,
 			Input:    caseMap["input"],
 			Expected: caseMap["expected"],

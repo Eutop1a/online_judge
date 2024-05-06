@@ -9,6 +9,7 @@ import (
 	_ "online-judge/docs"
 )
 
+// SetUp 路由注册
 func SetUp(mode string) *gin.Engine {
 	if mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)

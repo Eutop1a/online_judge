@@ -12,7 +12,7 @@ import (
 var (
 	DefaultPage       = "1"
 	DefaultSize       = "20"
-	Expired     int64 = 60000 //过期时间。单位：秒
+	Expired     int64 = 600 //过期时间。单位：秒
 )
 
 // StoreVerificationCode 存储验证码到Redis并设置过期时间
@@ -35,7 +35,7 @@ func StoreVerificationCode(email, code string, timestamp int64) error {
 		return nil
 	})
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("store VerificationDataMap to redis error: %v", err))
+		zap.L().Error("redis-StoreVerificationCode-TxPipelined ", zap.Error(err))
 		return err
 	}
 	// RDB持久化
@@ -55,7 +55,8 @@ func GetVerificationCode(email string) (string, error) {
 	// 解析验证码数据
 	parts := strings.Split(result, "_")
 	if len(parts) != 2 {
-		zap.L().Error(fmt.Sprint("GetVerificationCode in redis error: invalid data format"))
+		zap.L().Error("redis-GetVerificationCode-Split " +
+			fmt.Sprint("invalid data format"))
 		return "", fmt.Errorf("invalid data format")
 	}
 	code := parts[0]
@@ -63,10 +64,18 @@ func GetVerificationCode(email string) (string, error) {
 
 	// 检查验证码是否过期
 	if time.Now().Unix() > ts+Expired {
-		zap.L().Error(fmt.Sprintf("Verification code for email %s has expired", email))
+		zap.L().Error("redis-GetVerificationCode-Split " +
+			fmt.Sprintf("verification code for email %s has expired ", email))
 		return "", fmt.Errorf("verification code expired")
 	}
+	// 使用完之后删除
+	_, err = Client.HDel(Ctx, "VerificationDataMap", email).Result()
 
+	if err != nil {
+		zap.L().Error("redis-GetVerificationCode-HDel " +
+			fmt.Sprintf("failed to delete a record %s", email))
+		return "", err
+	}
 	return code, nil
 }
 
@@ -89,7 +98,8 @@ func StorePictureCode(username, code string, timestamp int64) error {
 		return nil
 	})
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("store PictureCode to redis error: %v", err))
+		zap.L().Error("redis-StorePictureCode-TxPipelined " +
+			fmt.Sprintf("store PictureCode to redis error: %v", err))
 		return err
 	}
 	// RDB持久化
@@ -110,7 +120,8 @@ func GetPictureCode(username string) (string, error) {
 	// 解析验证码数据
 	parts := strings.Split(result, "_")
 	if len(parts) != 2 {
-		zap.L().Error(fmt.Sprint("GetPictureCode in redis error: invalid data format"))
+		zap.L().Error("redis-GetPictureCode-Split " +
+			fmt.Sprint("invalid data format"))
 		return "", fmt.Errorf("invalid data format")
 	}
 	code := parts[0]
@@ -118,9 +129,17 @@ func GetPictureCode(username string) (string, error) {
 
 	// 检查验证码是否过期
 	if time.Now().Unix() > ts+Expired {
-		zap.L().Error(fmt.Sprintf("PictureCode code for email %s has expired", username))
+		zap.L().Error("redis-GetPictureCode-Expired " +
+			fmt.Sprintf("picture code code for email %s has expired", username))
 		return "", fmt.Errorf("PictureCode code expired")
 	}
+	// 使用完之后删除
+	_, err = Client.HDel(Ctx, "PictureCodeMap", username).Result()
 
+	if err != nil {
+		zap.L().Error("redis-GetPictureCode-HDel " +
+			fmt.Sprintf("failed to delete a record %s", username))
+		return "", err
+	}
 	return code, nil
 }

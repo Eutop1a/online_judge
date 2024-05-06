@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"online-judge/pkg"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 	"online-judge/services"
 	"strconv"
 	"time"
@@ -29,7 +29,7 @@ func SubmitCode(c *gin.Context) {
 	submission.Language = c.PostForm("language")
 	submission.Code = c.PostForm("code")
 
-	submission.SubmissionID = pkg.GetUUID()
+	submission.SubmissionID = utils.GetUUID()
 	submission.UserID = int64(userId)
 	submission.SubmissionTime = time.Now()
 	response := submission.SubmitCode()

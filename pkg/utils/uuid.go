@@ -1,4 +1,4 @@
-package pkg
+package utils
 
 import uuid "github.com/satori/go.uuid"
 

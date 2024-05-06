@@ -79,16 +79,6 @@ paths:
         name: password
         required: true
         type: string
-      - description: 邮箱
-        in: formData
-        name: email
-        required: true
-        type: string
-      - description: 验证码
-        in: formData
-        name: code
-        required: true
-        type: string
       produces:
       - application/json
       - text/xml

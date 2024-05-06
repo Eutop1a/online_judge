@@ -115,20 +115,6 @@ const docTemplate = `{
                         "name": "password",
                         "in": "formData",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "邮箱",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "验证码",
-                        "name": "code",
-                        "in": "formData",
-                        "required": true
                     }
                 ],
                 "responses": {
