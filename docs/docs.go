@@ -25,6 +25,279 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/problem/create": {
+            "post": {
+                "description": "创建新题目接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "创建新题目",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目内容",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目难度",
+                        "name": "difficulty",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "时间限制",
+                        "name": "max_runtime",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "内存限制",
+                        "name": "max_memory",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "测试样例集",
+                        "name": "test_cases",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/problem/{problem_id}": {
+            "put": {
+                "description": "更新题目信息接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "更新题目信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目标题",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目内容",
+                        "name": "content",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目难度",
+                        "name": "difficulty",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "时间限制",
+                        "name": "max_runtime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "内存限制",
+                        "name": "max_memory",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "测试样例集",
+                        "name": "test_cases",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除题目接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "删除题目",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/add-admin": {
+            "post": {
+                "description": "添加管理员接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "添加管理员",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{user_id}": {
+            "delete": {
+                "description": "删除用户接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
         "/check-picture-code": {
             "post": {
                 "description": "检查图片验证码",
@@ -127,78 +400,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/problem/create": {
-            "post": {
-                "description": "创建新题目接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json",
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "Problem API"
-                ],
-                "summary": "创建新题目",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "题目标题",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目内容",
-                        "name": "content",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目难度",
-                        "name": "difficulty",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "时间限制",
-                        "name": "max_runtime",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "内存限制",
-                        "name": "max_memory",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "测试样例集",
-                        "name": "test_cases",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/controller._Response"
-                        }
-                    }
-                }
-            }
-        },
         "/problem/id": {
             "post": {
                 "description": "获取题目ID接口",
@@ -213,6 +414,13 @@ const docTemplate = `{
                 ],
                 "summary": "获取题目ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "标题",
@@ -238,6 +446,15 @@ const docTemplate = `{
                     "Problem API"
                 ],
                 "summary": "获取题目列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "服务器内部错误",
@@ -265,109 +482,16 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "题目ID",
-                        "name": "problem_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/controller._Response"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "更新题目信息接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Problem API"
-                ],
-                "summary": "更新题目信息",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "题目ID",
-                        "name": "problem_id",
-                        "in": "query",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "题目标题",
-                        "name": "title",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目内容",
-                        "name": "content",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目难度",
-                        "name": "difficulty",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "时间限制",
-                        "name": "max_runtime",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "内存限制",
-                        "name": "max_memory",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "测试样例集",
-                        "name": "test_cases",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/controller._Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "删除题目接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Problem API"
-                ],
-                "summary": "删除题目",
-                "parameters": [
-                    {
-                        "type": "string",
                         "description": "题目ID",
                         "name": "problem_id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -515,6 +639,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "用户id",
                         "name": "user_id",
                         "in": "formData",
@@ -602,7 +733,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "用户ID",
                         "name": "user_id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -632,7 +763,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "用户ID",
                         "name": "user_id",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -652,36 +783,6 @@ const docTemplate = `{
                         "description": "邮箱验证码",
                         "name": "code",
                         "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/controller._Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "删除用户接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "删除用户",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "user_id",
-                        "in": "query",
-                        "required": true
                     }
                 ],
                 "responses": {

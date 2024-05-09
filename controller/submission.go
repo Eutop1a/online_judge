@@ -15,6 +15,7 @@ import (
 // @Description 提交代码接口
 // @Accept multipart/form-data
 // @Produce json
+// @Param Authorization header string true "token"
 // @Param user_id formData string true "用户id"
 // @Param problem_id formData string true "题目id"
 // @Param language formData string true "语言"

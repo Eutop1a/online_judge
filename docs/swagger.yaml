@@ -22,6 +22,191 @@ info:
   title: online-judge
   version: "1.0"
 paths:
+  /admin/problem/{problem_id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: 删除题目接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 题目ID
+        in: path
+        name: problem_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 删除题目
+      tags:
+      - Admin API
+    put:
+      consumes:
+      - multipart/form-data
+      description: 更新题目信息接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 题目ID
+        in: path
+        name: problem_id
+        required: true
+        type: string
+      - description: 题目标题
+        in: formData
+        name: title
+        type: string
+      - description: 题目内容
+        in: formData
+        name: content
+        type: string
+      - description: 题目难度
+        in: formData
+        name: difficulty
+        type: string
+      - description: 时间限制
+        in: formData
+        name: max_runtime
+        type: string
+      - description: 内存限制
+        in: formData
+        name: max_memory
+        type: string
+      - collectionFormat: multi
+        description: 测试样例集
+        in: formData
+        items:
+          type: string
+        name: test_cases
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 更新题目信息
+      tags:
+      - Admin API
+  /admin/problem/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 创建新题目接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 题目标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 题目内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: 题目难度
+        in: formData
+        name: difficulty
+        required: true
+        type: string
+      - description: 时间限制
+        in: formData
+        name: max_runtime
+        required: true
+        type: integer
+      - description: 内存限制
+        in: formData
+        name: max_memory
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: 测试样例集
+        in: formData
+        items:
+          type: string
+        name: test_cases
+        required: true
+        type: array
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 创建新题目
+      tags:
+      - Admin API
+  /admin/users/{user_id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: 删除用户接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 删除用户
+      tags:
+      - Admin API
+  /admin/users/add-admin:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 添加管理员接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 用户ID
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 添加管理员
+      tags:
+      - Admin API
   /check-picture-code:
     post:
       consumes:
@@ -91,33 +276,18 @@ paths:
       tags:
       - User API
   /problem/{problem_id}:
-    delete:
-      consumes:
-      - multipart/form-data
-      description: 删除题目接口
-      parameters:
-      - description: 题目ID
-        in: query
-        name: problem_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/controller._Response'
-      summary: 删除题目
-      tags:
-      - Problem API
     get:
       consumes:
       - multipart/form-data
       description: 获取单个题目详细接口
       parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 题目ID
-        in: query
+        in: path
         name: problem_id
         required: true
         type: string
@@ -132,109 +302,17 @@ paths:
       summary: 获取单个题目详细
       tags:
       - Problem API
-    put:
-      consumes:
-      - multipart/form-data
-      description: 更新题目信息接口
-      parameters:
-      - description: 题目ID
-        in: query
-        name: problem_id
-        required: true
-        type: string
-      - description: 题目标题
-        in: formData
-        name: title
-        type: string
-      - description: 题目内容
-        in: formData
-        name: content
-        type: string
-      - description: 题目难度
-        in: formData
-        name: difficulty
-        type: string
-      - description: 时间限制
-        in: formData
-        name: max_runtime
-        type: string
-      - description: 内存限制
-        in: formData
-        name: max_memory
-        type: string
-      - collectionFormat: multi
-        description: 测试样例集
-        in: formData
-        items:
-          type: string
-        name: test_cases
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/controller._Response'
-      summary: 更新题目信息
-      tags:
-      - Problem API
-  /problem/create:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 创建新题目接口
-      parameters:
-      - description: 题目标题
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: 题目内容
-        in: formData
-        name: content
-        required: true
-        type: string
-      - description: 题目难度
-        in: formData
-        name: difficulty
-        required: true
-        type: string
-      - description: 时间限制
-        in: formData
-        name: max_runtime
-        required: true
-        type: integer
-      - description: 内存限制
-        in: formData
-        name: max_memory
-        required: true
-        type: integer
-      - collectionFormat: multi
-        description: 测试样例集
-        in: formData
-        items:
-          type: string
-        name: test_cases
-        required: true
-        type: array
-      produces:
-      - application/json
-      - multipart/form-data
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/controller._Response'
-      summary: 创建新题目
-      tags:
-      - Problem API
   /problem/id:
     post:
       consumes:
       - multipart/form-data
       description: 获取题目ID接口
       parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 标题
         in: formData
         name: title
@@ -253,6 +331,12 @@ paths:
   /problem/list:
     get:
       description: 获取题目列表接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "200":
           description: 服务器内部错误
@@ -346,6 +430,11 @@ paths:
       - multipart/form-data
       description: 提交代码接口
       parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 用户id
         in: formData
         name: user_id
@@ -398,33 +487,13 @@ paths:
       tags:
       - User API
   /users/{user_id}:
-    delete:
-      consumes:
-      - multipart/form-data
-      description: 删除用户接口
-      parameters:
-      - description: 用户ID
-        in: query
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/controller._Response'
-      summary: 删除用户
-      tags:
-      - User API
     get:
       consumes:
       - multipart/form-data
       description: 获取用户详细信息接口
       parameters:
       - description: 用户ID
-        in: query
+        in: path
         name: user_id
         required: true
         type: string
@@ -444,7 +513,7 @@ paths:
       description: 更新用户详细信息接口
       parameters:
       - description: 用户ID
-        in: formData
+        in: path
         name: user_id
         required: true
         type: string

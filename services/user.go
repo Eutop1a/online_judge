@@ -8,10 +8,8 @@ import (
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
 	"online-judge/pkg/jwt"
-	my_captcha "online-judge/pkg/my-captcha"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
-	"time"
 )
 
 type UserService struct {
@@ -142,23 +140,23 @@ func (u *UserService) Login() (response resp.ResponseWithData) {
 	//		fmt.Sprintf("error verfiction code %s:%s ", u.Email, code))
 	//	return
 	//}
-	//// 检验是否有这个用户名
-	//var UserNameCount int64
-	//err = mysql.CheckUsername(u.UserName, &UserNameCount)
-	//if err != nil {
-	//	response.Code = resp.SearchDBError
-	//	zap.L().Error("services-Login-CheckUsername ", zap.Error(err))
-	//	return
-	//}
-	//if UserNameCount == 0 {
-	//	response.Code = resp.NotExistUsername
-	//	zap.L().Error("services-Login-CheckUsername " +
-	//		fmt.Sprintf("do not have this username: %s ", u.UserName))
-	//	return
-	//}
+	// 检验是否有这个用户名
+	var UserNameCount int64
+	err := mysql.CheckUsername(u.UserName, &UserNameCount)
+	if err != nil {
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-Login-CheckUsername ", zap.Error(err))
+		return
+	}
+	if UserNameCount == 0 {
+		response.Code = resp.NotExistUsername
+		zap.L().Error("services-Login-CheckUsername " +
+			fmt.Sprintf("do not have this username: %s ", u.UserName))
+		return
+	}
 
 	// 检查密码是否正确
-	err := mysql.CheckPwd(u.UserName, u.Password)
+	err = mysql.CheckPwd(u.UserName, u.Password)
 	if err != nil {
 		response.Code = resp.ErrorPwd
 		zap.L().Error("services-Login-CheckPwd ", zap.Error(err))
@@ -166,7 +164,15 @@ func (u *UserService) Login() (response resp.ResponseWithData) {
 	}
 	// 成功返回
 	// 生成token
-	token, err := jwt.GenerateToken(u.UserID, u.UserName)
+	u.UserID, err = mysql.GetUserID(u.UserName)
+
+	var userIsAdmin bool
+	err = mysql.CheckUserIsAdmin(u.UserID)
+	if err != nil {
+		userIsAdmin = false
+	}
+	userIsAdmin = true
+	token, err := jwt.GenerateToken(u.UserID, u.UserName, userIsAdmin)
 	if err != nil {
 		response.Code = resp.GenerateTokenError
 		zap.L().Error("service-Login-GenerateToken: ", zap.Error(err))
@@ -203,35 +209,6 @@ func (u *UserService) GetUserDetail() (response resp.ResponseWithData) {
 		return
 	}
 	response.Data = data
-	response.Code = resp.Success
-	return
-}
-
-// DeleteUser 删除用户
-func (u *UserService) DeleteUser() (response resp.Response) {
-	// 检验是否有这个用户ID
-	var UserIDCount int64
-	err := mysql.CheckUserID(u.UserID, &UserIDCount)
-	if err != nil {
-		response.Code = resp.SearchDBError
-		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
-		return
-	}
-	if UserIDCount == 0 {
-		response.Code = resp.NotExistUserID
-		zap.L().Error("services-DeleteUser-CheckUserID "+
-			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
-		return
-	}
-	// 删除用户
-	err = mysql.DeleteUser(u.UserID)
-	if err != nil {
-		response.Code = resp.DBDeleteError
-		zap.L().Error("services-DeleteUser-DeleteUser "+
-			fmt.Sprintf("delete userID %d failed ", u.UserID), zap.Error(err))
-		return
-	}
-	// 删除成功
 	response.Code = resp.Success
 	return
 }
@@ -290,69 +267,6 @@ func (u *UserService) UpdateUserDetail() (response resp.Response) {
 	}
 	response.Code = resp.Success
 	return
-}
-
-// SendEmailCode 发送验证码接口
-func SendEmailCode(userEmail string) (resCode int) {
-	// 验证邮箱是否合法
-	if !utils.ValidateEmail(userEmail) {
-		resCode = resp.InvalidateEmailFormat
-		zap.L().Error("services-SendEmailCode-ValidateEmail " +
-			fmt.Sprintf("invalid email %s ", userEmail))
-		return
-	}
-	// 创建验证码
-	code, ts := utils.CreateVerificationCode()
-	// 发送验证码
-	err := utils.SendCode(userEmail, code)
-	if err != nil {
-		resCode = resp.SendCodeError
-		zap.L().Error("services-SendEmailCode-SendCode ", zap.Error(err))
-		return
-	}
-	// redis保存email和验证码的键值对
-	err = redis.StoreVerificationCode(userEmail, code, ts)
-	if err != nil {
-		resCode = resp.StoreVerCodeError
-		zap.L().Error("services-SendEmailCode-StoreVerificationCode ", zap.Error(err))
-		return
-	}
-
-	resCode = resp.Success
-	return
-}
-
-func SendCode(username string) (pic string, err error) {
-	// 单例模式的验证码实例
-	_, b64s, ans, err := my_captcha.GenerateCaptcha()
-
-	if err != nil {
-		zap.L().Error("services-SendCode-GenerateCaptcha ", zap.Error(err))
-		return "", err
-	}
-	// 获取当前时间
-	ts := time.Now().Unix()
-	err = redis.StorePictureCode(username, ans, ts)
-	if err != nil {
-		zap.L().Error("services-SendCode-StorePictureCode ", zap.Error(err))
-		return "", err
-	}
-	return b64s, nil
-}
-
-func CheckCode(username, code string) (bool, error) {
-	ans, err := redis.GetPictureCode(username)
-	if err != nil {
-		zap.L().Error("services-CheckCode-GetPictureCode "+
-			fmt.Sprintf("do not have this username %s ", username), zap.Error(err))
-		return true, err
-	}
-	if ans != code {
-		zap.L().Error("services-CheckCode-GetPictureCode wrong picture code from: " + username)
-		return false, nil
-	}
-
-	return true, nil
 }
 
 func GetUserID(username string) (uid int64, err error) {

@@ -94,13 +94,12 @@ func CreateTables() (err error) {
 		}
 	}
 
-	if !DB.Migrator().HasTable(&Judgement{}) {
-		if DB.Debug().AutoMigrate(&Judgement{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-Judgement ", zap.Error(err))
+	if !DB.Migrator().HasTable(&TestCase{}) {
+		if DB.Debug().AutoMigrate(&TestCase{}) != nil {
+			zap.L().Error("mysql-CreateTables-AutoMigrate-TestCase ", zap.Error(err))
 			return
 		}
 	}
-
 	//if !DB.Migrator().HasTable(&ProgrammingLanguage{}) {
 	//	if DB.Debug().AutoMigrate(&ProgrammingLanguage{}) != nil {
 	//		zap.L().Error("mysql-CreateTables-AutoMigrate-ProgrammingLanguage ", zap.Error(err))
@@ -115,13 +114,6 @@ func CreateTables() (err error) {
 		}
 	}
 
-	if !DB.Migrator().HasTable(&TestCase{}) {
-		if DB.Debug().AutoMigrate(&TestCase{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-TestCase ", zap.Error(err))
-			return
-		}
-	}
-
 	//if !DB.Migrator().HasTable(&SubmissionResult{}) {
 	//	if DB.Debug().AutoMigrate(&SubmissionResult{}) != nil {
 	//		zap.L().Error("mysql-CreateTables-AutoMigrate-SubmissionResult ", zap.Error(err))
@@ -129,6 +121,12 @@ func CreateTables() (err error) {
 	//	}
 	//}
 
+	if !DB.Migrator().HasTable(&Judgement{}) {
+		if DB.Debug().AutoMigrate(&Judgement{}) != nil {
+			zap.L().Error("mysql-CreateTables-AutoMigrate-Judgement ", zap.Error(err))
+			return
+		}
+	}
 	// 设置innodb事务行锁等待时间为10s，默认50s
 	if err = DB.Exec("SET innodb_lock_wait_timeout = 10").Error; err != nil {
 		zap.L().Error("mysql-CreateTables-Exec-SET-innodb_lock_wait_timeout ", zap.Error(err))

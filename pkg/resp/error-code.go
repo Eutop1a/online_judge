@@ -14,6 +14,7 @@ const (
 
 	CodeNeedLogin
 	CodeInvalidToken
+	CodeUnauthorized
 
 	CodeErrorVerCode
 	CodeExpiredVerCode
@@ -89,6 +90,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeGetUserRankError:      "获取用户排名失败",
 	CodeUsernameNotExist:      "用户名不存在",
 	CodePageNotFound:          "页面不存在",
+	CodeUnauthorized:          "需要管理员权限",
 }
 
 func (c ResCode) Msg() string {

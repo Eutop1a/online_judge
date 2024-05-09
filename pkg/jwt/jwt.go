@@ -6,8 +6,9 @@ import (
 )
 
 type Claims struct {
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
+	UserID      int64  `json:"user_id"`
+	Username    string `json:"username"`
+	UserIsAdmin bool   `json:"user_is_admin"`
 	jwt.StandardClaims
 }
 
@@ -18,12 +19,13 @@ var jwtSecret = []byte("Author:Eutop1a")
 const Author = "Eutop1a"
 
 // GenerateToken 签发用户token
-func GenerateToken(id int64, username string) (string, error) {
+func GenerateToken(id int64, username string, userIsAdmin bool) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(TokenTime)
 	claims := Claims{
-		UserID:   id,
-		Username: username,
+		UserID:      id,
+		Username:    username,
+		UserIsAdmin: userIsAdmin,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			Issuer:    Author,
@@ -45,5 +47,4 @@ func ParseToken(token string) (*Claims, error) {
 		}
 	}
 	return nil, err
-
 }

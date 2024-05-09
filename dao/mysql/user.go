@@ -88,3 +88,20 @@ func GetUserID(username string) (uid int64, err error) {
 	}
 	return user.UserID, nil
 }
+
+// CheckUserIsAdmin 根据uid判断用户是不是管理员
+func CheckUserIsAdmin(uid int64) (err error) {
+	var admin Admin
+	err = DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
+
+	return err
+}
+
+// AddAdminUser 添加管理员用户
+func AddAdminUser(uid int64) (err error) {
+	admin := Admin{
+		UserID: uid,
+	}
+	err = DB.Model(&Admin{}).Create(&admin).Error
+	return
+}
