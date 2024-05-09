@@ -22,7 +22,7 @@ type AppConfig struct {
 
 type LogConfig struct {
 	Level     string `mapstructure:"level"`
-	Filename  string `mapstructure:"file_name"`
+	Filename  string `mapstructure:"filename"`
 	MaxSize   int    `mapstructure:"max_size"`
 	MaxAge    int    `mapstructure:"max_age"`
 	MaxBackup int    `mapstructure:"max_backups"`

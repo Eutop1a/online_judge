@@ -29,6 +29,8 @@ const (
 	CodeProblemIDNotExist
 
 	CodeGetUserRankError
+
+	CodePageNotFound
 )
 
 // 客户端请求错误
@@ -86,6 +88,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeProblemTitleNotExist:  "该题目标题不存在",
 	CodeGetUserRankError:      "获取用户排名失败",
 	CodeUsernameNotExist:      "用户名不存在",
+	CodePageNotFound:          "页面不存在",
 }
 
 func (c ResCode) Msg() string {

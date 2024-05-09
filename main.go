@@ -32,30 +32,30 @@ import (
 func main() {
 	// 1. loading config files
 	if err := setting.Init(); err != nil {
-		zap.L().Error("main-setting-Init error", zap.Error(err))
-		//fmt.Printf("Init setting failed, err: %v\n", err)
+		//zap.L().Error("main-setting-Init error", zap.Error(err))
+		fmt.Printf("Init setting failed, err: %v\n", err)
 		return
 	}
 
 	// 2. init logger
 	if err := logger.Init(setting.Conf.LogConfig, setting.Conf.Mode); err != nil {
-		zap.L().Error("main-logger-Init error", zap.Error(err))
-		//fmt.Printf("Init logger failed, err: %v\n", err)
+		//zap.L().Error("main-logger-Init error", zap.Error(err))
+		fmt.Printf("Init logger failed, err: %v\n", err)
 		return
 	}
 	defer zap.L().Sync()
 
 	// 3. init MYSQL connection
 	if err := mysql.Init(setting.Conf.MySQLConfig); err != nil {
-		zap.L().Error("main-mysql-Init error", zap.Error(err))
-		//fmt.Printf("Init mysql failed, err: %v\n", err)
+		//zap.L().Error("main-mysql-Init error", zap.Error(err))
+		fmt.Printf("Init mysql failed, err: %v\n", err)
 		return
 	}
 
 	// 4. init Redis connection
 	if err := redis.Init(setting.Conf.RedisConfig); err != nil {
-		zap.L().Error("main-redis-Init error", zap.Error(err))
-		//fmt.Printf("Init redis failed, err: %v\n", err)
+		//zap.L().Error("main-redis-Init error", zap.Error(err))
+		fmt.Printf("Init redis failed, err: %v\n", err)
 		return
 	}
 
@@ -64,8 +64,8 @@ func main() {
 
 	err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port))
 	if err != nil {
-		zap.L().Error("main-Run error", zap.Error(err))
-		//fmt.Printf("Run server failed, err: %v\n", err)
+		//zap.L().Error("main-Run error", zap.Error(err))
+		fmt.Printf("Run server failed, err: %v\n", err)
 		return
 	}
 

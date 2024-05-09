@@ -2,10 +2,14 @@ package logger
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/spf13/viper"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
 	"gopkg.in/natefinch/lumberjack.v2"
+
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -16,6 +20,7 @@ import (
 	"time"
 )
 
+// Init 初始化Logger
 func Init(cfg *setting.LogConfig, mode string) (err error) {
 	writeSyncer := getLogWriter(
 		cfg.Filename,
@@ -39,9 +44,12 @@ func Init(cfg *setting.LogConfig, mode string) (err error) {
 			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
 		)
 	} else {
+		// 生产模式，日志输入到文件或其他目的地
 		zapcore.NewCore(encoder, writeSyncer, l)
+
 	}
 	lg := zap.New(core, zap.AddCaller())
+	// 替换zap库中的全局logger
 	zap.ReplaceGlobals(lg)
 	zap.L().Info("init logger success")
 	return

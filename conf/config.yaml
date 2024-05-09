@@ -1,4 +1,5 @@
 name: "online-judge"
+#mode: "release"
 mode: "dev"
 port: 65533
 version: "v0.0.1"
@@ -8,7 +9,7 @@ auth:
   jwt_expire: 8760
 log:
   level: "debug"
-  filename: "OnlineJudge.log"
+  filename: "online-judge.log"
   max_size: 200
   max_age: 30
   max_backups: 7
@@ -18,7 +19,7 @@ mysql:
   user: "root"
   password: "123456"
   protocal: "tcp"
-  dbname: "OnlineJudge"
+  dbname: "onlinejudge"
   max_open_conns: 200
   max_idle_conns: 50
 redis:

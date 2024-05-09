@@ -256,7 +256,7 @@ func GetProblemID(c *gin.Context) {
 	uid, err := getProblemID.GetProblemID()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeProblemTitleNotExist)
-		zap.L().Error("controller-GetProblemID-GetProblemID ", zap.Error(err))
+		//zap.L().Error("controller-GetProblemID-GetProblemID ", zap.Error(err))
 		return
 	}
 	resp.ResponseSuccess(c, uid)

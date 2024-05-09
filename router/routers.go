@@ -2,11 +2,14 @@ package router
 
 import (
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
 	"online-judge/controller"
 	_ "online-judge/docs"
+	"online-judge/logger"
+	"online-judge/pkg/resp"
 )
 
 // SetUp 路由注册
@@ -16,6 +19,7 @@ func SetUp(mode string) *gin.Engine {
 	}
 
 	r := gin.Default()
+	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 	r.Use(cors.Default())
 
 	// api路由组
@@ -69,6 +73,14 @@ func SetUp(mode string) *gin.Engine {
 
 		// swagger
 		api.GET("/swagger/*any", gs.WrapHandler(swaggerFiles.Handler))
+
+		// 注册pprof相关路由
+		pprof.Register(r)
+
+		// NoRoute
+		r.NoRoute(func(c *gin.Context) {
+			resp.ResponseError(c, resp.CodePageNotFound)
+		})
 	}
 
 	return r

@@ -21,3 +21,5 @@ online-judge
 .vscode
 # 忽略 Go 项目的依赖版本信息文件，该文件记录了当前项目依赖包的版本和哈希值
 go.sum
+
+*.log

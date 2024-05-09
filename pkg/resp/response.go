@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+const (
+	CtxUserIDKey   = "userID"
+	CtxUserNameKey = "username"
+)
+
 type ResponseData struct {
 	Code ResCode     `json:"code"`
 	Msg  interface{} `json:"msg"`
