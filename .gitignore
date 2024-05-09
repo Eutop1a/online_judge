@@ -1,3 +1,12 @@
+# 忽略 JetBrains IDE（如IntelliJ IDEA、PyCharm等）生成的项目文件和配置
+.idea
+# 忽略 Visual Studio Code IDE 生成的项目文件和配置
+.vscode
+# 忽略 Go 项目的依赖版本信息文件，该文件记录了当前项目依赖包的版本和哈希值
+go.sum
+
+*.log
+
 # Binaries for programs and plugins
 *.exe
 *.dll
@@ -15,11 +24,3 @@ online-judge
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# 忽略 JetBrains IDE（如IntelliJ IDEA、PyCharm等）生成的项目文件和配置
-.idea
-# 忽略 Visual Studio Code IDE 生成的项目文件和配置
-.vscode
-# 忽略 Go 项目的依赖版本信息文件，该文件记录了当前项目依赖包的版本和哈希值
-go.sum
-
-*.log
