@@ -48,7 +48,7 @@ func SendEmailCode(c *gin.Context) {
 	}
 }
 
-// SendCode 发送图片验证码接口
+// SendPictureCode 发送图片验证码接口
 // @Tags Verification Code API
 // @Summary 发送图片验证码
 // @Description 发送图片验证码接口
@@ -57,10 +57,10 @@ func SendEmailCode(c *gin.Context) {
 // @Param username formData string true "用户名"
 // @Success 200 {object} _Response "发送图片验证码成功"
 // @Failure 200 {object} _Response "服务器内部错误"
-// @Router /send-code [POST]
-func SendCode(c *gin.Context) {
+// @Router /send-picture-code [POST]
+func SendPictureCode(c *gin.Context) {
 	username := c.PostForm("username")
-	b64s, err := services.SendCode(username)
+	b64s, err := services.SendPictureCode(username)
 	// 生成图片验证码失败
 	if err != nil {
 		resp.ResponseError(c, resp.CodeInternalServerError)

@@ -1,6 +1,8 @@
 package my_captcha
 
-import "github.com/mojocn/base64Captcha"
+import (
+	"github.com/mojocn/base64Captcha"
+)
 
 func GenerateCaptcha() (id, b64s, ans string, err error) {
 	driver := base64Captcha.NewDriverDigit(80, 240, 5, 0.7, 80)

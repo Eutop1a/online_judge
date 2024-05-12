@@ -34,38 +34,6 @@ const (
 	CodePageNotFound
 )
 
-// 客户端请求错误
-const (
-	EmailAlreadyExist = 4000 + iota
-	UsernameAlreadyExist
-	InvalidateEmailFormat
-	ErrorVerCode
-	ExpiredVerCode
-	NotExistUsername
-	NotExistUserID
-	ErrorPwd
-	UpdateLoginDataError
-	ProblemAlreadyExist
-	ProblemNotExist
-)
-
-// 服务端请求错误
-const (
-	Success = 5000 + iota
-	SearchDBError
-	DBSaveError
-	DBDeleteError
-	GenerateNodeError
-	EncryptPwdError
-	InsertNewUserError
-	GenerateTokenError
-	SendCodeError
-	StoreVerCodeError
-	CreateProblemError
-	InternalServerError
-	GetUserRankError
-)
-
 var codeMsgMap = map[ResCode]string{
 	CodeSuccess:               "success",
 	CodeInvalidParam:          "请求参数错误",

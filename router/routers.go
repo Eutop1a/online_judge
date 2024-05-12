@@ -38,7 +38,7 @@ func SetUp(mode string) *gin.Engine {
 		// 验证码相关操作
 		{
 			api.POST("/send-email-code", controller.SendEmailCode)       // 发送验证码
-			api.POST("/send-code", controller.SendCode)                  // 发送验证码
+			api.POST("/send-picture-code", controller.SendPictureCode)   // 发送验证码
 			api.POST("/check-picture-code", controller.CheckPictureCode) // 检查图片验证码是否正确
 		}
 

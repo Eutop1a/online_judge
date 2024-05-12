@@ -1,0 +1,35 @@
+syntax = "proto3";
+package pb;
+option go_package="./;pb";
+
+message SubmitRequest {
+  //@inject_tag: json:"user_id" form:"user_id"
+  int64 user_id=1;
+  //@inject_tag: json:"code" form:"code"
+  string code=2;
+  //@inject_tag: json:"input" form:"input"
+  string input=3;
+  //@inject_tag: json:"expected" form:"expected"
+  string expected=4;
+  //@inject_tag: json:"time_limit" form:"time_limit"
+  int32 time_limit=5;
+  //@inject_tag: json:"memory_limit" form:"memory_limit"
+  int32 memory_limit=6;
+}
+
+message SubmitResponse {
+  //@inject_tag: json:"user_id" form:"user_id"
+  int64 user_id=1;
+  //@inject_tag: json:"status" form:"status"
+  string status=2;
+  //@inject_tag: json:"pass_num" form:"pass_num"
+  int32 pass_num=3;
+}
+
+service Submission {
+  rpc SubmitCode(SubmitRequest) returns(SubmitResponse);
+
+}
+
+
+// protoc -I ./idl submission-service.proto --micro_out ./idl/pb --go_out=./idl/pb

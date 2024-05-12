@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
 	"online-judge/logger"
@@ -32,44 +33,49 @@ import (
 func main() {
 	// 1. loading config files
 	if err := setting.Init(); err != nil {
-		//zap.L().Error("main-setting-Init error", zap.Error(err))
-		fmt.Printf("Init setting failed, err: %v\n", err)
+		//zap.L().Error("main-setting-init error", zap.Error(err))
+		fmt.Printf("init setting failed, err: %v\n", err)
 		return
 	}
 
 	// 2. init logger
 	if err := logger.Init(setting.Conf.LogConfig, setting.Conf.Mode); err != nil {
-		//zap.L().Error("main-logger-Init error", zap.Error(err))
-		fmt.Printf("Init logger failed, err: %v\n", err)
+		//zap.L().Error("main-logger-init error", zap.Error(err))
+		fmt.Printf("init logger failed, err: %v\n", err)
 		return
 	}
 	defer zap.L().Sync()
 
-	// 3. init MYSQL connection
+	// 3. init mysql connection
 	if err := mysql.Init(setting.Conf.MySQLConfig); err != nil {
-		//zap.L().Error("main-mysql-Init error", zap.Error(err))
-		fmt.Printf("Init mysql failed, err: %v\n", err)
+		//zap.L().Error("main-mysql-init error", zap.Error(err))
+		fmt.Printf("init mysql failed, err: %v\n", err)
 		return
 	}
 
-	// 4. init Redis connection
+	// 4. init redis connection
 	if err := redis.Init(setting.Conf.RedisConfig); err != nil {
-		//zap.L().Error("main-redis-Init error", zap.Error(err))
-		fmt.Printf("Init redis failed, err: %v\n", err)
+		//zap.L().Error("main-redis-init error", zap.Error(err))
+		fmt.Printf("init redis failed, err: %v\n", err)
 		return
 	}
 
-	// 5. register route
+	// 5. init rabbitmq connection
+	if err := mq.InitRabbitMQ(setting.Conf.RabbitMQConfig); err != nil {
+		fmt.Printf("init rabbitmq failed, err: %v\n", err)
+		return
+	}
+	// 6. register route
 	r := router.SetUp(setting.Conf.Mode)
 
 	err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port))
 	if err != nil {
 		//zap.L().Error("main-Run error", zap.Error(err))
-		fmt.Printf("Run server failed, err: %v\n", err)
+		fmt.Printf("run server failed, err: %v\n", err)
 		return
 	}
 
-	// 6. start services
+	// 7. start services
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
 		Handler: r,

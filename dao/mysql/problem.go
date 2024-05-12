@@ -29,6 +29,15 @@ func GetProblemDetail(pid string) (problem *Problems, err error) {
 	return
 }
 
+// GetEntireProblem 获取题目的全部信息
+func GetEntireProblem(pid string) (problem *Problems, err error) {
+	err = DB.Where("problem_id = ?", pid).Preload("TestCases").First(&problem).Error
+	if err != nil {
+		return nil, err
+	}
+	return
+}
+
 // CreateProblem 创建题目
 func CreateProblem(problem *Problems) error {
 	return DB.Create(problem).Error

@@ -9,15 +9,17 @@ import (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name         string `mapstructure:"name"`
-	Mode         string `mapstructure:"mode"`
-	Version      string `mapstructure:"version"`
-	StartTime    string `mapstructure:"start_time"`
-	MachineID    int64  `mapstructure:"machine_id"`
-	Port         int    `mapstructure:"port"`
-	*LogConfig   `mapstructure:"log"`
-	*MySQLConfig `mapstructure:"mysql"`
-	*RedisConfig `mapstructure:"redis"`
+	Name            string `mapstructure:"name"`
+	Mode            string `mapstructure:"mode"`
+	Version         string `mapstructure:"version"`
+	StartTime       string `mapstructure:"start_time"`
+	MachineID       int64  `mapstructure:"machine_id"`
+	Port            int    `mapstructure:"port"`
+	*LogConfig      `mapstructure:"log"`
+	*MySQLConfig    `mapstructure:"mysql"`
+	*RedisConfig    `mapstructure:"redis"`
+	*RabbitMQConfig `mapstructure:"rabbitmq"`
+	*GrpcConfig     `mapstructure:"grpc"`
 }
 
 type LogConfig struct {
@@ -45,6 +47,19 @@ type RedisConfig struct {
 	Port     int    `mapstructure:"port"`
 	DB       int    `mapstructure:"db"`
 	PoolSize int    `mapstructure:"pool_size"`
+}
+
+type RabbitMQConfig struct {
+	RabbitMQ string `mapstructure:"rabbit_mq"`
+	Host     string `mapstructure:"host"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	Port     int    `mapstructure:"port"`
+}
+
+type GrpcConfig struct {
+	Host string `mapstructure:"host"`
+	Port string `mapstructure:"port"`
 }
 
 func Init() (err error) {

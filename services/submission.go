@@ -1,10 +1,18 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"log"
+	"online-judge/consts"
+	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
+	"online-judge/idl/pb"
 	"online-judge/pkg/resp"
+	"sync"
 	"time"
 )
 
@@ -59,9 +67,104 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 	err = mysql.SubmitCode(&tmp)
 	if err != nil {
 		response.Code = resp.SearchDBError
-		zap.L().Error("services-SubmitCode-SubmitCode  ", zap.Error(err))
+		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
 		return
 	}
+	// 获取全部的题目信息
+	problemDetail, err := mysql.GetEntireProblem(s.ProblemID)
+	if err != nil {
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		return
+	}
+	// 得到输入和输出
+	var input, expected string
+	for _, tc := range problemDetail.TestCases {
+		input += tc.Input + "\n"
+		expected += tc.Expected + "\n"
+	}
+
+	// 将需要的内容序列化
+	data := pb.SubmitRequest{
+		UserId:      s.UserID,
+		Code:        s.Code,
+		Input:       input,
+		Expected:    expected,
+		TimeLimit:   int32(problemDetail.MaxRuntime),
+		MemoryLimit: int32(problemDetail.MaxMemory),
+	}
+
+	dataBody, err := json.Marshal(data)
+	if err != nil {
+		response.Code = resp.JSONMarshalError
+		zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
+		return
+	}
+
+	// 发送给MQ的生产者
+	err = mq.SendMessage2MQ(dataBody)
+	if err != nil {
+		response.Code = resp.Send2MQError
+		zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
+		return
+	}
+
+	msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
+	if err != nil {
+		response.Code = resp.RecvFromMQError
+		zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
+		return
+	}
+	var forever = make(chan struct{})
+	go func() {
+		for d := range msgs {
+			var submitRequest pb.SubmitRequest
+			err := json.Unmarshal(d.Body, &submitRequest)
+			if err != nil {
+				log.Printf("Failed to unmarshal JSON: %v", err)
+				continue
+			}
+			d.Ack(false)
+			// 执行judgement函数
+			wg.Add(1)
+			go s.Judgement(&submitRequest)
+			wg.Wait()
+		}
+	}()
+
+	log.Printf("Waiting for messages. To exit press CTRL+C")
+
+	<-forever
 	response.Code = resp.Success
 	return
+}
+
+var wg sync.WaitGroup
+
+func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, error) {
+	conn, err := grpc.Dial("127.0.0.1:4000/api/v1/submission", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Failed to dial: %v", err)
+		return nil, err
+	}
+	defer conn.Close()
+
+	client := pb.NewSubmissionClient(conn)
+
+	response, err := client.SubmitCode(context.Background(), data)
+	if err != nil {
+		log.Printf("Failed to call gRPC method: %v", err)
+		return nil, err
+	}
+	// 处理 Judgement 函数的返回结果
+	// 这里假设 Judgement 函数返回的是一个 Response 对象
+	var Response resp.Response
+	if response.Status == "pass" {
+		Response.Code = resp.Success
+		fmt.Println("SUCCESS")
+	} else {
+		fmt.Println("ERROR")
+	}
+	wg.Done()
+	return response, nil
 }

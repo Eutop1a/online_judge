@@ -28,4 +28,12 @@ redis:
   password: ""
   db: 0
   pool_size: 100
-kafka:
+rabbitmq:
+  rabbit_mq: amqp
+  host: localhost
+  user: guest
+  password: guest
+  port: 5672
+grpc:
+  host: localhost
+  port: 8088

@@ -14,6 +14,9 @@ go.sum
 OnlineJudge
 online-judge
 
+*.zip
+*.7z
+
 
 # Test binary, built with `go test -c`
 *.test
