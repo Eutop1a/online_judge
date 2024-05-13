@@ -32,6 +32,8 @@ const (
 	CodeGetUserRankError
 
 	CodePageNotFound
+
+	CodeUnsupportedLanguage
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -59,6 +61,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeUsernameNotExist:      "用户名不存在",
 	CodePageNotFound:          "页面不存在",
 	CodeUnauthorized:          "需要管理员权限",
+	CodeUnsupportedLanguage:   "不支持的编程语言",
 }
 
 func (c ResCode) Msg() string {

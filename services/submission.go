@@ -84,11 +84,24 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		input = append(input, tc.Input)
 		expected = append(expected, tc.Expected)
 	}
-
+	var language int32
+	switch s.Language {
+	case "Go":
+		language = resp.GO
+	case "Java":
+		language = resp.JAVA
+	case "C++":
+		language = resp.CPP
+	case "Python":
+		language = resp.PYTHON
+	default:
+		response.Code = resp.UnsupportedLanguage
+		return
+	}
 	// 将需要的内容序列化
 	data := pb.SubmitRequest{
 		UserId:      s.UserID,
-		Language:    s.Language,
+		Language:    language,
 		Code:        s.Code,
 		Input:       input,
 		Expected:    expected,
