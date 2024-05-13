@@ -6,7 +6,7 @@ import (
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 	"online-judge/app/judgement/service"
-	"online-judge/idl/pb"
+	pb "online-judge/proto"
 	"online-judge/setting"
 )
 

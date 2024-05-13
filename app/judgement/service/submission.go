@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"online-judge/idl/pb"
+	pb "online-judge/proto"
 	"sync"
 )
 

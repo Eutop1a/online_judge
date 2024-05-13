@@ -4,14 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-micro/plugins/v4/registry/etcd"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"log"
 	"online-judge/consts"
 	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
-	"online-judge/idl/pb"
 	"online-judge/pkg/resp"
+	pb "online-judge/proto"
 	"sync"
 	"time"
 )
@@ -80,8 +82,8 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 	// 得到输入和输出
 	var input, expected string
 	for _, tc := range problemDetail.TestCases {
-		input += tc.Input + "\n"
-		expected += tc.Expected + "\n"
+		input += tc.Input + " "
+		expected += tc.Expected + " "
 	}
 
 	// 将需要的内容序列化
@@ -93,6 +95,8 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 		TimeLimit:   int32(problemDetail.MaxRuntime),
 		MemoryLimit: int32(problemDetail.MaxMemory),
 	}
+
+	fmt.Println(data)
 
 	dataBody, err := json.Marshal(data)
 	if err != nil {
@@ -127,11 +131,12 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 			d.Ack(false)
 			// 执行judgement函数
 			wg.Add(1)
+			fmt.Println("in for range", submitRequest)
 			go s.Judgement(&submitRequest)
-			wg.Wait()
+			//wg.Wait()
 		}
 	}()
-
+	wg.Wait()
 	log.Printf("Waiting for messages. To exit press CTRL+C")
 
 	<-forever
@@ -142,28 +147,21 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 var wg sync.WaitGroup
 
 func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, error) {
-	conn, err := grpc.Dial("127.0.0.1:4000/api/v1/submission", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Failed to dial: %v", err)
-		return nil, err
-	}
-	defer conn.Close()
-
-	client := pb.NewSubmissionClient(conn)
+	// etcd 注册
+	etcdReg := etcd.NewRegistry(
+		registry.Addrs("127.0.0.1:2379"),
+	)
+	service := micro.NewService(
+		micro.Registry(etcdReg),
+	)
+	service.Init()
+	client := pb.NewSubmissionService("rpcSubmissionService", service.Client())
 
 	response, err := client.SubmitCode(context.Background(), data)
 	if err != nil {
-		log.Printf("Failed to call gRPC method: %v", err)
+		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		wg.Done()
 		return nil, err
-	}
-	// 处理 Judgement 函数的返回结果
-	// 这里假设 Judgement 函数返回的是一个 Response 对象
-	var Response resp.Response
-	if response.Status == "pass" {
-		Response.Code = resp.Success
-		fmt.Println("SUCCESS")
-	} else {
-		fmt.Println("ERROR")
 	}
 	wg.Done()
 	return response, nil
