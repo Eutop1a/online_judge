@@ -6,13 +6,13 @@ message SubmitRequest {
   //@inject_tag: json:"user_id" form:"user_id"
   int64 user_id=1;
   //@inject_tag: json:"language" form:"language"
-  string language=2;
+  int32 language=2;
   //@inject_tag: json:"code" form:"code"
   string code=3;
   //@inject_tag: json:"input" form:"input"
-  string input=4;
+  repeated string input=4;
   //@inject_tag: json:"expected" form:"expected"
-  string expected=5;
+  repeated string expected=5;
   //@inject_tag: json:"time_limit" form:"time_limit"
   int32 time_limit=6;
   //@inject_tag: json:"memory_limit" form:"memory_limit"
