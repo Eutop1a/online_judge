@@ -1,7 +1,7 @@
 package mq
 
 import (
-	"fmt"
+	"go.uber.org/zap"
 	"online-judge/consts"
 
 	"github.com/streadway/amqp"
@@ -21,6 +21,6 @@ func SendMessage2MQ(body []byte) (err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println("发送MQ成功...")
+	zap.L().Debug("mq-producer-Publish send msg to MQ successfully")
 	return
 }

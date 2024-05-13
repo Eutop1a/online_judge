@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"online-judge/pkg/resp"
 	pb "online-judge/proto"
 	"sync"
 )
@@ -25,15 +26,20 @@ func (s SubmitSrv) SubmitCode(ctx context.Context, request *pb.SubmitRequest, re
 	//TODO implement me
 	uid := request.UserId
 	code := request.Code
+	language := request.Language
 	input := request.Input
 	expected := request.Expected
 	timeLimit := request.TimeLimit
 	memoryLimit := request.MemoryLimit
 	fmt.Println(uid)
 	fmt.Println(code)
+	fmt.Println(language)
 	fmt.Println(input)
 	fmt.Println(expected)
 	fmt.Println(timeLimit)
 	fmt.Println(memoryLimit)
+	response.Status = resp.Accepted
+	response.PassNum = 10
+	response.UserId = request.UserId
 	return nil
 }

@@ -8,7 +8,6 @@ import (
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 	"go.uber.org/zap"
-	"log"
 	"online-judge/consts"
 	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
@@ -28,7 +27,7 @@ type Submission struct {
 	SubmissionTime time.Time `form:"submission_time" json:"submission_time"` // 提交时间
 }
 
-func (s *Submission) SubmitCode() (response resp.Response) {
+func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 	// 检查用户id是否存在
 	var idNum int64
 	err := mysql.CheckUserID(s.UserID, &idNum)
@@ -89,14 +88,13 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 	// 将需要的内容序列化
 	data := pb.SubmitRequest{
 		UserId:      s.UserID,
+		Language:    s.Language,
 		Code:        s.Code,
 		Input:       input,
 		Expected:    expected,
 		TimeLimit:   int32(problemDetail.MaxRuntime),
 		MemoryLimit: int32(problemDetail.MaxMemory),
 	}
-
-	fmt.Println(data)
 
 	dataBody, err := json.Marshal(data)
 	if err != nil {
@@ -112,39 +110,47 @@ func (s *Submission) SubmitCode() (response resp.Response) {
 		zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
 		return
 	}
-
+	// 消费者
 	msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
 	if err != nil {
 		response.Code = resp.RecvFromMQError
 		zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
 		return
 	}
+
+	var wg sync.WaitGroup
+	var resData *pb.SubmitResponse
 	var forever = make(chan struct{})
 	go func() {
 		for d := range msgs {
 			var submitRequest pb.SubmitRequest
 			err := json.Unmarshal(d.Body, &submitRequest)
 			if err != nil {
-				log.Printf("Failed to unmarshal JSON: %v", err)
+				zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
 				continue
 			}
+			// 确认ACK
 			d.Ack(false)
 			// 执行judgement函数
 			wg.Add(1)
-			fmt.Println("in for range", submitRequest)
-			go s.Judgement(&submitRequest)
-			//wg.Wait()
+			go func() {
+				defer wg.Done()
+				resData, err = s.Judgement(&submitRequest)
+				if err != nil {
+					response.Code = resp.InternalServerError
+					return
+				}
+			}()
+			wg.Wait()
+			forever <- struct{}{}
 		}
 	}()
-	wg.Wait()
-	log.Printf("Waiting for messages. To exit press CTRL+C")
 
 	<-forever
 	response.Code = resp.Success
+	response.Data = resData
 	return
 }
-
-var wg sync.WaitGroup
 
 func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, error) {
 	// etcd 注册
@@ -160,9 +166,7 @@ func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, erro
 	response, err := client.SubmitCode(context.Background(), data)
 	if err != nil {
 		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
-		wg.Done()
 		return nil, err
 	}
-	wg.Done()
 	return response, nil
 }

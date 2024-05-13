@@ -36,11 +36,14 @@ func SubmitCode(c *gin.Context) {
 	response := submission.SubmitCode()
 	switch response.Code {
 	case resp.Success:
-		resp.ResponseSuccess(c, resp.CodeSuccess)
+		resp.ResponseSuccess(c, response.Data)
+
 	case resp.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseIDNotExist)
+
 	case resp.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
+
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
