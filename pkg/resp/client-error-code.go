@@ -12,4 +12,5 @@ const (
 	ErrorPwd
 	ProblemAlreadyExist
 	ProblemNotExist
+	UnsupportedLanguage
 )

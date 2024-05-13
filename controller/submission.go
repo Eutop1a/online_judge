@@ -44,6 +44,9 @@ func SubmitCode(c *gin.Context) {
 	case resp.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 
+	case resp.UnsupportedLanguage:
+		resp.ResponseError(c, resp.CodeUnsupportedLanguage)
+
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
