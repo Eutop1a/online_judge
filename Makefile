@@ -11,12 +11,12 @@ stop:
 # run the submission
 .PHONY: user
 user:
-	go run ./app/judgement/cmd/main.go -o ./judgement
+	go build -o judgement ./app/judgement/cmd/main.go
 
 # run the monolithic main function
 .PHONY: main
 main:
-	go run .main.go
+	go build -o online-judge main.go
 
 .PHONY: all
 all: user main

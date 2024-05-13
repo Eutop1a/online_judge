@@ -19,7 +19,6 @@ type AppConfig struct {
 	*MySQLConfig    `mapstructure:"mysql"`
 	*RedisConfig    `mapstructure:"redis"`
 	*RabbitMQConfig `mapstructure:"rabbitmq"`
-	*GrpcConfig     `mapstructure:"grpc"`
 }
 
 type LogConfig struct {
@@ -34,11 +33,11 @@ type MySQLConfig struct {
 	Host         string `mapstructure:"host"`
 	User         string `mapstructure:"user"`
 	Password     string `mapstructure:"password"`
-	Protocal     string `mapstructure:"protocal"`
+	Protocol     string `mapstructure:"protocol"`
 	DbName       string `mapstructure:"dbname"`
 	Port         int    `mapstructure:"port"`
-	MaxOpenConns int    `mapstructure:"max_open_conns"`
-	MaxIdelConns int    `mapstructure:"umax_idle_conns"`
+	MaxOpenConns int    `mapstructure:"max_open_conn"`
+	MaxIdelConns int    `mapstructure:"max_idle_conn"`
 }
 
 type RedisConfig struct {
@@ -57,13 +56,8 @@ type RabbitMQConfig struct {
 	Port     int    `mapstructure:"port"`
 }
 
-type GrpcConfig struct {
-	Host string `mapstructure:"host"`
-	Port string `mapstructure:"port"`
-}
-
 func Init() (err error) {
-	viper.SetConfigFile("./conf/config.yaml")
+	viper.SetConfigFile("./conf/config-docker.yaml")
 
 	err = viper.ReadInConfig() // 读取配置信息
 	if err != nil {
