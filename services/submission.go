@@ -79,10 +79,10 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		return
 	}
 	// 得到输入和输出
-	var input, expected string
+	var input, expected []string
 	for _, tc := range problemDetail.TestCases {
-		input += tc.Input + " "
-		expected += tc.Expected + " "
+		input = append(input, tc.Input)
+		expected = append(expected, tc.Expected)
 	}
 
 	// 将需要的内容序列化
