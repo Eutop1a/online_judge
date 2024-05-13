@@ -15,5 +15,5 @@ func LanguageCheck(request *pb.SubmitRequest, response *pb.SubmitResponse) (err 
 	if language == resp.CPP {
 		status, err = judging.JudgeCpp(request)
 	}
-
+	return nil
 }
