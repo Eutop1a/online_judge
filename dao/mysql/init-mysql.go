@@ -30,7 +30,6 @@ func CreateDatabase(cfg *setting.MySQLConfig) {
 		cfg.Port,
 		"mysql",
 	)
-	fmt.Println(dsn)
 	createDB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		zap.L().Error("mysql-CreateDatabase-Open ", zap.Error(err))
