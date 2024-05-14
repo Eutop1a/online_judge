@@ -30,14 +30,14 @@ func CreateDatabase(cfg *setting.MySQLConfig) {
 		cfg.Port,
 		"mysql",
 	)
-
+	fmt.Println(dsn)
 	createDB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		zap.L().Error("mysql-CreateDatabase-Open ", zap.Error(err))
 		return
 	}
 
-	checkDBSQL := `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'OnlineJudge'`
+	checkDBSQL := `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'onlinejudge'`
 	var dbName string
 	if err = createDB.Raw(checkDBSQL).Scan(&dbName).Error; err != nil {
 		zap.L().Error("mysql-CreateDatabase-Scan ", zap.Error(err))
@@ -45,7 +45,7 @@ func CreateDatabase(cfg *setting.MySQLConfig) {
 	}
 	// 如果数据库不存在，就创建
 	if dbName == "" {
-		createDBSQL := `CREATE DATABASE IF NOT EXISTS OnlineJudge`
+		createDBSQL := `CREATE DATABASE IF NOT EXISTS onlinejudge`
 		if err = createDB.Exec(createDBSQL).Error; err != nil {
 			zap.L().Error("mysql-CreateDatabase-Exec create DB with root failed ", zap.Error(err))
 			return
