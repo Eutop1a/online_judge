@@ -167,6 +167,7 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 
 func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, error) {
 	// etcd 注册
+
 	etcdReg := etcd.NewRegistry(
 		registry.Addrs("127.0.0.1:2379"),
 	)
