@@ -13,6 +13,7 @@ import (
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
 	pb "online-judge/proto"
+	"online-judge/setting"
 	"sync"
 	"time"
 )
@@ -167,9 +168,10 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 
 func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, error) {
 	// etcd 注册
-
+	addr := setting.Conf.EtcdConfig.Host
+	port := setting.Conf.EtcdConfig.Port
 	etcdReg := etcd.NewRegistry(
-		registry.Addrs("127.0.0.1:2379"),
+		registry.Addrs(fmt.Sprintf("%s:%d", addr, port)),
 	)
 	service := micro.NewService(
 		micro.Registry(etcdReg),

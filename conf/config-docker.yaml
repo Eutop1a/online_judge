@@ -33,3 +33,6 @@ rabbitmq:
   user: guest
   password: guest
   port: 5672
+etcd:
+    host: etcd
+    port: 2379
