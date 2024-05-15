@@ -46,6 +46,6 @@ EXPOSE 65533
 EXPOSE 8082
 
 # 启动你的应用程序
-CMD ["sh", "-c", "./online-judge & ./judgement"]
+CMD ["sh", "-c", "./judgement & ./online-judge"]
 
 
