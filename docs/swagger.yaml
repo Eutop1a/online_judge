@@ -207,6 +207,32 @@ paths:
       summary: 添加管理员
       tags:
       - Admin API
+  /admin/users/add-super-admin:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 添加超级管理员接口
+      parameters:
+      - description: 用户ID
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - description: 密钥
+        in: formData
+        name: secret
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 添加超级管理员
+      tags:
+      - Admin API
   /check-picture-code:
     post:
       consumes:
@@ -382,27 +408,6 @@ paths:
       summary: 用户注册
       tags:
       - User API
-  /send-code:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 发送图片验证码接口
-      parameters:
-      - description: 用户名
-        in: formData
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/controller._Response'
-      summary: 发送图片验证码
-      tags:
-      - Verification Code API
   /send-email-code:
     post:
       consumes:
@@ -422,6 +427,27 @@ paths:
           schema:
             $ref: '#/definitions/controller._Response'
       summary: 发送邮箱验证码
+      tags:
+      - Verification Code API
+  /send-picture-code:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 发送图片验证码接口
+      parameters:
+      - description: 用户名
+        in: formData
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/controller._Response'
+      summary: 发送图片验证码
       tags:
       - Verification Code API
   /submissions/code:

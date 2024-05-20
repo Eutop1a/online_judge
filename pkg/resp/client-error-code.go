@@ -13,4 +13,6 @@ const (
 	ProblemAlreadyExist
 	ProblemNotExist
 	UnsupportedLanguage
+	SecretError
+	UserIDAlreadyExist
 )

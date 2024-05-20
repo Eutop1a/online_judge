@@ -34,6 +34,10 @@ const (
 	CodePageNotFound
 
 	CodeUnsupportedLanguage
+
+	CodeErrorSecret
+
+	CodeUserIDAlreadyExist
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -62,6 +66,8 @@ var codeMsgMap = map[ResCode]string{
 	CodePageNotFound:          "页面不存在",
 	CodeUnauthorized:          "需要管理员权限",
 	CodeUnsupportedLanguage:   "不支持的编程语言",
+	CodeErrorSecret:           "密钥错误",
+	CodeUserIDAlreadyExist:    "该用户已经是管理员了",
 }
 
 func (c ResCode) Msg() string {

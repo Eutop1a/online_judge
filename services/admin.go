@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 )
 
 // DeleteUser 删除用户
@@ -33,6 +34,55 @@ func (u *UserService) DeleteUser() (response resp.Response) {
 	}
 	// 删除成功
 	response.Code = resp.Success
+	return
+}
+
+const SECRETCIPHER = "afd372788c1f7f646a678654901ce041ecc9012487dc0055b932cac9acaca27b6cf0488a3b5d0aa05022ab9a51e54b0e54e8188beaf4ad9cef517c0c76641f21"
+
+func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
+
+	if utils.CryptoSecret(secret) != SECRETCIPHER {
+		response.Code = resp.SecretError
+		zap.L().Error("services-AddSuperAdmin-CryptoSecret " +
+			fmt.Sprintf("secret error %d:%s", u.UserID, secret))
+		return
+	}
+	var userIDCount int64
+	err := mysql.CheckUserID(u.UserID, &userIDCount)
+	if err != nil {
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-AddSuperAdmin-CheckUserID ", zap.Error(err))
+		return
+	}
+	if userIDCount == 0 {
+		response.Code = resp.NotExistUserID
+		zap.L().Error("services-AddSuperAdmin-CheckUserID "+
+			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
+		return
+	}
+	// 检查这个ID是否已经存在于Admin数据库中
+	userIDCount = 0
+	err = mysql.CheckAdminUserID(u.UserID, &userIDCount)
+	if err != nil {
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-AddSuperAdmin-CheckAdminUserID ", zap.Error(err))
+		return
+	}
+	if userIDCount != 0 {
+		response.Code = resp.UserIDAlreadyExist
+		zap.L().Error("services-AddSuperAdmin-CheckAdminUserID "+
+			fmt.Sprintf("this userID %d already exist", u.UserID), zap.Error(err))
+		return
+	}
+	// 添加到数据库中
+	err = mysql.AddAdminUser(u.UserID)
+	if err != nil {
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
+		return
+	}
+	response.Code = resp.Success
+
 	return
 }
 

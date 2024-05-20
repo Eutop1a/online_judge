@@ -11,6 +11,52 @@ import (
 	"strconv"
 )
 
+// AddSuperAdmin 添加超级管理员接口
+// @Tags Admin API
+// @Summary 添加超级管理员
+// @Description 添加超级管理员接口
+// @Accept multipart/form-data
+// @Produce json
+// @Param user_id formData string true "用户ID"
+// @Param secret formData string true "密钥"
+// @Success 200 {object} _Response "添加超级管理员成功"
+// @Failure 200 {object} _Response "参数错误"
+// @Failure 200 {object} _Response "没有此用户ID"
+// @Failure 200 {object} _Response "密钥错误"
+// @Failure 200 {object} _Response "服务器内部错误"
+// @Router /admin/users/add-super-admin [POST]
+func AddSuperAdmin(c *gin.Context) {
+	var addAdmin services.UserService
+	uid := c.PostForm("user_id")
+	secret := c.PostForm("secret")
+	if uid == "" {
+		zap.L().Error("controller-AddSuperAdmin-PostForm add admin params error")
+		resp.ResponseError(c, resp.CodeInvalidParam)
+		return
+	}
+	addAdmin.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	var ret resp.Response
+	ret = addAdmin.AddSuperAdmin(secret)
+	switch ret.Code {
+
+	case resp.Success:
+		resp.ResponseSuccess(c, resp.Success)
+
+	case resp.NotExistUserID:
+		resp.ResponseError(c, resp.CodeUseIDNotExist)
+
+	case resp.SecretError:
+		resp.ResponseError(c, resp.CodeErrorSecret)
+
+	case resp.UserIDAlreadyExist:
+		resp.ResponseError(c, resp.CodeUserIDAlreadyExist)
+
+	default:
+		resp.ResponseError(c, resp.CodeInvalidParam)
+	}
+	return
+}
+
 // DeleteUser 删除用户接口
 // @Tags Admin API
 // @Summary 删除用户
@@ -28,7 +74,7 @@ func DeleteUser(c *gin.Context) {
 	var deleteUser services.UserService
 	uid := c.Param("user_id")
 	if uid == "" {
-		zap.L().Error("deleteUser params error")
+		zap.L().Error("controller-DeleteUser-Param deleteUser params error")
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
