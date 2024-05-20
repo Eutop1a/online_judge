@@ -19,11 +19,12 @@ import (
 // @Produce json
 // @Param user_id formData string true "用户ID"
 // @Param secret formData string true "密钥"
-// @Success 200 {object} _Response "添加超级管理员成功"
-// @Failure 200 {object} _Response "参数错误"
-// @Failure 200 {object} _Response "没有此用户ID"
-// @Failure 200 {object} _Response "密钥错误"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.AddSuperAdminResponse "添加超级管理员成功"
+// @Failure 200 {object} models.AddSuperAdminResponse "参数错误"
+// @Failure 200 {object} models.AddSuperAdminResponse "没有此用户ID"
+// @Failure 200 {object} models.AddSuperAdminResponse "用户已是管理员"
+// @Failure 200 {object} models.AddSuperAdminResponse "密钥错误"
+// @Failure 200 {object} models.AddSuperAdminResponse "服务器内部错误"
 // @Router /admin/users/add-super-admin [POST]
 func AddSuperAdmin(c *gin.Context) {
 	var addAdmin services.UserService
@@ -65,10 +66,11 @@ func AddSuperAdmin(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param user_id path string true "用户ID"
-// @Success 200 {object} _Response "删除用户成功"
-// @Failure 200 {object} _Response "参数错误"
-// @Failure 200 {object} _Response "没有此用户ID"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.DeleteUserResponse "删除用户成功"
+// @Failure 200 {object} models.DeleteUserResponse "参数错误"
+// @Failure 200 {object} models.DeleteUserResponse "没有此用户ID"
+// @Failure 200 {object} models.DeleteUserResponse "需要登录"
+// @Failure 200 {object} models.DeleteUserResponse "服务器内部错误"
 // @Router /admin/users/{user_id} [DELETE]
 func DeleteUser(c *gin.Context) {
 	var deleteUser services.UserService
@@ -91,10 +93,6 @@ func DeleteUser(c *gin.Context) {
 	case resp.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
-	// 服务器内部错误
-	case resp.SearchDBError, resp.DBDeleteError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
-
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
@@ -108,10 +106,11 @@ func DeleteUser(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param user_id formData string true "用户ID"
-// @Success 200 {object} _Response "删除用户成功"
-// @Failure 200 {object} _Response "参数错误"
-// @Failure 200 {object} _Response "没有此用户ID"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.AddAdminResponse "删除用户成功"
+// @Failure 200 {object} models.AddAdminResponse "参数错误"
+// @Failure 200 {object} models.AddAdminResponse "没有此用户ID"
+// @Failure 200 {object} models.AddAdminResponse "需要登录"
+// @Failure 200 {object} models.AddAdminResponse "服务器内部错误"
 // @Router /admin/users/add-admin [POST]
 func AddAdmin(c *gin.Context) {
 	var addAdmin services.UserService
@@ -131,9 +130,9 @@ func AddAdmin(c *gin.Context) {
 	case resp.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	// 用户不存在
+	// 用户ID不存在
 	case resp.NotExistUserID:
-		resp.ResponseError(c, resp.CodeUseNotExist)
+		resp.ResponseError(c, resp.CodeUseIDNotExist)
 
 	// 服务器内部错误
 	default:
@@ -154,9 +153,12 @@ func AddAdmin(c *gin.Context) {
 // @Param max_runtime formData int true "时间限制"
 // @Param max_memory formData int true "内存限制"
 // @Param test_cases formData []string true "测试样例集" collectionFormat(multi)
-// @Success 200 {object} _Response "创建成功"
-// @Failure 200 {object} _Response "参数错误"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.CreateProblemResponse "1000 创建成功"
+// @Failure 200 {object} models.CreateProblemResponse "1001 参数错误"
+// @Failure 200 {object} models.CreateProblemResponse "1018 测试用例格式错误"
+// @Failure 200 {object} models.CreateProblemResponse "1019 题目标题已存在"
+// @Failure 200 {object} models.CreateProblemResponse "1008 需要登录"
+// @Failure 200 {object} models.CreateProblemResponse "1014 服务器内部错误"
 // @Router /admin/problem/create [POST]
 func CreateProblem(c *gin.Context) {
 	var createProblem services.Problem
@@ -216,9 +218,6 @@ func CreateProblem(c *gin.Context) {
 	case resp.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 
-	case resp.CreateProblemError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
-
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
@@ -238,9 +237,12 @@ func CreateProblem(c *gin.Context) {
 // @Param max_runtime formData string false "时间限制"
 // @Param max_memory formData string false "内存限制"
 // @Param test_cases formData []string false "测试样例集" collectionFormat(multi)
-// @Success 200 {object} _Response "修改成功"
-// @Failure 200 {object} _Response "题目ID不存在"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.UpdateProblemResponse "修改成功"
+// @Failure 200 {object} models.UpdateProblemResponse "题目ID不存在"
+// @Failure 200 {object} models.UpdateProblemResponse "题目标题已存在"
+// @Failure 200 {object} models.UpdateProblemResponse "测试用例格式错误"
+// @Failure 200 {object} models.UpdateProblemResponse "需要登录"
+// @Failure 200 {object} models.UpdateProblemResponse "服务器内部错误"
 // @Router /admin/problem/{problem_id} [PUT]
 func UpdateProblem(c *gin.Context) {
 	var updateProblem services.Problem
@@ -306,9 +308,10 @@ func UpdateProblem(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param problem_id path string true "题目ID"
-// @Success 200 {object} _Response "删除成功"
-// @Failure 200 {object} _Response "题目ID不存在"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.DeleteProblemResponse "删除成功"
+// @Failure 200 {object} models.DeleteProblemResponse "题目ID不存在"
+// @Failure 200 {object} models.DeleteProblemResponse "需要登录"
+// @Failure 200 {object} models.DeleteProblemResponse "服务器内部错误"
 // @Router /admin/problem/{problem_id} [DELETE]
 func DeleteProblem(c *gin.Context) {
 	var deleteProblem services.Problem

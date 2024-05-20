@@ -20,20 +20,20 @@ func GetProblemLeaderboard(c *gin.Context) {
 // @Description 获取用户题解排名接口
 // @Accept multipart/form-data
 // @Produce json
-// @Success 200 {object} _Response "获取用户题解排名"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.GetUserLeaderboardResponse "1000 获取用户题解排名成功"
+// @Failure 200 {object} models.GetUserLeaderboardResponse "1022 获取用户题解排名失败"
+// @Failure 200 {object} models.GetUserLeaderboardResponse "1014 服务器内部错误"
 // @Router /leaderboard/user [GET]
 func GetUserLeaderboard(c *gin.Context) {
 	var leaderboard services.Leaderboard
 	response, err := leaderboard.GetUserLeaderboard()
 	if err != nil {
-		resp.ResponseError(c, resp.GetUserRankError)
+		resp.ResponseError(c, resp.CodeGetUserRankError)
 		return
 	}
 	switch response.Code {
 	case resp.Success:
 		resp.ResponseSuccess(c, response.Data)
-	case resp.GetUserRankError:
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}

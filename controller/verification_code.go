@@ -16,14 +16,14 @@ import (
 // @Accept multipart/form-data
 // @Produce json
 // @Param email formData string true "邮箱"
-// @Success 200 {object} _Response "发送邮箱验证码成功"
-// @Failure 200 {object} _Response "邮箱格式错误"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.SendEmailCodeResponse "发送邮箱验证码成功"
+// @Failure 200 {object} models.SendEmailCodeResponse "邮箱格式错误"
+// @Failure 200 {object} models.SendEmailCodeResponse "服务器内部错误"
 // @Router /send-email-code [POST]
 func SendEmailCode(c *gin.Context) {
 	userEmail := c.PostForm("email") //从前端获取email信息
-	// 判断email是否合法
 
+	// 判断email是否合法
 	if !utils.ValidateEmail(userEmail) {
 		resp.ResponseError(c, resp.CodeInvalidateEmailFormat)
 		zap.L().Error("controller-SendEmailCode-ValidateEmail " +
@@ -35,13 +35,6 @@ func SendEmailCode(c *gin.Context) {
 	// 成功
 	case resp.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
-
-	// 邮箱格式错误
-	case resp.InvalidateEmailFormat:
-		resp.ResponseError(c, resp.CodeInvalidateEmailFormat)
-
-	case resp.SearchDBError, resp.EncryptPwdError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
 
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
@@ -55,8 +48,8 @@ func SendEmailCode(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param username formData string true "用户名"
-// @Success 200 {object} _Response "发送图片验证码成功"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.SendPictureCodeResponse "1000 发送图片验证码成功"
+// @Failure 200 {object} models.SendPictureCodeResponse "1014 服务器内部错误"
 // @Router /send-picture-code [POST]
 func SendPictureCode(c *gin.Context) {
 	username := c.PostForm("username")
@@ -78,9 +71,9 @@ func SendPictureCode(c *gin.Context) {
 // @Produce json
 // @Param username formData string true "用户名"
 // @Param code formData string true "图片验证码"
-// @Success 200 {object} _Response "图片验证码正确"
-// @Failure 200 {object} _Response "图片验证码错误"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.CheckPictureCodeResponse "图片验证码正确"
+// @Failure 200 {object} models.CheckPictureCodeResponse "图片验证码错误"
+// @Failure 200 {object} models.CheckPictureCodeResponse "用户名不存在"
 // @Router /check-picture-code [POST]
 func CheckPictureCode(c *gin.Context) {
 	username := c.PostForm("username")
