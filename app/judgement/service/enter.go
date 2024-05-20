@@ -1,7 +1,7 @@
 package service
 
 import (
-	"online-judge/app/judgement/service/judging"
+	"online-judge/app/judgement/service/judging/cpp"
 	"online-judge/pkg/resp"
 	pb "online-judge/proto"
 )
@@ -13,7 +13,7 @@ var (
 func LanguageCheck(request *pb.SubmitRequest, response *pb.SubmitResponse) (err error) {
 	language := request.Language
 	if language == resp.CPP {
-		status, err = judging.JudgeCpp(request)
+		response, err = cpp.JudgeCpp(request, response)
 	}
 	return nil
 }

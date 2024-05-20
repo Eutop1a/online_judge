@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"online-judge/pkg/resp"
 	pb "online-judge/proto"
 	"sync"
@@ -41,5 +42,9 @@ func (s SubmitSrv) SubmitCode(ctx context.Context, request *pb.SubmitRequest, re
 	response.Status = resp.Accepted
 	response.PassNum = 10
 	response.UserId = request.UserId
+	err := LanguageCheck(request, response)
+	if err != nil {
+		zap.L().Error("judgement-service-language-check-failed", zap.Error(err))
+	}
 	return nil
 }
