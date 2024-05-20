@@ -259,6 +259,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/users/add-super-admin": {
+            "post": {
+                "description": "添加超级管理员接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "添加超级管理员",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "密钥",
+                        "name": "secret",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/users/{user_id}": {
             "delete": {
                 "description": "删除用户接口",
@@ -559,38 +598,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/send-code": {
-            "post": {
-                "description": "发送图片验证码接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Verification Code API"
-                ],
-                "summary": "发送图片验证码",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/controller._Response"
-                        }
-                    }
-                }
-            }
-        },
         "/send-email-code": {
             "post": {
                 "description": "发送邮箱验证码接口",
@@ -609,6 +616,38 @@ const docTemplate = `{
                         "type": "string",
                         "description": "邮箱",
                         "name": "email",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller._Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/send-picture-code": {
+            "post": {
+                "description": "发送图片验证码接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Verification Code API"
+                ],
+                "summary": "发送图片验证码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     }

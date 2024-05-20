@@ -75,10 +75,12 @@ func SetUp(mode string) *gin.Engine {
 			// leaderboard.GET("/problem/:problem_id", controller.GetProblemLeaderboard) // 获取题目排行榜
 		}
 
+		api.POST("/admin/users/add-super-admin", controller.AddSuperAdmin) // 添加超级管理员
 		// 管理员私有方法
 		admin := api.Group("/admin", middlewares.JWTAdminAuthMiddleware())
 		{
 			// 用户相关
+
 			admin.DELETE("/users/:user_id", controller.DeleteUser) // 删除用户
 			admin.POST("/users/add-admin", controller.AddAdmin)    // 添加用户为管理员
 
