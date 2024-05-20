@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"online-judge/dao/redis"
-	my_captcha "online-judge/pkg/my-captcha"
+	mycaptcha "online-judge/pkg/my-captcha"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"time"
@@ -43,7 +43,7 @@ func SendEmailCode(userEmail string) (resCode int) {
 // SendPictureCode 发送图片验证码
 func SendPictureCode(username string) (pic string, err error) {
 	// 单例模式的验证码实例
-	_, b64s, ans, err := my_captcha.GenerateCaptcha()
+	_, b64s, ans, err := mycaptcha.GenerateCaptcha()
 
 	if err != nil {
 		zap.L().Error("services-SendCode-GenerateCaptcha ", zap.Error(err))
