@@ -12,8 +12,9 @@ import (
 // @Summary 获取题目列表
 // @Description 获取题目列表接口
 // @Param Authorization header string true "token"
-// @Success 200 {object} _Response "获取题目列表成功"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.GetProblemListResponse "获取题目列表成功"
+// @Failure 200 {object} models.GetProblemListResponse "需要登录"
+// @Failure 200 {object} models.GetProblemListResponse "服务器内部错误"
 // @Router /problem/list [GET]
 func GetProblemList(c *gin.Context) {
 	var getProblemList services.Problem
@@ -34,9 +35,9 @@ func GetProblemList(c *gin.Context) {
 // @Produce json,multipart/form-data
 // @Param Authorization header string true "token"
 // @Param problem_id path string true "题目ID"
-// @Success 200 {object} _Response "获取成功"
-// @Failure 200 {object} _Response "题目ID不存在"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.GetProblemDetailResponse "1000 获取成功"
+// @Failure 200 {object} models.GetProblemDetailResponse "1008 需要登录"
+// @Failure 200 {object} models.GetProblemDetailResponse "1021 题目ID不存在"
 // @Router /problem/{problem_id} [GET]
 func GetProblemDetail(c *gin.Context) {
 	var getProblemDetail services.Problem
@@ -60,8 +61,9 @@ func GetProblemDetail(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param title formData string true "标题"
-// @Success 200 {object} _Response "获取题目ID成功"
-// @Failure 200 {object} _Response "题目title不存在"
+// @Success 200 {object} models.GetProblemIDResponse "1000 获取题目ID成功"
+// @Failure 200 {object} models.GetProblemIDResponse "1020 题目title不存在"
+// @Failure 200 {object} models.GetProblemIDResponse "1008 需要登录"
 // @Router /problem/id [POST]
 func GetProblemID(c *gin.Context) {
 	var getProblemID services.Problem
@@ -70,7 +72,6 @@ func GetProblemID(c *gin.Context) {
 	uid, err := getProblemID.GetProblemID()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeProblemTitleNotExist)
-		//zap.L().Error("controller-GetProblemID-GetProblemID ", zap.Error(err))
 		return
 	}
 	resp.ResponseSuccess(c, uid)

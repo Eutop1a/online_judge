@@ -20,8 +20,12 @@ import (
 // @Param problem_id formData string true "题目id"
 // @Param language formData string true "语言"
 // @Param code formData string true "代码"
-// @Success 200 {object} _Response "提交代码成功"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.SubmitCodeResponse "提交代码成功"
+// @Failure 200 {object} models.SubmitCodeResponse "用户ID不存在"
+// @Failure 200 {object} models.SubmitCodeResponse "题目ID不存在"
+// @Failure 200 {object} models.SubmitCodeResponse "不支持的语言类型"
+// @Failure 200 {object} models.SubmitCodeResponse "需要登录"
+// @Failure 200 {object} models.SubmitCodeResponse "服务器内部错误"
 // @Router /submissions/code [POST]
 func SubmitCode(c *gin.Context) {
 	var submission services.Submission

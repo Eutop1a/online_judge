@@ -67,7 +67,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeUnauthorized:          "需要管理员权限",
 	CodeUnsupportedLanguage:   "不支持的编程语言",
 	CodeErrorSecret:           "密钥错误",
-	CodeUserIDAlreadyExist:    "该用户已经是管理员了",
+	CodeUserIDAlreadyExist:    "该用户已是管理员",
 }
 
 func (c ResCode) Msg() string {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"online-judge/dao/redis"
-	mycaptcha "online-judge/pkg/my-captcha"
+	mycaptcha "online-judge/pkg/my_captcha"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"time"
@@ -12,13 +12,6 @@ import (
 
 // SendEmailCode 发送验证码接口
 func SendEmailCode(userEmail string) (resCode int) {
-	// 验证邮箱是否合法
-	if !utils.ValidateEmail(userEmail) {
-		resCode = resp.InvalidateEmailFormat
-		zap.L().Error("services-SendEmailCode-ValidateEmail " +
-			fmt.Sprintf("invalid email %s ", userEmail))
-		return
-	}
 	// 创建验证码
 	code, ts := utils.CreateVerificationCode()
 	// 发送验证码

@@ -19,10 +19,12 @@ import (
 // @Param password formData string true "密码"
 // @Param email formData string true "邮箱"
 // @Param code formData string true "验证码"
-// @Success 200 {object} _Response "注册成功"
-// @Failure 200 {object} _Response “验证码错误或已过期”
-// @Failure 200 {object} _Response “该邮箱已经存在”
-// @Failure 200 {object} _Response “服务器内部错误”
+// @Success 200 {object} models.RegisterResponse "注册成功"
+// @Failure 200 {object} models.RegisterResponse "用户已存在"
+// @Failure 200 {object} models.RegisterResponse "验证码错误或已过期"
+// @Failure 200 {object} models.RegisterResponse "验证码过期"
+// @Failure 200 {object} models.RegisterResponse "该邮箱已经存在"
+// @Failure 200 {object} models.RegisterResponse "服务器内部错误"
 // @Router /register [POST]
 func Register(c *gin.Context) {
 
@@ -84,11 +86,13 @@ func Register(c *gin.Context) {
 // @Produce json,xml
 // @Param username formData string true "用户名"
 // @Param password formData string true "密码"
-// @Success 200 {object} _Response "登录成功"
-// @Failure 200 {object} _Response "用户名不存在或验证码错误"
-// @Failure 200 {object} _Response "验证码过期"
-// @Failure 200 {object} _Response "密码错误"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.LoginResponse "登录成功"
+// @Failure 200 {object} models.LoginResponse "参数错误"
+// @Failure 200 {object} models.LoginResponse "用户名不存在"
+// @Failure 200 {object} models.LoginResponse "验证码错误"
+// @Failure 200 {object} models.LoginResponse "验证码过期"
+// @Failure 200 {object} models.LoginResponse "密码错误"
+// @Failure 200 {object} models.LoginResponse "服务器内部错误"
 // @Router /login [POST]
 func Login(c *gin.Context) {
 	var login services.UserService
@@ -141,10 +145,10 @@ func Login(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param user_id path string true "用户ID"
-// @Success 200 {object} _Response "获取用户信息成功"
-// @Failure 200 {object} _Response "参数错误"
-// @Failure 200 {object} _Response "没有此用户ID"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.GetUserDetailResponse "获取用户信息成功"
+// @Failure 200 {object} models.GetUserDetailResponse "参数错误"
+// @Failure 200 {object} models.GetUserDetailResponse "没有此用户ID"
+// @Failure 200 {object} models.GetUserDetailResponse "服务器内部错误"
 // @Router /users/{user_id} [GET]
 func GetUserDetail(c *gin.Context) {
 	var getDetail services.UserService
@@ -168,9 +172,6 @@ func GetUserDetail(c *gin.Context) {
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
 	// 内部错误
-	case resp.SearchDBError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
-
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
@@ -186,10 +187,12 @@ func GetUserDetail(c *gin.Context) {
 // @Param password formData string false "用户密码"
 // @Param email formData string false "用户邮箱"
 // @Param code formData string false "邮箱验证码"
-// @Success 200 {object} _Response "更新用户信息成功"
-// @Failure 200 {object} _Response "参数错误"
-// @Failure 200 {object} _Response "没有此用户ID or 验证码错误"
-// @Failure 200 {object} _Response "服务器内部错误"
+// @Success 200 {object} models.UpdateUserDetailResponse "更新用户信息成功"
+// @Failure 200 {object} models.UpdateUserDetailResponse "参数错误"
+// @Failure 200 {object} models.UpdateUserDetailResponse "没有此用户ID"
+// @Failure 200 {object} models.UpdateUserDetailResponse "验证码错误"
+// @Failure 200 {object} models.UpdateUserDetailResponse "验证码过期"
+// @Failure 200 {object} models.UpdateUserDetailResponse "服务器内部错误"
 // @Router /users/{user_id} [PUT]
 func UpdateUserDetail(c *gin.Context) {
 	var update services.UserService
@@ -226,9 +229,6 @@ func UpdateUserDetail(c *gin.Context) {
 	case resp.ExpiredVerCode:
 		resp.ResponseError(c, resp.CodeExpiredVerCode)
 
-	case resp.SearchDBError, resp.EncryptPwdError:
-		resp.ResponseError(c, resp.CodeInternalServerError)
-
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}
@@ -241,8 +241,8 @@ func UpdateUserDetail(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param username formData string true "用户名"
-// @Success 200 {object} _Response "获取用户ID成功"
-// @Failure 200 {object} _Response "用户名不存在"
+// @Success 200 {object} models.GetUserIDResponse "获取用户ID成功"
+// @Failure 200 {object} models.GetUserIDResponse "用户名不存在"
 // @Router /user-id [POST]
 func GetUserID(c *gin.Context) {
 	username := c.PostForm("username")
