@@ -163,30 +163,21 @@ func AddAdmin(c *gin.Context) {
 func CreateProblem(c *gin.Context) {
 	var createProblem services.Problem
 
-	title := c.PostForm("title")
-	content := c.PostForm("content")
-	difficulty := c.PostForm("difficulty")
-	maxRuntime, _ := strconv.Atoi(c.PostForm("max_runtime"))
-	maxMemory, _ := strconv.Atoi(c.PostForm("max_memory"))
+	createProblem.Title = c.PostForm("title")
+	createProblem.Content = c.PostForm("content")
+	createProblem.Difficulty = c.PostForm("difficulty")
+	createProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	createProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
 
 	testCase := c.PostFormArray("test_cases")
+	fmt.Println("TestCase: ", testCase)
 	if len(testCase) == 0 {
 		zap.L().Error("controller-CreateProblem-PostFormArray testCase is empty")
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
-	//fmt.Println(title)
-	//fmt.Println(content)
-	//fmt.Println(difficulty)
-	//fmt.Println(maxRuntime)
-	//fmt.Println(maxMemory)
-	//fmt.Println(testCase)
+
 	createProblem.ProblemID = utils.GetUUID()
-	createProblem.Content = content
-	createProblem.Difficulty = difficulty
-	createProblem.Title = title
-	createProblem.MaxRuntime = maxRuntime
-	createProblem.MaxMemory = maxMemory
 
 	tCase := make([]*services.TestCase, 0)
 	for _, value := range testCase {

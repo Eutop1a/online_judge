@@ -1,7 +1,6 @@
 package router
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -11,6 +10,7 @@ import (
 	"online-judge/logger"
 	"online-judge/middlewares"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 )
 
 // SetUp 路由注册
@@ -20,8 +20,10 @@ func SetUp(mode string) *gin.Engine {
 	}
 
 	r := gin.Default()
+
+	r.Use(utils.Cors())
+	//r.Use(cors.Default())
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
-	r.Use(cors.Default())
 
 	// api路由组
 	api := r.Group("/api/v1")
