@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap"
-	"online-judge/pkg/resp"
+	"online-judge/app/judgement/responses"
 	pb "online-judge/proto"
 	"sync"
 )
@@ -39,7 +39,7 @@ func (s SubmitSrv) SubmitCode(ctx context.Context, request *pb.SubmitRequest, re
 	fmt.Println(expected)
 	fmt.Println(timeLimit)
 	fmt.Println(memoryLimit)
-	response.Status = resp.Accepted
+	response.Status = responses.Accepted
 	response.PassNum = 10
 	response.UserId = request.UserId
 	err := LanguageCheck(request, response)

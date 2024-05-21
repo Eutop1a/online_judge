@@ -1,14 +1,15 @@
 package utility
 
 import (
+	"online-judge/app/judgement/responses"
 	"os"
 	"strconv"
 )
 
 func CodeSave(code string, UID int64) (string, error) {
 	//TODO:使用绝对路径存放代码路径
-	path := `..\..\..\temp`
-	dirName := path + "\\" + strconv.FormatInt(UID, 10) + ".cpp"
+
+	dirName := responses.Path + "\\" + strconv.FormatInt(UID, 10) + ".cpp"
 	//TODO:以dirName为文件名创建文件
 	problemFile, err := os.OpenFile(dirName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
