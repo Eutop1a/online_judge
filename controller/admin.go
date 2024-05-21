@@ -170,7 +170,6 @@ func CreateProblem(c *gin.Context) {
 	createProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
 
 	testCase := c.PostFormArray("test_cases")
-	fmt.Println("TestCase: ", testCase)
 	if len(testCase) == 0 {
 		zap.L().Error("controller-CreateProblem-PostFormArray testCase is empty")
 		resp.ResponseError(c, resp.CodeInvalidParam)
@@ -201,6 +200,7 @@ func CreateProblem(c *gin.Context) {
 		})
 	}
 	createProblem.TestCases = tCase
+
 	response := createProblem.CreateProblem()
 	switch response.Code {
 	case resp.Success:

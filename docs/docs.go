@@ -492,6 +492,18 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "input current page num, default: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {

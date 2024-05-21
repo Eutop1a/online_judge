@@ -3,8 +3,10 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"online-judge/pkg/define"
 	"online-judge/pkg/resp"
 	"online-judge/services"
+	"strconv"
 )
 
 // GetProblemList 获取题目列表接口
@@ -12,12 +14,16 @@ import (
 // @Summary 获取题目列表
 // @Description 获取题目列表接口
 // @Param Authorization header string true "token"
+// @Param page query int false "input current page num, default: 1"
+// @Param size query int false "pageSize"
 // @Success 200 {object} models.GetProblemListResponse "获取题目列表成功"
 // @Failure 200 {object} models.GetProblemListResponse "需要登录"
 // @Failure 200 {object} models.GetProblemListResponse "服务器内部错误"
 // @Router /problem/list [GET]
 func GetProblemList(c *gin.Context) {
 	var getProblemList services.Problem
+	getProblemList.Size, _ = strconv.Atoi(c.DefaultQuery("size", define.DefaultSize))
+	getProblemList.Page, _ = strconv.Atoi(c.DefaultQuery("page", define.DefaultPage))
 	data, err := getProblemList.GetProblemList()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeInternalServerError)
