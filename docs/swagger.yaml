@@ -531,6 +531,14 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: 'input current page num, default: 1'
+        in: query
+        name: page
+        type: integer
+      - description: pageSize
+        in: query
+        name: size
+        type: integer
       responses:
         "200":
           description: 服务器内部错误

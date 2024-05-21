@@ -33,14 +33,15 @@ type Admin struct {
 // Problems 题目信息
 type Problems struct {
 	Model
-	ProblemID  string `gorm:"type:char(36);primaryKey;column:problem_id" json:"problem_id"` // primary key
-	Title      string `gorm:"type:varchar(255);not null;column:title" json:"title"`         // problem title
-	Content    string `gorm:"type:text;not null;column:content" json:"content"`             // problem description
-	Difficulty string `gorm:"type:char(4);not null;column:difficulty" json:"difficulty"`    // easy mid hard
-	MaxRuntime int    `gorm:"type:bigint;not null;column:max_runtime" json:"max_runtime"`   // 时间限制
-	MaxMemory  int    `gorm:"type:bigint;not null;column:max_memory" json:"max_memory"`     // 内存限制
+	ID         int    `gorm:"autoIncrement;column:id" json:"id"`                             // primary key
+	ProblemID  string `gorm:"type:char(36);uniqueIndex;column:problem_id" json:"problem_id"` // unique key
+	Title      string `gorm:"type:varchar(255);not null;column:title" json:"title"`          // problem title
+	Content    string `gorm:"type:text;not null;column:content" json:"content"`              // problem description
+	Difficulty string `gorm:"type:char(4);not null;column:difficulty" json:"difficulty"`     // easy mid hard
+	MaxRuntime int    `gorm:"type:bigint;not null;column:max_runtime" json:"max_runtime"`    // 时间限制
+	MaxMemory  int    `gorm:"type:bigint;not null;column:max_memory" json:"max_memory"`      // 内存限制
 
-	TestCases []*TestCase `gorm:"foreignKey:pid" json:"test_cases"` // 测试样例集
+	TestCases []*TestCase `gorm:"foreignKey:pid;references:problem_id" json:"test_cases"` // 测试样例集
 }
 
 // TestCase 测试样例

@@ -3,12 +3,16 @@ package mysql
 import "gorm.io/gorm"
 
 // GetProblemList 获取题目列表
-func GetProblemList() (*[]Problems, error) {
+func GetProblemList(page, size int, count *int64) (*[]Problems, error) {
+	offset := (page - 1) * size // 从哪里开始查询，例如page = 1，应该从数据库的第0条记录开始查询
+
 	var problemList []Problems
 
 	// 执行查询并只选取题号、题目和难度字段
-	err := DB.Model(&Problems{}).Select("problem_id, title, difficulty").
-		Find(&problemList).Error
+	//err := DB.Model(&Problems{}).Select("problem_id, title, difficulty").
+	//	Find(&problemList).Error
+	err := DB.Model(&Problems{}).Count(count).Select("id, problem_id, title, difficulty").
+		Offset(offset).Limit(size).Find(&problemList).Error
 	if err != nil {
 		// 处理错误
 		return nil, err
