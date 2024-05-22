@@ -10,7 +10,7 @@ const (
 	SystemError
 )
 
-// 位置
+// Path 位置
 const (
 	Path = "D:/OnlineJudge/submit"
 )

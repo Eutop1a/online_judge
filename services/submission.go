@@ -2,14 +2,11 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 	"go.uber.org/zap"
-	"online-judge/consts"
-	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
 	pb "online-judge/proto"
@@ -109,58 +106,64 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		TimeLimit:   int32(problemDetail.MaxRuntime),
 		MemoryLimit: int32(problemDetail.MaxMemory),
 	}
+	//
+	//dataBody, err := json.Marshal(data)
+	//if err != nil {
+	//	response.Code = resp.JSONMarshalError
+	//	zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
+	//	return
+	//}
+	//
+	//// 发送给MQ的生产者
+	//err = mq.SendMessage2MQ(dataBody)
+	//if err != nil {
+	//	response.Code = resp.Send2MQError
+	//	zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
+	//	return
+	//}
+	//// 消费者
+	//msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
+	//if err != nil {
+	//	response.Code = resp.RecvFromMQError
+	//	zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
+	//	return
+	//}
 
-	dataBody, err := json.Marshal(data)
-	if err != nil {
-		response.Code = resp.JSONMarshalError
-		zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
-		return
-	}
-
-	// 发送给MQ的生产者
-	err = mq.SendMessage2MQ(dataBody)
-	if err != nil {
-		response.Code = resp.Send2MQError
-		zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
-		return
-	}
-	// 消费者
-	msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
-	if err != nil {
-		response.Code = resp.RecvFromMQError
-		zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
-		return
-	}
-
-	var wg sync.WaitGroup
+	//var resData *pb.SubmitResponse
+	//var forever = make(chan struct{})
+	//go func() {
+	//	for d := range msgs {
+	//		var submitRequest pb.SubmitRequest
+	//		err := json.Unmarshal(d.Body, &submitRequest)
+	//		if err != nil {
+	//			zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
+	//			continue
+	//		}
+	//		// 执行judgement函数
+	//		resData, err = s.Judgement(&submitRequest)
+	//		if err != nil {
+	//			response.Code = resp.InternalServerError
+	//			return
+	//		}
+	//		forever <- struct{}{}
+	//		// 确认ACK
+	//		d.Ack(false)
+	//	}
+	//}()
+	//<-forever
 	var resData *pb.SubmitResponse
-	var forever = make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
-		for d := range msgs {
-			var submitRequest pb.SubmitRequest
-			err := json.Unmarshal(d.Body, &submitRequest)
-			if err != nil {
-				zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
-				continue
-			}
-			// 确认ACK
-			d.Ack(false)
-			// 执行judgement函数
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				resData, err = s.Judgement(&submitRequest)
-				if err != nil {
-					response.Code = resp.InternalServerError
-					return
-				}
-			}()
-			wg.Wait()
-			forever <- struct{}{}
+		// 执行judgement函数
+		resData, err = s.Judgement(&data)
+		if err != nil {
+			response.Code = resp.InternalServerError
+			return
 		}
+		wg.Done()
 	}()
-
-	<-forever
+	wg.Wait()
 	response.Code = resp.Success
 	response.Data = resData
 	return
