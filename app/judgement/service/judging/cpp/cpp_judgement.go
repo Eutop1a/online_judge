@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"online-judge/app/judgement/responses"
+	"online-judge/app/judgement/service/judging/utility"
 	pb "online-judge/proto"
 	"os/exec"
 	"runtime"
@@ -15,18 +16,17 @@ import (
 func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
 	uid := request.UserId
 	input := request.Input
-	//code := request.Code 暂时不测存代码
+	code := request.Code
 	expected := request.Expected
 	timeLimit := request.TimeLimit
 	memoryLimit := request.MemoryLimit
 	UID := strconv.FormatInt(uid, 10)
-	/*savepath, err := utility.CodeSave(code, uid)
+	err := utility.CodeSave(code, uid)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("savepath: ", savepath) 暂时不测存代码*/
 
-	err := Complier(responses.Path, UID)
+	err = Complier(responses.Path, UID)
 	if err != nil {
 		fmt.Println("Complier Error: %v", err)
 		response.Status = responses.ComplierError
@@ -102,6 +102,8 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	case <-MLE:
 		response.Status = responses.MemoryLimited
 	}
+	response.PassNum = int32(passCount)
+	response.UserId = uid
 	fmt.Println("status: ", response.Status)
 	return response, nil
 }
