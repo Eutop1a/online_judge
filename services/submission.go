@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 	pb "online-judge/proto"
 	"online-judge/setting"
 	"sync"
@@ -164,6 +165,68 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		wg.Done()
 	}()
 	wg.Wait()
+
+	var verdict string
+
+	switch resData.Status {
+	case resp.Accepted:
+		verdict = "accepted"
+	case resp.WrongAnswer:
+		verdict = "wrong answer"
+	case resp.ComplierError:
+		verdict = "compiler error"
+	case resp.TimeLimited:
+		verdict = "time limited"
+	case resp.MemoryLimited:
+		verdict = "memory limited"
+	case resp.RuntimeError:
+		verdict = "runtime error"
+	case resp.SystemError:
+		verdict = "system error"
+	default:
+		verdict = "unknown"
+	}
+
+	// 先向数据库中添加这一次的提交记录
+	sub := &mysql.Judgement{
+		UID:          s.UserID,
+		JudgementID:  utils.GetUUID(),
+		SubmissionID: s.SubmissionID,
+		ProblemID:    s.ProblemID,
+		MemoryUsage:  resData.MemoryUsage,
+		Verdict:      verdict,
+		Runtime:      resData.Runtime,
+	}
+
+	err = mysql.InsertNewSubmission(sub)
+	if err != nil {
+		response.Code = resp.InsertToJudgementError
+		zap.L().Error("services-SubmitCode-InsertNewSubmission", zap.Error(err))
+		return
+	}
+
+	// 如果AC，先判断是否已经完成，再直接增加通过题目数量
+	finished, err := mysql.CheckIfAlreadyFinished(s.UserID, s.ProblemID)
+	fmt.Println(finished, err)
+	if err != nil { // 查询数据库错误
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
+		return
+	}
+	if finished { // 题目已经被完成
+		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished " +
+			fmt.Sprintf("%d had finished this problem %s", s.UserID, s.ProblemID))
+	} else { // 题目还没有被完成过
+		if resData.Status == resp.Accepted {
+			err = mysql.AddPassNum(resData.UserId)
+			if err != nil {
+				zap.L().Error("services-SubmitCode-AddPassNum", zap.Error(err))
+				response.Code = resp.SearchDBError
+				return
+			}
+		}
+	}
+
 	response.Code = resp.Success
 	response.Data = resData
 	return

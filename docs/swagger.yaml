@@ -637,11 +637,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: 用户id
-        in: formData
-        name: user_id
-        required: true
-        type: string
       - description: 题目id
         in: formData
         name: problem_id

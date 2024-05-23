@@ -26,6 +26,10 @@ message SubmitResponse {
   int32 status=2;
   //@inject_tag: json:"pass_num" form:"pass_num"
   int32 pass_num=3;
+  //@inject_tag: json:"memory_usage" form:"memory_usage"
+  double memory_usage=4;
+  //@inject_tag: json:"runtime" form:"runtime"
+  double runtime=5;
 }
 
 service Submission {
@@ -34,4 +38,4 @@ service Submission {
 }
 
 
-// protoc --proto_path=. --micro_out=. --go_out=. .\submission-service.proto
+// protoc --proto_path=. --micro_out=. --go_out=. .\submission_service.proto
