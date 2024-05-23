@@ -697,13 +697,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "用户id",
-                        "name": "user_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "题目id",
                         "name": "problem_id",
                         "in": "formData",

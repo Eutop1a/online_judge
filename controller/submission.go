@@ -5,7 +5,6 @@ import (
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"online-judge/services"
-	"strconv"
 	"time"
 )
 
@@ -16,7 +15,6 @@ import (
 // @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param user_id formData string true "用户id"
 // @Param problem_id formData string true "题目id"
 // @Param language formData string true "语言"
 // @Param code formData string true "代码"
@@ -29,13 +27,18 @@ import (
 // @Router /submissions/code [POST]
 func SubmitCode(c *gin.Context) {
 	var submission services.Submission
-	userId, _ := strconv.Atoi(c.PostForm("user_id"))
+	userId, ok := c.Get(resp.CtxUserIDKey)
+	if !ok {
+		resp.ResponseError(c, resp.CodeNeedLogin)
+		return
+	}
+
 	submission.ProblemID = c.PostForm("problem_id")
 	submission.Language = c.PostForm("language")
 	submission.Code = c.PostForm("code")
 
 	submission.SubmissionID = utils.GetUUID()
-	submission.UserID = int64(userId)
+	submission.UserID = userId.(int64)
 	submission.SubmissionTime = time.Now()
 	response := submission.SubmitCode()
 	switch response.Code {

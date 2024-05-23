@@ -17,4 +17,5 @@ const (
 	Send2MQError
 	JSONMarshalError
 	RecvFromMQError
+	InsertToJudgementError
 )
