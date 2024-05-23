@@ -27,9 +27,9 @@ message SubmitResponse {
   //@inject_tag: json:"pass_num" form:"pass_num"
   int32 pass_num=3;
   //@inject_tag: json:"memory_usage" form:"memory_usage"
-  double memory_usage=4;
+  int32 memory_usage=4;
   //@inject_tag: json:"runtime" form:"runtime"
-  double runtime=5;
+  int32 runtime=5;
 }
 
 service Submission {
