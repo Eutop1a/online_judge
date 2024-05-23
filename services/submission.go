@@ -193,9 +193,9 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		JudgementID:  utils.GetUUID(),
 		SubmissionID: s.SubmissionID,
 		ProblemID:    s.ProblemID,
-		MemoryUsage:  resData.MemoryUsage,
+		MemoryUsage:  int(resData.MemoryUsage),
 		Verdict:      verdict,
-		Runtime:      resData.Runtime,
+		Runtime:      int(resData.Runtime),
 	}
 
 	err = mysql.InsertNewSubmission(sub)
@@ -207,7 +207,6 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 
 	// 如果AC，先判断是否已经完成，再直接增加通过题目数量
 	finished, err := mysql.CheckIfAlreadyFinished(s.UserID, s.ProblemID)
-	fmt.Println(finished, err)
 	if err != nil { // 查询数据库错误
 		response.Code = resp.SearchDBError
 		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished ", zap.Error(err))

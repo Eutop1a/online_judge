@@ -67,13 +67,13 @@ type Submission struct {
 // Judgement 评测结果
 type Judgement struct {
 	Model
-	UID          int64   `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`
-	JudgementID  string  `gorm:"type:char(36);primaryKey;column:judgement_id" json:"judgement_id"`                                                      // 评测ID
-	SubmissionID string  `gorm:"type:char(36);foreignKey:submission_id;references:submission(submission_id);column:submission_id" json:"submission_id"` //提交记录
-	ProblemID    string  `gorm:"type:char(36);foreignKey:problem_id;references:problems(problem_id);column:problem_id" json:"problem_id"`
-	Verdict      string  `gorm:"type:varchar(20);column:verdict" json:"verdict"`      // 评测结果
-	MemoryUsage  float64 `gorm:"type:DOUBLE;column:memory_usage" json:"memory_usage"` // 内存用量
-	Runtime      float64 `gorm:"type:DOUBLE;not null;column:runtime" json:"runtime"`  // 运行时间
+	UID          int64  `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`
+	JudgementID  string `gorm:"type:char(36);primaryKey;column:judgement_id" json:"judgement_id"`                                                      // 评测ID
+	SubmissionID string `gorm:"type:char(36);foreignKey:submission_id;references:submission(submission_id);column:submission_id" json:"submission_id"` //提交记录
+	ProblemID    string `gorm:"type:char(36);foreignKey:problem_id;references:problems(problem_id);column:problem_id" json:"problem_id"`
+	Verdict      string `gorm:"type:varchar(20);column:verdict" json:"verdict"`      // 评测结果
+	MemoryUsage  int    `gorm:"type:bigint;column:memory_usage" json:"memory_usage"` // 内存用量
+	Runtime      int    `gorm:"type:bigint;not null;column:runtime" json:"runtime"`  // 运行时间
 }
 
 //
