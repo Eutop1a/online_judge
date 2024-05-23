@@ -3,6 +3,7 @@ package resp
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -33,9 +34,21 @@ func ResponseErrorWithMsg(c *gin.Context, code ResCode, msg interface{}) {
 }
 
 func ResponseSuccess(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusOK, &ResponseData{
-		Code: CodeSuccess,
-		Msg:  CodeSuccess.Msg(),
-		Data: data,
-	})
+	switch d := data.(type) {
+	case int64:
+		uidString := strconv.FormatInt(d, 10)
+		c.JSON(http.StatusOK, &ResponseData{
+			Code: CodeSuccess,
+			Msg:  CodeSuccess.Msg(),
+			Data: uidString,
+		})
+
+	default:
+		c.JSON(http.StatusOK, &ResponseData{
+			Code: CodeSuccess,
+			Msg:  CodeSuccess.Msg(),
+			Data: data,
+		})
+	}
+
 }

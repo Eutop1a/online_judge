@@ -91,12 +91,14 @@ services:
       - etcd
 #      - etcd-keeper
       - rabbitmq
+
     command: [
-              "/app/wait-for-it.sh", "mysql:3306", "--timeout=30", "--",
-              "/app/wait-for-it.sh", "redis:6379", "--",
-              "/app/wait-for-it.sh", "rabbitmq:5672", "--",
-              "/app/wait-for-it.sh", "etcd:2379", "--",
-              "sh", "-c", "./judgement & ./online-judge"]
+      "/app/wait-for-it.sh", "mysql:3306", "--timeout=30", "--",
+      "/app/wait-for-it.sh", "redis:6379", "--",
+      "/app/wait-for-it.sh", "rabbitmq:5672", "--",
+      "/app/wait-for-it.sh", "etcd:2379", "--",
+      "sh", "-c", "nohup ./judgement & ./online-judge"
+    ]
 
 volumes:
   mysql_data:

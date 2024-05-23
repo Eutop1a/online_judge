@@ -63,7 +63,7 @@ type EtcdConfig struct {
 }
 
 func Init() (err error) {
-	viper.SetConfigFile("./conf/config.yaml")
+	viper.SetConfigFile("./conf/config_docker.yaml")
 
 	err = viper.ReadInConfig() // 读取配置信息
 	if err != nil {
