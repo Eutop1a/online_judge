@@ -82,3 +82,25 @@ func GetProblemID(c *gin.Context) {
 	}
 	resp.ResponseSuccess(c, uid)
 }
+
+// GetProblemRandom 随机获取一个题目接口
+// @Tags Problem API
+// @Summary 随机获取一个题目
+// @Description 随机获取一个题目接口
+// @Accept multipart/form-data
+// @Produce json,multipart/form-data
+// @Param Authorization header string true "token"
+// @Success 200 {object} models.GetProblemRandomResponse "1000 获取成功"
+// @Failure 200 {object} models.GetProblemRandomResponse "1008 需要登录"
+// @Router /problem/random [GET]
+func GetProblemRandom(c *gin.Context) {
+	var getProblemDetail services.Problem
+
+	data, err := getProblemDetail.GetProblemRandom()
+	if err != nil {
+		resp.ResponseError(c, resp.CodeProblemIDNotExist)
+		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))
+		return
+	}
+	resp.ResponseSuccess(c, data)
+}
