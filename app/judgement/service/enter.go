@@ -12,6 +12,7 @@ func LanguageCheck(request *pb.SubmitRequest, response *pb.SubmitResponse) (err 
 	if language == resp.CPP {
 		response, err = cpp.JudgeCpp(request, response)
 	}
+	response.TotalNum = request.TotalNum
 	fmt.Println("response: ", response.Status)
 	return nil
 }

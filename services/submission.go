@@ -12,6 +12,7 @@ import (
 	"online-judge/pkg/utils"
 	pb "online-judge/proto"
 	"online-judge/setting"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -79,10 +80,13 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 	}
 	// 得到输入和输出
 	var input, expected []string
+	var total int
 	for _, tc := range problemDetail.TestCases {
 		input = append(input, tc.Input)
 		expected = append(expected, tc.Expected)
 	}
+	// 获取总数
+	total = len(input)
 	var language int32
 	switch s.Language {
 	case "Go":
@@ -106,6 +110,7 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		Expected:    expected,
 		TimeLimit:   int32(problemDetail.MaxRuntime),
 		MemoryLimit: int32(problemDetail.MaxMemory),
+		TotalNum:    int32(total),
 	}
 	//
 	//dataBody, err := json.Marshal(data)
@@ -228,7 +233,22 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 	}
 
 	response.Code = resp.Success
-	response.Data = resData
+	response.Data = struct {
+		UserId      string `json:"user_id"`
+		Status      int32  `son:"status"`
+		PassNum     int32  `json:"pass_num"`
+		TotalNum    int32  `json:"total_num"`
+		MemoryUsage int32  `json:"memory_usage"`
+		Runtime     int32  `json:"runtime"`
+	}{
+		UserId:      strconv.FormatInt(resData.UserId, 10),
+		Status:      resData.Status,
+		PassNum:     resData.PassNum,
+		TotalNum:    resData.TotalNum,
+		MemoryUsage: resData.MemoryUsage,
+		Runtime:     resData.Runtime,
+	}
+
 	return
 }
 
