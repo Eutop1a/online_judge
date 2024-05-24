@@ -19,6 +19,7 @@ type AppConfig struct {
 	*MySQLConfig    `mapstructure:"mysql"`
 	*RedisConfig    `mapstructure:"redis"`
 	*RabbitMQConfig `mapstructure:"rabbitmq"`
+	*EtcdConfig     `mapstructure:"etcd"`
 }
 
 type LogConfig struct {
@@ -56,8 +57,13 @@ type RabbitMQConfig struct {
 	Port     int    `mapstructure:"port"`
 }
 
+type EtcdConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+}
+
 func Init() (err error) {
-	viper.SetConfigFile("./conf/config-docker.yaml")
+	viper.SetConfigFile("./conf/config.yaml")
 
 	err = viper.ReadInConfig() // 读取配置信息
 	if err != nil {

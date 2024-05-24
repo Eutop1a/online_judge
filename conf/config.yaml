@@ -13,6 +13,7 @@ log:
   max_size: 200
   max_age: 30
   max_backups: 7
+
 mysql:
   host: localhost
   port: 3306
@@ -22,15 +23,21 @@ mysql:
   dbname: "onlinejudge"
   max_open_conns: 200
   max_idle_conns: 50
+
 redis:
   host: localhost
   port: 6379
   password: ""
   db: 0
   pool_size: 100
+
 rabbitmq:
   rabbit_mq: amqp
   host: localhost
   user: guest
   password: guest
   port: 5672
+
+etcd:
+  host: localhost
+  port: 2379

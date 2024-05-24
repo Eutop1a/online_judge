@@ -28,15 +28,20 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 
 	err = Complier(responses.Path, UID)
 	if err != nil {
-		fmt.Println("Complier Error: %v", err)
+		fmt.Printf("Complier Error: %v\n", err)
 		response.Status = responses.ComplierError
+		response.UserId = uid
 		response.PassNum = 0
-		return response, err
+
+		return response, nil
 	}
-	fmt.Println("Complier success")
+	//fmt.Println("Compiler success")
 	var WA = make(chan int)  //wrong answer
 	var RE = make(chan int)  //Runtime Error
 	var MLE = make(chan int) //Memory Limit Exceeded
+
+	Runtime := make([]int, len(input))
+	MemoryUsage := make([]int, len(input))
 
 	var lock sync.Mutex
 	//var ALL = make(chan int) //
@@ -45,8 +50,9 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	cmd := exec.Command(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 	for i := 0; i < len(input); i++ {
 		go func() {
+
 			// /path/uid.exe
-			fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
+			//fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
 				fmt.Println("Error creating stdin pipe:", err)
@@ -54,22 +60,26 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 			}
 			defer stdin.Close()
 			io.WriteString(stdin, input[i]+"\n")
-			fmt.Println("test Input: ", input[i])
+			//fmt.Println("test Input: ", input[i])
 			//TODO:根据输入样例运行，拿到输出结果和标准输出结果进行比对
 			var startMem runtime.MemStats //开始时内存情况
 			runtime.ReadMemStats(&startMem)
+			start := time.Now()
 			output, err := cmd.CombinedOutput()
-			fmt.Println("out: ", string(output))
+			//fmt.Println("out: ", string(output))
 			if err != nil {
 				fmt.Println("Runtime Error: ", err)
 				RE <- 1
 				return
 			}
+			Runtime[i] = int(time.Since(start).Milliseconds())
 			var endMem runtime.MemStats //结束时内存情况
 			runtime.ReadMemStats(&endMem)
 
 			//TODO:运行超内存
 			// ÷1024是为了转化为KB
+			//fmt.Println("Memory Usage: ", (endMem.TotalAlloc-startMem.TotalAlloc)/(1024))
+			MemoryUsage[i] = int(endMem.Alloc/1024 - (startMem.Alloc / 1024))
 			if endMem.Alloc/1024-(startMem.Alloc/1024) > uint64(memoryLimit) {
 				fmt.Println("Memory Usage: ", (endMem.TotalAlloc-startMem.TotalAlloc)/(1024))
 				MLE <- 1
@@ -77,6 +87,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 			}
 
 			//TODO:处理答案错误
+
 			if expected[i] != string(output) {
 				fmt.Println("test Output: ", expected[i])
 				WA <- 1
@@ -107,6 +118,17 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	}
 	response.PassNum = int32(passCount)
 	response.UserId = uid
+	response.MemoryUsage = calculateMax(MemoryUsage)
+	response.Runtime = calculateMax(Runtime)
+
 	fmt.Println("status: ", response.Status)
 	return response, nil
+}
+
+func calculateMax(slice []int) int32 {
+	var maxVal int
+	for _, value := range slice {
+		maxVal = max(value, maxVal)
+	}
+	return int32(maxVal)
 }

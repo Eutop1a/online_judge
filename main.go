@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
-	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
 	"online-judge/logger"
@@ -60,11 +60,11 @@ func main() {
 		return
 	}
 
-	// 5. init rabbitmq connection
-	if err := mq.InitRabbitMQ(setting.Conf.RabbitMQConfig); err != nil {
-		fmt.Printf("init rabbitmq failed, err: %v\n", err)
-		return
-	}
+	//// 5. init rabbitmq connection
+	//if err := mq.InitRabbitMQ(setting.Conf.RabbitMQConfig); err != nil {
+	//	fmt.Printf("init rabbitmq failed, err: %v\n", err)
+	//	return
+	//}
 	// 6. register route
 	r := router.SetUp(setting.Conf.Mode)
 
@@ -82,7 +82,7 @@ func main() {
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()

@@ -96,9 +96,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "服务器内部错误",
+                        "description": "1014 服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.CreateProblemResponse"
                         }
                     }
                 }
@@ -177,7 +177,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.UpdateProblemResponse"
                         }
                     }
                 }
@@ -214,7 +214,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.DeleteProblemResponse"
                         }
                     }
                 }
@@ -253,7 +253,46 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.AddAdminResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/add-super-admin": {
+            "post": {
+                "description": "添加超级管理员接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "添加超级管理员",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "密钥",
+                        "name": "secret",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddSuperAdminResponse"
                         }
                     }
                 }
@@ -292,7 +331,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.DeleteUserResponse"
                         }
                     }
                 }
@@ -329,9 +368,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "服务器内部错误",
+                        "description": "用户名不存在",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.CheckPictureCodeResponse"
                         }
                     }
                 }
@@ -352,9 +391,9 @@ const docTemplate = `{
                 "summary": "获取用户题解排名",
                 "responses": {
                     "200": {
-                        "description": "服务器内部错误",
+                        "description": "1014 服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.GetUserLeaderboardResponse"
                         }
                     }
                 }
@@ -394,7 +433,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     }
                 }
@@ -431,9 +470,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "题目title不存在",
+                        "description": "1008 需要登录",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.GetProblemIDResponse"
                         }
                     }
                 }
@@ -453,13 +492,25 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "input current page num, default: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.GetProblemListResponse"
                         }
                     }
                 }
@@ -497,9 +548,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "服务器内部错误",
+                        "description": "1021 题目ID不存在",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.GetProblemDetailResponse"
                         }
                     }
                 }
@@ -551,41 +602,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller._Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/send-code": {
-            "post": {
-                "description": "发送图片验证码接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Verification Code API"
-                ],
-                "summary": "发送图片验证码",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.RegisterResponse"
                         }
                     }
                 }
@@ -617,7 +636,39 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.SendEmailCodeResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/send-picture-code": {
+            "post": {
+                "description": "发送图片验证码接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Verification Code API"
+                ],
+                "summary": "发送图片验证码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1014 服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/models.SendPictureCodeResponse"
                         }
                     }
                 }
@@ -646,13 +697,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "用户id",
-                        "name": "user_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "题目id",
                         "name": "problem_id",
                         "in": "formData",
@@ -677,7 +721,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.SubmitCodeResponse"
                         }
                     }
                 }
@@ -709,7 +753,7 @@ const docTemplate = `{
                     "200": {
                         "description": "用户名不存在",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.GetUserIDResponse"
                         }
                     }
                 }
@@ -741,7 +785,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.GetUserDetailResponse"
                         }
                     }
                 }
@@ -789,7 +833,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/controller._Response"
+                            "$ref": "#/definitions/models.UpdateUserDetailResponse"
                         }
                     }
                 }
@@ -797,10 +841,241 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controller._Response": {
+        "models.AddAdminResponse": {
             "type": "object",
             "properties": {
                 "code": {
+                    "description": "\"1000 删除用户成功\" \"1001 参数错误\" \"1005 没有此用户ID\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.AddSuperAdminResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 添加超级管理员成功\" \"1001 参数错误\" \"1005 没有此用户ID\" \"1026 用户已是管理员\" \"1025 密钥错误\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.CheckPictureCodeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 图片验证码正确\" \"1017 图片验证码错误\" \"1014 用户名不存在\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.CreateProblemResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 创建成功\" \"1001 参数错误\" \"1018 测试用例格式错误\" \"1019 题目标题已存在\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.DeleteProblemResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 删除成功\" \"1021 题目ID不存在\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {}
+            }
+        },
+        "models.DeleteUserResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 删除用户成功\" \"1001 参数错误\" \"1004 没有此用户ID\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.GetProblemDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 获取题目列表成功\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.GetProblemIDResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 获取题目ID成功\" \"1020 题目title不存在\" \"1008 需要登录\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.GetProblemListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 获取题目列表成功\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.GetUserDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 获取用户信息成功\" \"1001 参数错误\" \"1004 没有此用户ID\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.GetUserIDResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 获取用户ID成功\" \"1004 用户名不存在\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.GetUserLeaderboardResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 获取用户题解排名成功\" \"1022 获取用户题解排名失败\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 登录成功\" \"1001 参数错误\" \"1004 用户名不存在\" \"1004 验证码错误\" \"1011 验证码过期\" \"1006 密码错误\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 注册成功\" \"1002 用户已存在\" \"1011 验证码错误或已过期\" \"1012 验证码过期\" \"1013 该邮箱已经存在\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.SendEmailCodeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 发送邮箱验证码成功\" \"1015 邮箱格式错误\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.SendPictureCodeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 发送图片验证码成功\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.SubmitCodeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 提交代码成功\" \"1005 用户ID不存在\" \"1021 题目ID不存在\" \"1024 不支持的语言类型\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "omitempty 字段为空就忽略"
+                },
+                "msg": {}
+            }
+        },
+        "models.UpdateProblemResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 修改成功\" \"1021 题目ID不存在\" \"1019 题目标题已存在\" \"1018 测试用例格式错误\" \"1008 需要登录\" \"1014 服务器内部错误\"",
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {}
+            }
+        },
+        "models.UpdateUserDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "\"1000 更新用户信息成功\" \"1001 参数错误\" \"1004 没有此用户ID\" \"1011 验证码错误\" \"1012 验证码过期\" \"1014 服务器内部错误\"",
                     "type": "integer"
                 },
                 "data": {

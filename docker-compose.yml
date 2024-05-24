@@ -1,36 +1,36 @@
 # version: "3.8"
-networks:
-  online-judge:
-    driver: bridge
+#networks:
+#  online-judge:
+#    driver: bridge
 
 services:
   mysql:
-    container_name: mysql
+#    container_name: mysql
     image: mysql:latest
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=123456
-      - MYSQL_DATABASE=onlinejudge
-      - TZ=Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: onlinejudge
+      TZ: Asia/Shanghai
     ports:
       - "3307:3306"
-    networks:
-      - online-judge
-#    volumes:
-#      - mysql_data:/var/lib/mysql
+#    networks:
+#      - online-judge
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   redis:
-    container_name: redis
+#    container_name: redis
     image: redis:latest
     restart: always
     environment:
       TZ: Asia/Shanghai
     ports:
       - "6380:6379"
-    networks:
-      - online-judge
-#    volumes:
-#      - redis_data:/data
+#    networks:
+#      - online-judge
+    volumes:
+      - redis_data:/data
 
   etcd:
     container_name: etcd
@@ -49,23 +49,23 @@ services:
       - ETCD_AUTH_PASSWORD="online-judge"
     ports:
       - "2380:2379"
-    networks:
-      - online-judge
+#    networks:
+#      - online-judge
 
-  etcd-keeper:
-    image: "evildecay/etcdkeeper:latest"
-    container_name: etcd-keeper
-    environment:
-      - ETCD_HOSTS=http://etcd:2379
-      - SW_STORAGE_ETCD_CLUSTER_NODES=etcd:2379
-      - HOST=127.0.0.1
-      - HOSTNAME=etcd-keeper
-    links:
-      - etcd
-    ports:
-      - "8080:8080"
-    networks:
-      - online-judge
+#  etcd-keeper:
+#    image: "evildecay/etcdkeeper:latest"
+#    container_name: etcd-keeper
+#    environment:
+#      - ETCD_HOSTS=http://etcd:2379
+#      - SW_STORAGE_ETCD_CLUSTER_NODES=etcd:2379
+#      - HOST=127.0.0.1
+#      - HOSTNAME=etcd-keeper
+#    links:
+#      - etcd
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - online-judge
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -76,8 +76,8 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest # 设置 RabbitMQ 默认用户名
       - RABBITMQ_DEFAULT_PASS=guest # 设置 RabbitMQ 默认密码
-    networks:
-      - online-judge
+#    networks:
+#      - online-judge
 
   online-judge:
     build: .
@@ -89,11 +89,17 @@ services:
       - mysql
       - redis
       - etcd
-      - etcd-keeper
+#      - etcd-keeper
       - rabbitmq
-    command: ["/app/wait-for-it.sh", "mysql:3306", "--",
-              "redis:6379", "--",
-              "rabbitmq:5672", "--",
-              "etcd:2379", "--",
-              "etcd-keeper:8080", "--",
-              "./online-judge", "./judgement"]
+
+    command: [
+      "/app/wait-for-it.sh", "mysql:3306", "--timeout=30", "--",
+      "/app/wait-for-it.sh", "redis:6379", "--",
+      "/app/wait-for-it.sh", "rabbitmq:5672", "--",
+      "/app/wait-for-it.sh", "etcd:2379", "--",
+      "sh", "-c", "nohup ./judgement & ./online-judge"
+    ]
+
+volumes:
+  mysql_data:
+  redis_data:

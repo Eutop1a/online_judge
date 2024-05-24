@@ -2,17 +2,16 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 	"go.uber.org/zap"
-	"online-judge/consts"
-	"online-judge/dao/mq"
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/utils"
 	pb "online-judge/proto"
+	"online-judge/setting"
 	"sync"
 	"time"
 )
@@ -108,58 +107,126 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		TimeLimit:   int32(problemDetail.MaxRuntime),
 		MemoryLimit: int32(problemDetail.MaxMemory),
 	}
+	//
+	//dataBody, err := json.Marshal(data)
+	//if err != nil {
+	//	response.Code = resp.JSONMarshalError
+	//	zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
+	//	return
+	//}
+	//
+	//// 发送给MQ的生产者
+	//err = mq.SendMessage2MQ(dataBody)
+	//if err != nil {
+	//	response.Code = resp.Send2MQError
+	//	zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
+	//	return
+	//}
+	//// 消费者
+	//msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
+	//if err != nil {
+	//	response.Code = resp.RecvFromMQError
+	//	zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
+	//	return
+	//}
 
-	dataBody, err := json.Marshal(data)
-	if err != nil {
-		response.Code = resp.JSONMarshalError
-		zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
-		return
-	}
-
-	// 发送给MQ的生产者
-	err = mq.SendMessage2MQ(dataBody)
-	if err != nil {
-		response.Code = resp.Send2MQError
-		zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
-		return
-	}
-	// 消费者
-	msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
-	if err != nil {
-		response.Code = resp.RecvFromMQError
-		zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
-		return
-	}
-
-	var wg sync.WaitGroup
+	//var resData *pb.SubmitResponse
+	//var forever = make(chan struct{})
+	//go func() {
+	//	for d := range msgs {
+	//		var submitRequest pb.SubmitRequest
+	//		err := json.Unmarshal(d.Body, &submitRequest)
+	//		if err != nil {
+	//			zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
+	//			continue
+	//		}
+	//		// 执行judgement函数
+	//		resData, err = s.Judgement(&submitRequest)
+	//		if err != nil {
+	//			response.Code = resp.InternalServerError
+	//			return
+	//		}
+	//		forever <- struct{}{}
+	//		// 确认ACK
+	//		d.Ack(false)
+	//	}
+	//}()
+	//<-forever
 	var resData *pb.SubmitResponse
-	var forever = make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
-		for d := range msgs {
-			var submitRequest pb.SubmitRequest
-			err := json.Unmarshal(d.Body, &submitRequest)
-			if err != nil {
-				zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
-				continue
-			}
-			// 确认ACK
-			d.Ack(false)
-			// 执行judgement函数
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				resData, err = s.Judgement(&submitRequest)
-				if err != nil {
-					response.Code = resp.InternalServerError
-					return
-				}
-			}()
-			wg.Wait()
-			forever <- struct{}{}
+		// 执行judgement函数
+		resData, err = s.Judgement(&data)
+		if err != nil {
+			response.Code = resp.InternalServerError
+			return
 		}
+		wg.Done()
 	}()
+	wg.Wait()
 
-	<-forever
+	var verdict string
+
+	switch resData.Status {
+	case resp.Accepted:
+		verdict = "accepted"
+	case resp.WrongAnswer:
+		verdict = "wrong answer"
+	case resp.ComplierError:
+		verdict = "compiler error"
+	case resp.TimeLimited:
+		verdict = "time limited"
+	case resp.MemoryLimited:
+		verdict = "memory limited"
+	case resp.RuntimeError:
+		verdict = "runtime error"
+	case resp.SystemError:
+		verdict = "system error"
+	default:
+		verdict = "unknown"
+	}
+
+	// 先向数据库中添加这一次的提交记录
+	sub := &mysql.Judgement{
+		UID:          s.UserID,
+		JudgementID:  utils.GetUUID(),
+		SubmissionID: s.SubmissionID,
+		ProblemID:    s.ProblemID,
+		MemoryUsage:  int(resData.MemoryUsage),
+		Verdict:      verdict,
+		Runtime:      int(resData.Runtime),
+	}
+
+	err = mysql.InsertNewSubmission(sub)
+	if err != nil {
+		response.Code = resp.InsertToJudgementError
+		zap.L().Error("services-SubmitCode-InsertNewSubmission", zap.Error(err))
+		return
+	}
+
+	// 如果AC，先判断是否已经完成，再直接增加通过题目数量
+	finished, err := mysql.CheckIfAlreadyFinished(s.UserID, s.ProblemID)
+	fmt.Println("services-SubmitCode-CheckIfAlreadyFinished:", finished, err)
+	if err != nil { // 查询数据库错误
+		response.Code = resp.SearchDBError
+		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
+		return
+	}
+	if finished { // 题目已经被完成
+		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished " +
+			fmt.Sprintf("%d had finished this problem %s", s.UserID, s.ProblemID))
+	} else { // 题目还没有被完成过
+		if resData.Status == resp.Accepted {
+			err = mysql.AddPassNum(resData.UserId)
+			if err != nil {
+				zap.L().Error("services-SubmitCode-AddPassNum", zap.Error(err))
+				response.Code = resp.SearchDBError
+				return
+			}
+		}
+	}
+
 	response.Code = resp.Success
 	response.Data = resData
 	return
@@ -167,8 +234,10 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 
 func (s *Submission) Judgement(data *pb.SubmitRequest) (*pb.SubmitResponse, error) {
 	// etcd 注册
+	addr := setting.Conf.EtcdConfig.Host
+	port := setting.Conf.EtcdConfig.Port
 	etcdReg := etcd.NewRegistry(
-		registry.Addrs("127.0.0.1:2379"),
+		registry.Addrs(fmt.Sprintf("%s:%d", addr, port)),
 	)
 	service := micro.NewService(
 		micro.Registry(etcdReg),

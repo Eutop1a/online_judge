@@ -1,0 +1,41 @@
+syntax = "proto3";
+package pb;
+option go_package="./;pb";
+
+message SubmitRequest {
+  //@inject_tag: json:"user_id" form:"user_id"
+  int64 user_id=1;
+  //@inject_tag: json:"language" form:"language"
+  int32 language=2;
+  //@inject_tag: json:"code" form:"code"
+  string code=3;
+  //@inject_tag: json:"input" form:"input"
+  repeated string input=4;
+  //@inject_tag: json:"expected" form:"expected"
+  repeated string expected=5;
+  //@inject_tag: json:"time_limit" form:"time_limit"
+  int32 time_limit=6;
+  //@inject_tag: json:"memory_limit" form:"memory_limit"
+  int32 memory_limit=7;
+}
+
+message SubmitResponse {
+  //@inject_tag: json:"user_id" form:"user_id"
+  int64 user_id=1;
+  //@inject_tag: json:"status" form:"status"
+  int32 status=2;
+  //@inject_tag: json:"pass_num" form:"pass_num"
+  int32 pass_num=3;
+  //@inject_tag: json:"memory_usage" form:"memory_usage"
+  int32 memory_usage=4;
+  //@inject_tag: json:"runtime" form:"runtime"
+  int32 runtime=5;
+}
+
+service Submission {
+  rpc SubmitCode(SubmitRequest) returns(SubmitResponse);
+
+}
+
+
+// protoc --proto_path=. --micro_out=. --go_out=. .\submission_service.proto

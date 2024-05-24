@@ -1,8 +1,176 @@
 basePath: /api/v1
 definitions:
-  controller._Response:
+  models.AddAdminResponse:
     properties:
       code:
+        description: '"1000 删除用户成功" "1001 参数错误" "1005 没有此用户ID" "1008 需要登录" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.AddSuperAdminResponse:
+    properties:
+      code:
+        description: '"1000 添加超级管理员成功" "1001 参数错误" "1005 没有此用户ID" "1026 用户已是管理员" "1025
+          密钥错误" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.CheckPictureCodeResponse:
+    properties:
+      code:
+        description: '"1000 图片验证码正确" "1017 图片验证码错误" "1014 用户名不存在"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.CreateProblemResponse:
+    properties:
+      code:
+        description: '"1000 创建成功" "1001 参数错误" "1018 测试用例格式错误" "1019 题目标题已存在" "1008
+          需要登录" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.DeleteProblemResponse:
+    properties:
+      code:
+        description: '"1000 删除成功" "1021 题目ID不存在" "1008 需要登录" "1014 服务器内部错误"'
+        type: integer
+      data: {}
+      msg: {}
+    type: object
+  models.DeleteUserResponse:
+    properties:
+      code:
+        description: '"1000 删除用户成功" "1001 参数错误" "1004 没有此用户ID" "1008 需要登录" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.GetProblemDetailResponse:
+    properties:
+      code:
+        description: '"1000 获取题目列表成功" "1008 需要登录" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.GetProblemIDResponse:
+    properties:
+      code:
+        description: '"1000 获取题目ID成功" "1020 题目title不存在" "1008 需要登录"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.GetProblemListResponse:
+    properties:
+      code:
+        description: '"1000 获取题目列表成功" "1008 需要登录" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.GetUserDetailResponse:
+    properties:
+      code:
+        description: '"1000 获取用户信息成功" "1001 参数错误" "1004 没有此用户ID" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.GetUserIDResponse:
+    properties:
+      code:
+        description: '"1000 获取用户ID成功" "1004 用户名不存在"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.GetUserLeaderboardResponse:
+    properties:
+      code:
+        description: '"1000 获取用户题解排名成功" "1022 获取用户题解排名失败" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.LoginResponse:
+    properties:
+      code:
+        description: '"1000 登录成功" "1001 参数错误" "1004 用户名不存在" "1004 验证码错误" "1011 验证码过期"
+          "1006 密码错误" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.RegisterResponse:
+    properties:
+      code:
+        description: '"1000 注册成功" "1002 用户已存在" "1011 验证码错误或已过期" "1012 验证码过期" "1013
+          该邮箱已经存在" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.SendEmailCodeResponse:
+    properties:
+      code:
+        description: '"1000 发送邮箱验证码成功" "1015 邮箱格式错误" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.SendPictureCodeResponse:
+    properties:
+      code:
+        description: '"1000 发送图片验证码成功" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.SubmitCodeResponse:
+    properties:
+      code:
+        description: '"1000 提交代码成功" "1005 用户ID不存在" "1021 题目ID不存在" "1024 不支持的语言类型"
+          "1008 需要登录" "1014 服务器内部错误"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
+  models.UpdateProblemResponse:
+    properties:
+      code:
+        description: '"1000 修改成功" "1021 题目ID不存在" "1019 题目标题已存在" "1018 测试用例格式错误" "1008
+          需要登录" "1014 服务器内部错误"'
+        type: integer
+      data: {}
+      msg: {}
+    type: object
+  models.UpdateUserDetailResponse:
+    properties:
+      code:
+        description: '"1000 更新用户信息成功" "1001 参数错误" "1004 没有此用户ID" "1011 验证码错误" "1012
+          验证码过期" "1014 服务器内部错误"'
         type: integer
       data:
         description: omitempty 字段为空就忽略
@@ -44,7 +212,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.DeleteProblemResponse'
       summary: 删除题目
       tags:
       - Admin API
@@ -96,7 +264,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.UpdateProblemResponse'
       summary: 更新题目信息
       tags:
       - Admin API
@@ -149,9 +317,9 @@ paths:
       - multipart/form-data
       responses:
         "200":
-          description: 服务器内部错误
+          description: 1014 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.CreateProblemResponse'
       summary: 创建新题目
       tags:
       - Admin API
@@ -177,7 +345,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.DeleteUserResponse'
       summary: 删除用户
       tags:
       - Admin API
@@ -203,8 +371,34 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.AddAdminResponse'
       summary: 添加管理员
+      tags:
+      - Admin API
+  /admin/users/add-super-admin:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 添加超级管理员接口
+      parameters:
+      - description: 用户ID
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - description: 密钥
+        in: formData
+        name: secret
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/models.AddSuperAdminResponse'
+      summary: 添加超级管理员
       tags:
       - Admin API
   /check-picture-code:
@@ -227,9 +421,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 服务器内部错误
+          description: 用户名不存在
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.CheckPictureCodeResponse'
       summary: 检查图片验证码
       tags:
       - Verification Code API
@@ -242,9 +436,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 服务器内部错误
+          description: 1014 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.GetUserLeaderboardResponse'
       summary: 获取用户题解排名
       tags:
       - Rank API
@@ -271,7 +465,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.LoginResponse'
       summary: 用户登录
       tags:
       - User API
@@ -296,9 +490,9 @@ paths:
       - multipart/form-data
       responses:
         "200":
-          description: 服务器内部错误
+          description: 1021 题目ID不存在
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.GetProblemDetailResponse'
       summary: 获取单个题目详细
       tags:
       - Problem API
@@ -322,9 +516,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 题目title不存在
+          description: 1008 需要登录
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.GetProblemIDResponse'
       summary: 获取题目ID
       tags:
       - Problem API
@@ -337,11 +531,19 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: 'input current page num, default: 1'
+        in: query
+        name: page
+        type: integer
+      - description: pageSize
+        in: query
+        name: size
+        type: integer
       responses:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.GetProblemListResponse'
       summary: 获取题目列表
       tags:
       - Problem API
@@ -376,33 +578,12 @@ paths:
       - multipart/form-data
       responses:
         "200":
-          description: OK
+          description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.RegisterResponse'
       summary: 用户注册
       tags:
       - User API
-  /send-code:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 发送图片验证码接口
-      parameters:
-      - description: 用户名
-        in: formData
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/controller._Response'
-      summary: 发送图片验证码
-      tags:
-      - Verification Code API
   /send-email-code:
     post:
       consumes:
@@ -420,8 +601,29 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.SendEmailCodeResponse'
       summary: 发送邮箱验证码
+      tags:
+      - Verification Code API
+  /send-picture-code:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 发送图片验证码接口
+      parameters:
+      - description: 用户名
+        in: formData
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/models.SendPictureCodeResponse'
+      summary: 发送图片验证码
       tags:
       - Verification Code API
   /submissions/code:
@@ -433,11 +635,6 @@ paths:
       - description: token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: 用户id
-        in: formData
-        name: user_id
         required: true
         type: string
       - description: 题目id
@@ -461,7 +658,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.SubmitCodeResponse'
       summary: 提交代码
       tags:
       - Submission API
@@ -482,7 +679,7 @@ paths:
         "200":
           description: 用户名不存在
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.GetUserIDResponse'
       summary: 获取用户ID
       tags:
       - User API
@@ -503,7 +700,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.GetUserDetailResponse'
       summary: 获取用户详细信息
       tags:
       - User API
@@ -535,7 +732,7 @@ paths:
         "200":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/controller._Response'
+            $ref: '#/definitions/models.UpdateUserDetailResponse'
       summary: 更新用户详细信息
       tags:
       - User API

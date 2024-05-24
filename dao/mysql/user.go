@@ -6,20 +6,17 @@ import (
 
 // CheckEmail 检查是否有这个邮箱
 func CheckEmail(email string, countEmail *int64) error {
-	err := DB.Model(&User{}).Where("email=?", email).Count(countEmail).Error
-	return err
+	return DB.Model(&User{}).Where("email=?", email).Count(countEmail).Error
 }
 
 // CheckUsername 检查是否有这个用户名
 func CheckUsername(username string, countUsername *int64) error {
-	err := DB.Model(&User{}).Where("username=?", username).Count(countUsername).Error
-	return err
+	return DB.Model(&User{}).Where("username=?", username).Count(countUsername).Error
 }
 
 // CheckUserID 检查是否有这个用户ID
-func CheckUserID(UID int64, countUsername *int64) error {
-	err := DB.Model(&User{}).Where("user_id=?", UID).Count(countUsername).Error
-	return err
+func CheckUserID(UID int64, countUserID *int64) error {
+	return DB.Model(&User{}).Where("user_id=?", UID).Count(countUserID).Error
 }
 
 // InsertNewUser 插入用户
@@ -31,8 +28,7 @@ func InsertNewUser(uID int64, Username, password, email string) error {
 		Email:    email,
 	}
 
-	err := DB.Create(&newUser).Error
-	return err
+	return DB.Create(&newUser).Error
 }
 
 // CheckPwd 检查密码是否正确
@@ -62,8 +58,7 @@ func GetUserDetail(UID int64) (data User, err error) {
 
 // DeleteUser 删除用户
 func DeleteUser(UID int64) error {
-	err := DB.Delete(&User{}, UID).Error // 根据主键删除
-	return err
+	return DB.Delete(&User{}, UID).Error // 根据主键删除
 }
 
 // UpdateUserDetail 更新用户信息
@@ -76,10 +71,10 @@ func UpdateUserDetail(UID int64, email, pwd string) (err error) {
 		updateData["password"] = pwd
 	}
 
-	err = DB.Model(&User{}).Where("user_id=?", UID).Updates(updateData).Error
-	return
+	return DB.Model(&User{}).Where("user_id=?", UID).Updates(updateData).Error
 }
 
+// GetUserID 根据 username 获取用户ID
 func GetUserID(username string) (uid int64, err error) {
 	var user User
 	err = DB.Take(&user, "username=?", username).Error
@@ -92,9 +87,7 @@ func GetUserID(username string) (uid int64, err error) {
 // CheckUserIsAdmin 根据uid判断用户是不是管理员
 func CheckUserIsAdmin(uid int64) (err error) {
 	var admin Admin
-	err = DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
-
-	return err
+	return DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
 }
 
 // AddAdminUser 添加管理员用户
@@ -102,6 +95,9 @@ func AddAdminUser(uid int64) (err error) {
 	admin := Admin{
 		UserID: uid,
 	}
-	err = DB.Model(&Admin{}).Create(&admin).Error
-	return
+	return DB.Model(&Admin{}).Create(&admin).Error
+}
+
+func CheckAdminUserID(uid int64, countUserID *int64) error {
+	return DB.Model(&Admin{}).Where("user_id=?", uid).Count(countUserID).Error
 }

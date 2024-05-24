@@ -20,9 +20,11 @@ RUN go mod download && go mod tidy
 
 # 将项目文件添加到容器中
 COPY . .
+#COPY ./shell .
 
 # 编译项目
 RUN chmod 777 ./wait-for-it.sh &&  \
+#    chmod 777 ./shell/start.sh && \
        go build -o judgement ./app/judgement/cmd/main.go && \
        go build -o online-judge main.go
 
@@ -40,15 +42,16 @@ COPY --from=builder /app/conf /app/conf
 COPY --from=builder /app/online-judge /app/online-judge
 COPY --from=builder /app/judgement /app/judgement
 COPY --from=builder /app/wait-for-it.sh /app/wait-for-it.sh
-
-# 安装 mysql 和 redis 的客户端，以便与 docker-compose 中的服务进行交互
-#RUN yum install -y mysql redis
+#COPY --from=builder /app/start.sh /app/start.sh
 
 # 假设你的项目需要运行在 65533 端口
 EXPOSE 65533
 EXPOSE 8082
 
 # 启动你的应用程序
-CMD ["./online-judge"]
-CMD ["./judgement"]
+#CMD ["sh", "-c", "./online-judge"]
+
+# 最后一步，设置启动命令
+CMD nohup ./judgement & ./online-judge
+
 
