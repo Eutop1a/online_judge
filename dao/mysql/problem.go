@@ -1,6 +1,9 @@
 package mysql
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"math/rand"
+)
 
 // GetProblemList 获取题目列表
 func GetProblemList(page, size int, count *int64) (*[]Problems, error) {
@@ -31,6 +34,26 @@ func GetProblemDetail(pid string) (problem *Problems, err error) {
 		return nil, err
 	}
 	return
+}
+
+// GetProblemRandom 随机获取一个题目
+func GetProblemRandom() (problem *Problems, err error) {
+	var problemsList []Problems
+	err = DB.Model(&Problems{}).Find(&problemsList).Error
+	if err != nil {
+		return nil, err
+	}
+	randomIdx := rand.Intn(len(problemsList))
+	problemIdx := &problemsList[randomIdx].ID
+
+	err = DB.Where("id = ?", problemIdx).Preload("TestCases", func(db *gorm.DB) *gorm.DB {
+		return db.Limit(2)
+	}).First(&problem).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return problem, nil
 }
 
 // GetEntireProblem 获取题目的全部信息

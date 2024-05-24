@@ -20,3 +20,10 @@ type GetProblemIDResponse struct {
 	Msg  interface{} `json:"msg"`
 	Data interface{} `json:"data"` // omitempty 字段为空就忽略
 }
+
+type GetProblemRandomResponse struct {
+	Code int `json:"code"` // "1000 获取题目ID成功" "1008 需要登录"
+
+	Msg  interface{} `json:"msg"`
+	Data interface{} `json:"data"` // omitempty 字段为空就忽略
+}

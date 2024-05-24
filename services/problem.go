@@ -83,3 +83,13 @@ func (p *Problem) GetProblemID() (problemID string, err error) {
 	}
 	return
 }
+
+// GetProblemRandom 随机获取一个题目
+func (p *Problem) GetProblemRandom() (*mysql.Problems, error) {
+	problem, err := mysql.GetProblemRandom()
+	if err != nil {
+		zap.L().Error("services-GetProblemRandom-GetProblemRandom", zap.Error(err))
+		return nil, err
+	}
+	return problem, nil
+}

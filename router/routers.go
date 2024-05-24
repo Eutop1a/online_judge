@@ -50,6 +50,7 @@ func SetUp(mode string) *gin.Engine {
 			problem.POST("/id", controller.GetProblemID)             // 获取题目ID
 			problem.GET("/list", controller.GetProblemList)          // 获取题目列表
 			problem.GET("/:problem_id", controller.GetProblemDetail) // 获取单个题目详细
+			problem.GET("/random", controller.GetProblemRandom)      // 随机单个题目详细
 		}
 
 		// 提交相关

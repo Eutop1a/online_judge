@@ -82,6 +82,15 @@ definitions:
         description: omitempty 字段为空就忽略
       msg: {}
     type: object
+  models.GetProblemRandomResponse:
+    properties:
+      code:
+        description: '"1000 获取题目ID成功" "1008 需要登录"'
+        type: integer
+      data:
+        description: omitempty 字段为空就忽略
+      msg: {}
+    type: object
   models.GetUserDetailResponse:
     properties:
       code:
@@ -545,6 +554,28 @@ paths:
           schema:
             $ref: '#/definitions/models.GetProblemListResponse'
       summary: 获取题目列表
+      tags:
+      - Problem API
+  /problem/random:
+    get:
+      consumes:
+      - multipart/form-data
+      description: 随机获取一个题目接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 1008 需要登录
+          schema:
+            $ref: '#/definitions/models.GetProblemRandomResponse'
+      summary: 随机获取一个题目
       tags:
       - Problem API
   /register:
