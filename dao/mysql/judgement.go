@@ -23,11 +23,16 @@ func CheckIfAlreadyFinished(uid int64, pid string) (finished bool, err error) {
 		// 处理其他错误
 		return false, err
 	}
+	var count int
 	for _, v := range tmp {
 		if v.Verdict == "accepted" {
-			return true, nil
+			count++
 		}
 	}
+	if count == 1 {
+		return false, nil
+	} else {
+		return true, nil
+	}
 
-	return false, nil
 }
