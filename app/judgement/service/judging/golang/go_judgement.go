@@ -1,4 +1,4 @@
-package cpp
+package golang
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
+func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
 	uid := request.UserId
 	input := request.Input
 	code := request.Code
@@ -21,7 +21,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	timeLimit := request.TimeLimit
 	memoryLimit := request.MemoryLimit
 	UID := strconv.FormatInt(uid, 10)
-	err := utility.CodeSave(code, uid, ".cpp")
+	err := utility.CodeSave(code, uid, ".go")
 	if err != nil {
 		fmt.Println(err)
 	}
