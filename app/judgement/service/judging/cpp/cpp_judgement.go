@@ -47,11 +47,11 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	//var ALL = make(chan int) //
 	var passCount = 0 //统计通过的样例个数
 	//fmt.Println(len(input))
+	cmd := exec.Command(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 	for i := 0; i < len(input); i++ {
 		go func() {
 
 			// /path/uid.exe
-			cmd := exec.Command(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			//fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
@@ -75,6 +75,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 			Runtime[i] = int(time.Since(start).Milliseconds())
 			var endMem runtime.MemStats //结束时内存情况
 			runtime.ReadMemStats(&endMem)
+
 			//TODO:运行超内存
 			// ÷1024是为了转化为KB
 			//fmt.Println("Memory Usage: ", (endMem.TotalAlloc-startMem.TotalAlloc)/(1024))
@@ -84,6 +85,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 				MLE <- 1
 				return
 			}
+
 			//TODO:处理答案错误
 
 			if expected[i] != string(output) {
@@ -91,6 +93,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 				WA <- 1
 				return
 			}
+
 			lock.Lock() //该测试样例通过
 			passCount++
 			lock.Unlock()
@@ -107,6 +110,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 		if passCount == len(input) {
 			response.Status = responses.Accepted //测试样例全部通过，表示正确
 		} else {
+			err = cmd.Process.Kill()
 			response.Status = responses.TimeLimited //超时
 		}
 	case <-MLE:
