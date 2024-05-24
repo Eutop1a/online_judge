@@ -47,10 +47,10 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	//var ALL = make(chan int) //
 	var passCount = 0 //统计通过的样例个数
 	//fmt.Println(len(input))
-	cmd := exec.Command(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
+
 	for i := 0; i < len(input); i++ {
 		go func() {
-
+			cmd := exec.Command(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			// /path/uid.exe
 			//fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			stdin, err := cmd.StdinPipe()
@@ -72,6 +72,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 				RE <- 1
 				return
 			}
+
 			Runtime[i] = int(time.Since(start).Milliseconds())
 			var endMem runtime.MemStats //结束时内存情况
 			runtime.ReadMemStats(&endMem)
@@ -110,7 +111,14 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 		if passCount == len(input) {
 			response.Status = responses.Accepted //测试样例全部通过，表示正确
 		} else {
-			err = cmd.Process.Kill()
+			command := "taskkill"
+			args := []string{"/IM", fmt.Sprintf(strconv.FormatInt(uid, 10) + ".exe"), "/F"} // 替换 your_program.exe 为目标 .exe 的名称
+
+			cmd := exec.Command(command, args...)
+			err := cmd.Run()
+			if err != nil {
+				fmt.Println("Failed to kill the process:", err)
+			}
 			response.Status = responses.TimeLimited //超时
 		}
 	case <-MLE:

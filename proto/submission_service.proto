@@ -17,6 +17,8 @@ message SubmitRequest {
   int32 time_limit=6;
   //@inject_tag: json:"memory_limit" form:"memory_limit"
   int32 memory_limit=7;
+  //@inject_tag: json:"total_num" form:"total_num"
+  int32 total_num=8;
 }
 
 message SubmitResponse {
@@ -26,10 +28,12 @@ message SubmitResponse {
   int32 status=2;
   //@inject_tag: json:"pass_num" form:"pass_num"
   int32 pass_num=3;
+  //@inject_tag: json:"total_num" form:"total_num"
+  int32 total_num=4;
   //@inject_tag: json:"memory_usage" form:"memory_usage"
-  int32 memory_usage=4;
+  int32 memory_usage=5;
   //@inject_tag: json:"runtime" form:"runtime"
-  int32 runtime=5;
+  int32 runtime=6;
 }
 
 service Submission {

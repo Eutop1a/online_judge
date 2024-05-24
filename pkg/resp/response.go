@@ -34,6 +34,22 @@ func ResponseErrorWithMsg(c *gin.Context, code ResCode, msg interface{}) {
 }
 
 func ResponseSuccess(c *gin.Context, data interface{}) {
+	//responseData := make(map[string]interface{})
+	//val := reflect.ValueOf(data)
+	//if val.Kind() == reflect.Struct {
+	//	for i := 0; i < val.NumField(); i++ {
+	//		field := val.Field(i)
+	//		switch field.Kind() {
+	//		case reflect.Int64:
+	//			responseData[reflect.TypeOf(data).Field(i).Name] = strconv.FormatInt(field.Int(), 10)
+	//		default:
+	//			responseData[reflect.TypeOf(data).Field(i).Name] = field.Interface()
+	//		}
+	//	}
+	//} else if val.Kind() == reflect.Int64 {
+	//	uidString := strconv.FormatInt(val.Int(), 10)
+	//	//jsonData, _ = json.Marshal(map[string]string{"uid": uidString})
+	//}
 	switch d := data.(type) {
 	case int64:
 		uidString := strconv.FormatInt(d, 10)
