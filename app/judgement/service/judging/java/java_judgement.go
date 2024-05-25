@@ -1,4 +1,4 @@
-package golang
+package java
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
+func JudgeJAVA(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
 	uid := request.UserId
 	input := request.Input
 	code := request.Code
@@ -22,7 +22,7 @@ func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submit
 	memoryLimit := request.MemoryLimit
 	UID := strconv.FormatInt(uid, 10)
 	dirPath := responses.Path + "\\" + UID
-	err := utility.CodeSave(code, dirPath, ".go")
+	err := utility.CodeSave(code, dirPath, ".java")
 
 	if err != nil {
 		fmt.Println(err)
@@ -52,7 +52,7 @@ func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submit
 
 	for i := 0; i < len(input); i++ {
 		go func() {
-			cmd := exec.Command(dirPath + "\\" + "main.exe")
+			cmd := exec.Command("java", "-cp", dirPath, "main")
 			//fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			stdin, err := cmd.StdinPipe()
 			if err != nil {

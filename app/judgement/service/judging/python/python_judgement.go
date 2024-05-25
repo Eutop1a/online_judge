@@ -1,4 +1,4 @@
-package golang
+package python
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
+func JudgePYTHON(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.SubmitResponse, error) {
 	uid := request.UserId
 	input := request.Input
 	code := request.Code
@@ -22,22 +22,12 @@ func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submit
 	memoryLimit := request.MemoryLimit
 	UID := strconv.FormatInt(uid, 10)
 	dirPath := responses.Path + "\\" + UID
-	err := utility.CodeSave(code, dirPath, ".go")
+	err := utility.CodeSave(code, dirPath, ".py")
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = Compiler(dirPath, "main")
-	if err != nil {
-		fmt.Printf("Complier Error: %v\n", err)
-		response.Status = responses.CompilerError
-		response.UserId = uid
-		response.PassNum = 0
-
-		return response, nil
-	}
-	//fmt.Println("Compiler success")
 	var WA = make(chan int)  //wrong answer
 	var RE = make(chan int)  //Runtime Error
 	var MLE = make(chan int) //Memory Limit Exceeded
@@ -52,8 +42,8 @@ func JudgeGO(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submit
 
 	for i := 0; i < len(input); i++ {
 		go func() {
-			cmd := exec.Command(dirPath + "\\" + "main.exe")
-			//fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
+			cmd := exec.Command("python", dirPath+"\\main.py")
+
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
 				fmt.Println("Error creating stdin pipe:", err)

@@ -3,7 +3,7 @@ package responses
 const (
 	Accepted = 1000 + iota
 	WrongAnswer
-	ComplierError
+	CompilerError
 	TimeLimited
 	RuntimeError
 	MemoryLimited
