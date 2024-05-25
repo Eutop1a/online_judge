@@ -2,20 +2,18 @@ package utility
 
 import (
 	"fmt"
-	"online-judge/app/judgement/responses"
 	"os"
-	"strconv"
 )
 
-func CodeSave(code string, UID int64, language string) error {
+func CodeSave(code string, path string, language string) error {
 	//TODO:使用绝对路径存放代码路径
-	err := os.MkdirAll(responses.Path, 0777)
+	err := os.MkdirAll(path, 0777)
 	if err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println("Successfully created directories")
 	}
-	dirName := responses.Path + "\\" + strconv.FormatInt(UID, 10) + language
+	dirName := path + "/main" + language
 	//TODO:以dirName为文件名创建文件
 	problemFile, err := os.OpenFile(dirName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {

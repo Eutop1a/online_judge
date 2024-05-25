@@ -21,15 +21,17 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 	timeLimit := request.TimeLimit
 	memoryLimit := request.MemoryLimit
 	UID := strconv.FormatInt(uid, 10)
-	err := utility.CodeSave(code, uid, ".cpp")
+	dirPath := responses.Path + "\\" + UID
+	err := utility.CodeSave(code, dirPath, ".cpp")
+
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = Compiler(responses.Path, UID)
+	err = Compiler(dirPath, "main")
 	if err != nil {
 		fmt.Printf("Complier Error: %v\n", err)
-		response.Status = responses.ComplierError
+		response.Status = responses.CompilerError
 		response.UserId = uid
 		response.PassNum = 0
 
@@ -50,8 +52,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 
 	for i := 0; i < len(input); i++ {
 		go func() {
-			cmd := exec.Command(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
-			// /path/uid.exe
+			cmd := exec.Command(dirPath + "\\" + "main.exe")
 			//fmt.Println(responses.Path + "/" + strconv.FormatInt(uid, 10) + ".exe")
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
