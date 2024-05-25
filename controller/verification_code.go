@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"online-judge/consts"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"online-judge/services"
@@ -33,7 +34,7 @@ func SendEmailCode(c *gin.Context) {
 	resCode := services.SendEmailCode(userEmail)
 	switch resCode {
 	// 成功
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	default:

@@ -27,15 +27,15 @@ func (s SubmitSrv) SubmitCode(ctx context.Context, request *pb.SubmitRequest, re
 	//uid := request.UserId
 	//code := request.Code
 	//language := request.Language
-	//input := request.Input
-	//expected := request.Expected
+	input := request.Input
+	expected := request.Expected
 	//timeLimit := request.TimeLimit
 	//memoryLimit := request.MemoryLimit
 	//fmt.Println(uid)
 	//fmt.Println(code)
 	//fmt.Println(language)
-	//fmt.Println(input)
-	//fmt.Println(expected)
+	fmt.Println(input)
+	fmt.Println(expected)
 	//fmt.Println(timeLimit)
 	//fmt.Println(memoryLimit)
 	err := LanguageCheck(request, response)

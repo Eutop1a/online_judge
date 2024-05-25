@@ -130,6 +130,7 @@ func CheckProblemID(id string, num *int64) error {
 	return DB.Model(&Problems{}).Where("problem_id = ?", id).Count(num).Error
 }
 
+// GetProblemID 获取题目ID
 func GetProblemID(title string) (problemID string, err error) {
 	var problem Problems
 	err = DB.Model(&Problems{}).Where("title = ?", title).First(&problem).Error
@@ -137,4 +138,47 @@ func GetProblemID(title string) (problemID string, err error) {
 		return "", err
 	}
 	return problem.ProblemID, nil
+}
+
+// CreateProblemWithFile 创建以文件为输入输出的题目
+func CreateProblemWithFile(problem *ProblemWithFile) error {
+	return DB.Model(&ProblemWithFile{}).Create(problem).Error
+}
+
+// DeleteProblemWithFile 删除题目
+func DeleteProblemWithFile(pid string) (string, error) {
+	var tmp ProblemWithFile
+	if err := DB.Model(&ProblemWithFile{}).Where("problem_id = ?", pid).Find(&tmp).Error; err != nil {
+		return "", err
+	}
+	err := DB.Model(&ProblemWithFile{}).Where("problem_id = ?", pid).Delete(&ProblemWithFile{}).Error
+	if err != nil {
+		return "", err
+	}
+
+	return tmp.ProblemID, nil
+}
+
+// CheckProblemIDWithFile 检查题目id是否已经存在
+func CheckProblemIDWithFile(id string, num *int64) error {
+	return DB.Model(&ProblemWithFile{}).Where("problem_id = ?", id).Count(num).Error
+}
+
+// UpdateProblemWithFile 更新题目
+func UpdateProblemWithFile(problem *ProblemWithFile) error {
+	return DB.Model(&ProblemWithFile{}).Where("problem_id = ?", problem.ProblemID).Updates(&problem).Error
+}
+
+// CheckProblemTitleWithFile 检查题目标题是否已经存在
+func CheckProblemTitleWithFile(title string, num *int64) error {
+	return DB.Model(&ProblemWithFile{}).Where("title = ?", title).Count(num).Error
+}
+
+// GetEntireProblemWithFile 获取题目的全部信息
+func GetEntireProblemWithFile(pid string) (problem *ProblemWithFile, err error) {
+	err = DB.Model(&ProblemWithFile{}).Where("problem_id = ?", pid).First(&problem).Error
+	if err != nil {
+		return nil, err
+	}
+	return
 }

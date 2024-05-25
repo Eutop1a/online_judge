@@ -1,4 +1,4 @@
-package resp
+package consts
 
 // 客户端请求错误
 const (

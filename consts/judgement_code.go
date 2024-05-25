@@ -1,4 +1,4 @@
-package resp
+package consts
 
 const (
 	Accepted = 1000 + iota

@@ -7,17 +7,27 @@ import (
 
 // Problem 问题结构体
 type Problem struct {
-	ID         int         `form:"id" json:"id"`                   // primary key
-	ProblemID  string      `form:"problem_id" json:"problem_id"`   // unique key
-	Title      string      `form:"title" json:"title"`             // problem title
-	Content    string      `form:"content" json:"content"`         // problem description
-	Difficulty string      `form:"difficulty" json:"difficulty"`   // easy mid hard
-	MaxRuntime int         `form:"max_runtime" json:"max_runtime"` // 时间限制
-	MaxMemory  int         `form:"max_memory" json:"max_memory"`   // 内存限制
-	Size       int         `form:"size" json:"size"`               // 每页的记录数
-	Page       int         `form:"page" json:"page"`               // 第page页
-	Count      int64       `form:"count" json:"count"`             // 查到的记录数
-	TestCases  []*TestCase `form:"test_cases" json:"test_cases"`   // 测试样例集
+	ID                int                 `form:"id" json:"id"`                                     // primary key
+	MaxRuntime        int                 `form:"max_runtime" json:"max_runtime"`                   // 时间限制
+	MaxMemory         int                 `form:"max_memory" json:"max_memory"`                     // 内存限制
+	Size              int                 `form:"size" json:"size"`                                 // 每页的记录数
+	Page              int                 `form:"page" json:"page"`                                 // 第page页
+	Count             int64               `form:"count" json:"count"`                               // 查到的记录数
+	ProblemID         string              `form:"problem_id" json:"problem_id"`                     // unique key
+	Title             string              `form:"title" json:"title"`                               // problem title
+	Content           string              `form:"content" json:"content"`                           // problem description
+	Difficulty        string              `form:"difficulty" json:"difficulty"`                     // easy mid hard
+	InputDst          string              `form:"input_dst" json:"input_dst"`                       // 输入文件保存的地址
+	ExpectedDst       string              `form:"expected_dst" json:"expected_dst"`                 // 输出文件保存的地址
+	TestCases         []*TestCase         `form:"test_cases" json:"test_cases"`                     // 测试样例集
+	TestCasesWithFile []*TestCaseWithFile `form:"test_cases_with_file" json:"test_cases_with_file"` // 测试样例集(file)
+
+}
+type TestCaseWithFile struct {
+	TID          string `form:"tid" json:"tid"`                     // 测试样例ID
+	PID          string `form:"pid" json:"pid"`                     // 对应的题目ID
+	InputPath    string `form:"input_path" json:"input_path"`       // 输入文件
+	ExpectedPath string `form:"expected_path" json:"expected_path"` // 期望输出文件名
 }
 
 // TestCase 测试样例
