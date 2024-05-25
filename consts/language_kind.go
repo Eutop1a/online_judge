@@ -1,4 +1,4 @@
-package resp
+package consts
 
 const (
 	CPP = 2000 + iota

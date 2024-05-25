@@ -99,6 +99,19 @@ func CreateTables() (err error) {
 			return
 		}
 	}
+
+	if !DB.Migrator().HasTable(&ProblemWithFile{}) {
+		if DB.Debug().AutoMigrate(&ProblemWithFile{}) != nil {
+			zap.L().Error("mysql-CreateTables-AutoMigrate-ProblemWithFile ", zap.Error(err))
+			return
+		}
+	}
+	if !DB.Migrator().HasTable(&TestCaseWithFile{}) {
+		if DB.Debug().AutoMigrate(&TestCaseWithFile{}) != nil {
+			zap.L().Error("mysql-CreateTables-AutoMigrate-ProblemWithFile ", zap.Error(err))
+			return
+		}
+	}
 	//if !DB.Migrator().HasTable(&ProgrammingLanguage{}) {
 	//	if DB.Debug().AutoMigrate(&ProgrammingLanguage{}) != nil {
 	//		zap.L().Error("mysql-CreateTables-AutoMigrate-ProgrammingLanguage ", zap.Error(err))

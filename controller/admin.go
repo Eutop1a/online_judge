@@ -2,12 +2,14 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"online-judge/consts"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"online-judge/services"
+	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -40,16 +42,16 @@ func AddSuperAdmin(c *gin.Context) {
 	ret = addAdmin.AddSuperAdmin(secret)
 	switch ret.Code {
 
-	case resp.Success:
-		resp.ResponseSuccess(c, resp.Success)
+	case consts.Success:
+		resp.ResponseSuccess(c, consts.Success)
 
-	case resp.NotExistUserID:
+	case consts.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseIDNotExist)
 
-	case resp.SecretError:
+	case consts.SecretError:
 		resp.ResponseError(c, resp.CodeErrorSecret)
 
-	case resp.UserIDAlreadyExist:
+	case consts.UserIDAlreadyExist:
 		resp.ResponseError(c, resp.CodeUserIDAlreadyExist)
 
 	default:
@@ -86,11 +88,11 @@ func DeleteUser(c *gin.Context) {
 
 	switch ret.Code {
 	// 成功
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	// 用户不存在
-	case resp.NotExistUserID:
+	case consts.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
 	default:
@@ -127,11 +129,11 @@ func AddAdmin(c *gin.Context) {
 
 	switch ret.Code {
 	// 成功
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	// 用户ID不存在
-	case resp.NotExistUserID:
+	case consts.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseIDNotExist)
 
 	// 服务器内部错误
@@ -203,10 +205,10 @@ func CreateProblem(c *gin.Context) {
 
 	response := createProblem.CreateProblem()
 	switch response.Code {
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	case resp.ProblemAlreadyExist:
+	case consts.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 
 	default:
@@ -221,7 +223,7 @@ func CreateProblem(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param problem_id path string true "题目ID"
+// @Param problem_id formData string true "题目ID"
 // @Param title formData string false "题目标题"
 // @Param content formData string false "题目内容"
 // @Param difficulty formData string false "题目难度"
@@ -238,8 +240,7 @@ func CreateProblem(c *gin.Context) {
 func UpdateProblem(c *gin.Context) {
 	var updateProblem services.Problem
 
-	updateProblem.ProblemID = c.Param("problem_id")
-
+	updateProblem.ProblemID = c.PostForm("problem_id")
 	updateProblem.Title = c.PostForm("title")
 	updateProblem.Content = c.PostForm("content")
 	updateProblem.Difficulty = c.PostForm("difficulty")
@@ -279,11 +280,11 @@ func UpdateProblem(c *gin.Context) {
 	updateProblem.TestCases = tCase
 	response := updateProblem.UpdateProblem()
 	switch response.Code {
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
-	case resp.ProblemNotExist:
+	case consts.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
-	case resp.ProblemAlreadyExist:
+	case consts.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
@@ -307,15 +308,191 @@ func UpdateProblem(c *gin.Context) {
 func DeleteProblem(c *gin.Context) {
 	var deleteProblem services.Problem
 	deleteProblem.ProblemID = c.Param("problem_id")
-	fmt.Println(deleteProblem.ProblemID)
 	response := deleteProblem.DeleteProblem()
 	switch response.Code {
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	case resp.ProblemNotExist:
+	case consts.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 
+	default:
+		resp.ResponseError(c, resp.CodeInternalServerError)
+	}
+	return
+}
+
+// CreateProblemWithFile 创建新题目接口，输入输出是文件的形式
+// @Tags Admin API
+// @Summary 创建新题目，输入输出是文件的形式
+// @Description 创建新题目接口，输入输出是文件的形式
+// @Accept multipart/form-data
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param title formData string true "题目标题"
+// @Param content formData string true "题目内容"
+// @Param difficulty formData string true "题目难度"
+// @Param max_runtime formData int true "时间限制"
+// @Param max_memory formData int true "内存限制"
+// @Param input formData []file true "问题的输入文件(.in)" collectionFormat(multi)
+// @Param expected formData []file true "问题的输出文件(.out)" collectionFormat(multi)
+// @Success 200 {object} models.CreateProblemResponse "1000 创建成功"
+// @Failure 200 {object} models.CreateProblemResponse "1001 参数错误"
+// @Failure 200 {object} models.CreateProblemResponse "1018 测试用例格式错误"
+// @Failure 200 {object} models.CreateProblemResponse "1019 题目标题已存在"
+// @Failure 200 {object} models.CreateProblemResponse "1008 需要登录"
+// @Failure 200 {object} models.CreateProblemResponse "1014 服务器内部错误"
+// @Router /admin/problem/file/create [POST]
+func CreateProblemWithFile(c *gin.Context) {
+	var createProblem services.Problem
+
+	err := c.Request.ParseMultipartForm(32 << 20)
+	if err != nil {
+		zap.L().Error("controller-CreateProblemWithFile-ParseMultipartForm ", zap.Error(err))
+		resp.ResponseError(c, resp.CodeInvalidParam)
+		return
+	}
+
+	createProblem.Title = c.PostForm("title")
+	createProblem.Content = c.PostForm("content")
+	createProblem.Difficulty = c.PostForm("difficulty")
+	createProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	createProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
+
+	inputFile := c.Request.MultipartForm.File["input"]
+	outputFile := c.Request.MultipartForm.File["expected"]
+	createProblem.ProblemID = utils.GetUUID()
+
+	problemDir := filepath.Join(consts.FilePath, createProblem.ProblemID)
+	err = os.MkdirAll(problemDir, os.ModePerm)
+	if err != nil {
+		zap.L().Error("controller-CreateProblemWithFile-MkdirAll", zap.Error(err))
+		resp.ResponseError(c, resp.CodeInternalServerError)
+		return
+	}
+
+	inputDst := filepath.Join(consts.FilePath, createProblem.ProblemID, consts.FileInput)
+	expectedDst := filepath.Join(consts.FilePath, createProblem.ProblemID, consts.FileExpected)
+
+	createProblem.InputDst = inputDst
+	createProblem.ExpectedDst = expectedDst
+
+	// 保存输入文件
+	SaveFile(c, inputFile, inputDst)
+	// 保存输出文件
+	SaveFile(c, outputFile, expectedDst)
+
+	response := createProblem.CreateProblemWithFile()
+	switch response.Code {
+	case consts.Success:
+		resp.ResponseSuccess(c, resp.CodeSuccess)
+
+	case consts.ProblemAlreadyExist:
+		resp.ResponseError(c, resp.CodeProblemTitleExist)
+
+	default:
+		resp.ResponseError(c, resp.CodeInternalServerError)
+	}
+}
+
+// DeleteProblemWithFile 删除题目接口，输入输出是文件的形式
+// @Tags Admin API
+// @Summary 删除题目，输入输出是文件的形式
+// @Description 删除题目接口，输入输出是文件的形式
+// @Accept multipart/form-data
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param problem_id path string true "题目ID"
+// @Success 200 {object} models.DeleteProblemResponse "删除成功"
+// @Failure 200 {object} models.DeleteProblemResponse "题目ID不存在"
+// @Failure 200 {object} models.DeleteProblemResponse "需要登录"
+// @Failure 200 {object} models.DeleteProblemResponse "服务器内部错误"
+// @Router /admin/problem/file/{problem_id} [DELETE]
+func DeleteProblemWithFile(c *gin.Context) {
+	var deleteProblem services.Problem
+	deleteProblem.ProblemID = c.Param("problem_id")
+
+	response := deleteProblem.DeleteProblemWithFile()
+	switch response.Code {
+	case consts.Success:
+		resp.ResponseSuccess(c, resp.CodeSuccess)
+
+	case consts.ProblemNotExist:
+		resp.ResponseError(c, resp.CodeProblemIDNotExist)
+
+	default:
+		resp.ResponseError(c, resp.CodeInternalServerError)
+	}
+	return
+}
+
+// UpdateProblemWithFile 更新题目信息接口
+// @Tags Admin API
+// @Summary 更新题目信息
+// @Description 更新题目信息接口
+// @Accept multipart/form-data
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param problem_id formData string true "题目ID"
+// @Param title formData string false "题目标题"
+// @Param content formData string false "题目内容"
+// @Param difficulty formData string false "题目难度"
+// @Param max_runtime formData string false "时间限制"
+// @Param max_memory formData string false "内存限制"
+// @Param input formData []file true "问题的输入文件(.in)" collectionFormat(multi)
+// @Param expected formData []file true "问题的输出文件(.out)" collectionFormat(multi)
+// @Success 200 {object} models.UpdateProblemResponse "修改成功"
+// @Failure 200 {object} models.UpdateProblemResponse "题目ID不存在"
+// @Failure 200 {object} models.UpdateProblemResponse "题目标题已存在"
+// @Failure 200 {object} models.UpdateProblemResponse "测试用例格式错误"
+// @Failure 200 {object} models.UpdateProblemResponse "需要登录"
+// @Failure 200 {object} models.UpdateProblemResponse "服务器内部错误"
+// @Router /admin/problem/file/update [PUT]
+func UpdateProblemWithFile(c *gin.Context) {
+	var updateProblem services.Problem
+
+	updateProblem.ProblemID = c.PostForm("problem_id")
+	updateProblem.Title = c.PostForm("title")
+	updateProblem.Content = c.PostForm("content")
+	updateProblem.Difficulty = c.PostForm("difficulty")
+	updateProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	updateProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
+
+	inputFile := c.Request.MultipartForm.File["input"]
+	outputFile := c.Request.MultipartForm.File["expected"]
+
+	updateProblem.InputDst = filepath.Join(consts.FilePath, updateProblem.ProblemID, consts.FileInput)
+	updateProblem.ExpectedDst = filepath.Join(consts.FilePath, updateProblem.ProblemID, consts.FileExpected)
+	// 在添加之前先删除所有的测试用例
+	response := updateProblem.DeleteProblemTestCaseWithFile()
+	switch response.Code {
+	case consts.Success:
+
+	case consts.ProblemNotExist:
+		resp.ResponseError(c, resp.CodeProblemIDNotExist)
+		return
+
+	case consts.ProblemAlreadyExist:
+		resp.ResponseError(c, resp.CodeProblemTitleExist)
+		return
+
+	default:
+		resp.ResponseError(c, resp.CodeInternalServerError)
+		return
+	}
+	// 保存输入文件
+	SaveFile(c, inputFile, updateProblem.InputDst)
+	// 保存输出文件
+	SaveFile(c, outputFile, updateProblem.ExpectedDst)
+
+	response = updateProblem.UpdateProblemWithFile()
+	switch response.Code {
+	case consts.Success:
+		resp.ResponseSuccess(c, resp.CodeSuccess)
+	case consts.ProblemNotExist:
+		resp.ResponseError(c, resp.CodeProblemIDNotExist)
+	case consts.ProblemAlreadyExist:
+		resp.ResponseError(c, resp.CodeProblemTitleExist)
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
 	}

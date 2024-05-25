@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"online-judge/app/judgement/service/judging/cpp"
 	"online-judge/app/judgement/service/judging/golang"
-	"online-judge/pkg/resp"
+	"online-judge/consts"
 	pb "online-judge/proto"
 )
 
 func LanguageCheck(request *pb.SubmitRequest, response *pb.SubmitResponse) (err error) {
 	language := request.Language
-	if language == resp.CPP {
+	if language == consts.CPP {
 		response, err = cpp.JudgeCpp(request, response)
 	}
-	if language == resp.GO {
+	if language == consts.GO {
 		response, err = golang.JudgeGO(request, response)
 	}
 	response.TotalNum = request.TotalNum

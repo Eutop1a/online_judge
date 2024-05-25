@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"online-judge/consts"
 	"online-judge/pkg/resp"
 	"online-judge/services"
 	"strconv"
@@ -53,23 +54,23 @@ func Register(c *gin.Context) {
 	switch ret.Code {
 
 	// 成功
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	// 验证码错误
-	case resp.ErrorVerCode:
+	case consts.ErrorVerCode:
 		resp.ResponseError(c, resp.CodeErrorVerCode)
 
 	// 验证码过期
-	case resp.ExpiredVerCode:
+	case consts.ExpiredVerCode:
 		resp.ResponseError(c, resp.CodeExpiredVerCode)
 
 	// 用户名已存在
-	case resp.UsernameAlreadyExist:
+	case consts.UsernameAlreadyExist:
 		resp.ResponseError(c, resp.CodeUserExist)
 
 	// 邮箱已存在
-	case resp.EmailAlreadyExist:
+	case consts.EmailAlreadyExist:
 		resp.ResponseError(c, resp.CodeEmailExist)
 
 	// 服务器内部错误
@@ -113,23 +114,23 @@ func Login(c *gin.Context) {
 	switch ret.Code {
 
 	// 成功，返回token
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, ret.Data)
 
 	// 验证码错误
-	case resp.ErrorVerCode:
+	case consts.ErrorVerCode:
 		resp.ResponseError(c, resp.CodeErrorVerCode)
 
 	// 验证码过期
-	case resp.ExpiredVerCode:
+	case consts.ExpiredVerCode:
 		resp.ResponseError(c, resp.CodeExpiredVerCode)
 
 	// 用户不存在
-	case resp.NotExistUsername:
+	case consts.NotExistUsername:
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
 	// 密码错误
-	case resp.ErrorPwd:
+	case consts.ErrorPwd:
 		resp.ResponseError(c, resp.CodeInvalidPassword)
 
 	// 内部错误
@@ -164,11 +165,11 @@ func GetUserDetail(c *gin.Context) {
 
 	switch ret.Code {
 	// 成功
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, ret.Data)
 
 	// 用户不存在
-	case resp.NotExistUserID:
+	case consts.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
 	// 内部错误
@@ -214,19 +215,19 @@ func UpdateUserDetail(c *gin.Context) {
 
 	switch ret.Code {
 	// 成功
-	case resp.Success:
+	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	// 用户不存在
-	case resp.NotExistUserID:
+	case consts.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
 	// 验证码错误
-	case resp.ErrorVerCode:
+	case consts.ErrorVerCode:
 		resp.ResponseError(c, resp.CodeErrorVerCode)
 
 	// 验证码过期
-	case resp.ExpiredVerCode:
+	case consts.ExpiredVerCode:
 		resp.ResponseError(c, resp.CodeExpiredVerCode)
 
 	default:

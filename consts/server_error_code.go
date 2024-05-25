@@ -1,4 +1,4 @@
-package resp
+package consts
 
 // 服务端请求错误
 const (
@@ -18,4 +18,6 @@ const (
 	JSONMarshalError
 	RecvFromMQError
 	InsertToJudgementError
+	RemoveTestFileError
+	ReadTestFileError
 )

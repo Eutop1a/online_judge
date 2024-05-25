@@ -66,7 +66,7 @@ func JudgeCpp(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Submi
 			runtime.ReadMemStats(&startMem)
 			start := time.Now()
 			output, err := cmd.CombinedOutput()
-			//fmt.Println("out: ", string(output))
+			fmt.Println("out: ", string(output))
 			if err != nil {
 				fmt.Println("Runtime Error: ", err)
 				RE <- 1

@@ -56,7 +56,8 @@ func SetUp(mode string) *gin.Engine {
 		// 提交相关
 		submissions := api.Group("/submissions", middlewares.JWTUserAuthMiddleware())
 		{
-			submissions.POST("/code", controller.SubmitCode) // 提交代码
+			submissions.POST("/code", controller.SubmitCode)              // 提交代码
+			submissions.POST("/file/code", controller.SubmitCodeWithFile) // 提交代码
 			// submissions.GET("/:id", controller.GetSubmissionDetail)                   // 获取单个提交详细
 			// submissions.GET("/user/:user_id", controller.GetUserSubmissions)          // 获取用户的提交记录
 			// submissions.GET("/problem/:problem_id", controller.GetProblemSubmissions) // 获取题目的提交记录
@@ -79,19 +80,32 @@ func SetUp(mode string) *gin.Engine {
 		}
 
 		api.POST("/admin/users/add-super-admin", controller.AddSuperAdmin) // 添加超级管理员
+
 		// 管理员私有方法
 		admin := api.Group("/admin", middlewares.JWTAdminAuthMiddleware())
 		{
 			// 用户相关
-
-			admin.DELETE("/users/:user_id", controller.DeleteUser) // 删除用户
-			admin.POST("/users/add-admin", controller.AddAdmin)    // 添加用户为管理员
+			adminUsers := admin.Group("/users")
+			{
+				adminUsers.DELETE("/:user_id", controller.DeleteUser) // 删除用户
+				adminUsers.POST("/add-admin", controller.AddAdmin)    // 添加用户为管理员
+			}
 
 			// 题目相关
-			admin.POST("/problem/create", controller.CreateProblem)        // 创建新题目
-			admin.PUT("/problem/:problem_id", controller.UpdateProblem)    // 更新题目信息
-			admin.DELETE("/problem/:problem_id", controller.DeleteProblem) // 删除题目
+			adminProblem := admin.Group("/problem")
+			{
+				file := adminProblem.Group("/file") // 输入输出为文件
+				{
+					file.POST("/create", controller.CreateProblemWithFile)        // 创建新题目
+					file.PUT("/update", controller.UpdateProblemWithFile)         // 创建新题目
+					file.DELETE("/:problem_id", controller.DeleteProblemWithFile) // 删除题目
+				}
+				adminProblem.POST("/create", controller.CreateProblem)        // 创建新题目
+				adminProblem.PUT("/:problem_id", controller.UpdateProblem)    // 更新题目信息
+				adminProblem.DELETE("/:problem_id", controller.DeleteProblem) // 删除题目
+				// 以文件为输入输出的题目CRUD
 
+			}
 		}
 
 		//api.GET("/status", controller.GetStatus) // 获取系统状态
