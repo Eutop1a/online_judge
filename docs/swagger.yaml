@@ -236,7 +236,7 @@ paths:
         required: true
         type: string
       - description: 题目ID
-        in: path
+        in: formData
         name: problem_id
         required: true
         type: string
@@ -420,6 +420,68 @@ paths:
       summary: 创建新题目，输入输出是文件的形式
       tags:
       - Admin API
+  /admin/problem/file/update:
+    put:
+      consumes:
+      - multipart/form-data
+      description: 更新题目信息接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 题目ID
+        in: formData
+        name: problem_id
+        required: true
+        type: string
+      - description: 题目标题
+        in: formData
+        name: title
+        type: string
+      - description: 题目内容
+        in: formData
+        name: content
+        type: string
+      - description: 题目难度
+        in: formData
+        name: difficulty
+        type: string
+      - description: 时间限制
+        in: formData
+        name: max_runtime
+        type: string
+      - description: 内存限制
+        in: formData
+        name: max_memory
+        type: string
+      - collectionFormat: multi
+        description: 问题的输入文件(.in)
+        in: formData
+        items:
+          type: file
+        name: input
+        required: true
+        type: array
+      - collectionFormat: multi
+        description: 问题的输出文件(.out)
+        in: formData
+        items:
+          type: file
+        name: expected
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/models.UpdateProblemResponse'
+      summary: 更新题目信息
+      tags:
+      - Admin API
   /admin/users/{user_id}:
     delete:
       consumes:
@@ -457,9 +519,9 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: 用户ID
+      - description: 用户名
         in: formData
-        name: user_id
+        name: username
         required: true
         type: string
       produces:
@@ -478,9 +540,9 @@ paths:
       - multipart/form-data
       description: 添加超级管理员接口
       parameters:
-      - description: 用户ID
+      - description: 用户名
         in: formData
-        name: user_id
+        name: username
         required: true
         type: string
       - description: 密钥
@@ -779,6 +841,42 @@ paths:
           schema:
             $ref: '#/definitions/models.SubmitCodeResponse'
       summary: 提交代码
+      tags:
+      - Submission API
+  /submissions/file/code:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 提交代码接口(文件)
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 题目id
+        in: formData
+        name: problem_id
+        required: true
+        type: string
+      - description: 语言
+        in: formData
+        name: language
+        required: true
+        type: string
+      - description: 代码
+        in: formData
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/models.SubmitCodeResponse'
+      summary: 提交代码(文件)
       tags:
       - Submission API
   /user-id:

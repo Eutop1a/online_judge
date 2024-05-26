@@ -38,6 +38,7 @@ const (
 	CodeErrorSecret
 
 	CodeUserIDAlreadyExist
+	CodeUsernameAlreadyExist
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -68,6 +69,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeUnsupportedLanguage:   "不支持的编程语言",
 	CodeErrorSecret:           "密钥错误",
 	CodeUserIDAlreadyExist:    "该用户已是管理员",
+	CodeUsernameAlreadyExist:  "该用户已是管理员",
 }
 
 func (c ResCode) Msg() string {

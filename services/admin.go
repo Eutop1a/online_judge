@@ -46,39 +46,41 @@ func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 
 	if utils.CryptoSecret(secret) != SECRETCIPHER {
 		response.Code = consts.SecretError
+		//zap.L().Error("services-AddSuperAdmin-CryptoSecret " +
+		//	fmt.Sprintf("secret error %d:%s", u.UserID, secret))
 		zap.L().Error("services-AddSuperAdmin-CryptoSecret " +
-			fmt.Sprintf("secret error %d:%s", u.UserID, secret))
+			fmt.Sprintf("secret error %s:%s", u.UserName, secret))
 		return
 	}
-	var userIDCount int64
-	err := mysql.CheckUserID(u.UserID, &userIDCount)
+	var usernameCount int64
+	err := mysql.CheckUsername(u.UserName, &usernameCount)
 	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-AddSuperAdmin-CheckUserID ", zap.Error(err))
 		return
 	}
-	if userIDCount == 0 {
-		response.Code = consts.NotExistUserID
-		zap.L().Error("services-AddSuperAdmin-CheckUserID "+
-			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
+	if usernameCount == 0 {
+		response.Code = consts.NotExistUsername
+		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
+			fmt.Sprintf("do not have this username %d ", u.UserID), zap.Error(err))
 		return
 	}
 	// 检查这个ID是否已经存在于Admin数据库中
-	userIDCount = 0
-	err = mysql.CheckAdminUserID(u.UserID, &userIDCount)
+	usernameCount = 0
+	err = mysql.CheckAdminUsername(u.UserName, &usernameCount)
 	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-AddSuperAdmin-CheckAdminUserID ", zap.Error(err))
 		return
 	}
-	if userIDCount != 0 {
-		response.Code = consts.UserIDAlreadyExist
-		zap.L().Error("services-AddSuperAdmin-CheckAdminUserID "+
-			fmt.Sprintf("this userID %d already exist", u.UserID), zap.Error(err))
+	if usernameCount != 0 {
+		response.Code = consts.UsernameAlreadyExist
+		zap.L().Error("services-AddSuperAdmin-CheckAdminUsername "+
+			fmt.Sprintf("this username %d already exist", u.UserID), zap.Error(err))
 		return
 	}
 	// 添加到数据库中
-	err = mysql.AddAdminUser(u.UserID)
+	err = mysql.AddAdminUserByUsername(u.UserName)
 	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
@@ -91,20 +93,20 @@ func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 
 // AddAdmin 添加管理员
 func (u *UserService) AddAdmin() (response resp.Response) {
-	var UserIDCount int64
-	err := mysql.CheckUserID(u.UserID, &UserIDCount)
+	var usernameCount int64
+	err := mysql.CheckUsername(u.UserName, &usernameCount)
 	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-AddAdmin-CheckUserID ", zap.Error(err))
+		zap.L().Error("services-AddAdmin-CheckUsername ", zap.Error(err))
 		return
 	}
-	if UserIDCount == 0 {
-		response.Code = consts.NotExistUserID
-		zap.L().Error("services-AddAdmin-CheckUserID "+
-			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
+	if usernameCount == 0 {
+		response.Code = consts.NotExistUsername
+		zap.L().Error("services-AddAdmin-CheckUsername "+
+			fmt.Sprintf("do not have this username %s ", u.UserName), zap.Error(err))
 		return
 	}
-	err = mysql.AddAdminUser(u.UserID)
+	err = mysql.AddAdminUserByUsername(u.UserName)
 	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
