@@ -19,7 +19,7 @@ import (
 // @Description 添加超级管理员接口
 // @Accept multipart/form-data
 // @Produce json
-// @Param user_id formData string true "用户ID"
+// @Param username formData string true "用户名"
 // @Param secret formData string true "密钥"
 // @Success 200 {object} models.AddSuperAdminResponse "添加超级管理员成功"
 // @Failure 200 {object} models.AddSuperAdminResponse "参数错误"
@@ -30,14 +30,16 @@ import (
 // @Router /admin/users/add-super-admin [POST]
 func AddSuperAdmin(c *gin.Context) {
 	var addAdmin services.UserService
-	uid := c.PostForm("user_id")
+	//uid := c.PostForm("user_id")
+	username := c.PostForm("username")
 	secret := c.PostForm("secret")
-	if uid == "" {
+	if username == "" {
 		zap.L().Error("controller-AddSuperAdmin-PostForm add admin params error")
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
-	addAdmin.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	//addAdmin.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	addAdmin.UserName = username
 	var ret resp.Response
 	ret = addAdmin.AddSuperAdmin(secret)
 	switch ret.Code {
@@ -45,14 +47,14 @@ func AddSuperAdmin(c *gin.Context) {
 	case consts.Success:
 		resp.ResponseSuccess(c, consts.Success)
 
-	case consts.NotExistUserID:
-		resp.ResponseError(c, resp.CodeUseIDNotExist)
+	case consts.NotExistUsername:
+		resp.ResponseError(c, resp.CodeUsernameNotExist)
 
 	case consts.SecretError:
 		resp.ResponseError(c, resp.CodeErrorSecret)
 
-	case consts.UserIDAlreadyExist:
-		resp.ResponseError(c, resp.CodeUserIDAlreadyExist)
+	case consts.UsernameAlreadyExist:
+		resp.ResponseError(c, resp.CodeUsernameAlreadyExist)
 
 	default:
 		resp.ResponseError(c, resp.CodeInvalidParam)
@@ -107,7 +109,7 @@ func DeleteUser(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param user_id formData string true "用户ID"
+// @Param username formData string true "用户名"
 // @Success 200 {object} models.AddAdminResponse "删除用户成功"
 // @Failure 200 {object} models.AddAdminResponse "参数错误"
 // @Failure 200 {object} models.AddAdminResponse "没有此用户ID"
@@ -116,14 +118,15 @@ func DeleteUser(c *gin.Context) {
 // @Router /admin/users/add-admin [POST]
 func AddAdmin(c *gin.Context) {
 	var addAdmin services.UserService
-	uid := c.PostForm("user_id")
-	if uid == "" {
+	//uid := c.PostForm("user_id")
+	username := c.PostForm("username")
+	if username == "" {
 		zap.L().Error("add admin params error")
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
-	addAdmin.UserID, _ = strconv.ParseInt(uid, 10, 64)
-
+	//addAdmin.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	addAdmin.UserName = username
 	var ret resp.Response
 	ret = addAdmin.AddAdmin()
 
@@ -132,9 +135,9 @@ func AddAdmin(c *gin.Context) {
 	case consts.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	// 用户ID不存在
-	case consts.NotExistUserID:
-		resp.ResponseError(c, resp.CodeUseIDNotExist)
+	// 用户名不存在
+	case consts.NotExistUsername:
+		resp.ResponseError(c, resp.CodeUsernameNotExist)
 
 	// 服务器内部错误
 	default:

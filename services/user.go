@@ -168,7 +168,7 @@ func (u *UserService) Login() (response resp.ResponseWithData) {
 	u.UserID, err = mysql.GetUserID(u.UserName)
 
 	var userIsAdmin bool
-	err = mysql.CheckUserIsAdmin(u.UserID)
+	err = mysql.CheckUserIsAdminByUsername(u.UserName)
 	if err != nil {
 		userIsAdmin = false
 	}

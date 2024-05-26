@@ -193,6 +193,97 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/problem/file/update": {
+            "put": {
+                "description": "更新题目信息接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "更新题目信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目标题",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目内容",
+                        "name": "content",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目难度",
+                        "name": "difficulty",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "时间限制",
+                        "name": "max_runtime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "内存限制",
+                        "name": "max_memory",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "问题的输入文件(.in)",
+                        "name": "input",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "问题的输出文件(.out)",
+                        "name": "expected",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateProblemResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/problem/file/{problem_id}": {
             "delete": {
                 "description": "删除题目接口，输入输出是文件的形式",
@@ -257,7 +348,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "题目ID",
                         "name": "problem_id",
-                        "in": "path",
+                        "in": "formData",
                         "required": true
                     },
                     {
@@ -371,8 +462,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "用户ID",
-                        "name": "user_id",
+                        "description": "用户名",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     }
@@ -403,8 +494,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
-                        "name": "user_id",
+                        "description": "用户名",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     },
@@ -848,6 +939,59 @@ const docTemplate = `{
                     "Submission API"
                 ],
                 "summary": "提交代码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目id",
+                        "name": "problem_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "语言",
+                        "name": "language",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "代码",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/models.SubmitCodeResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/submissions/file/code": {
+            "post": {
+                "description": "提交代码接口(文件)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Submission API"
+                ],
+                "summary": "提交代码(文件)",
                 "parameters": [
                     {
                         "type": "string",

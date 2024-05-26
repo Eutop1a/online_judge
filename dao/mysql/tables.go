@@ -27,7 +27,8 @@ type User struct {
 // Admin 管理员表 从用户表定位到ID，再来这里找
 type Admin struct {
 	Model
-	UserID int64 `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
+	UserName string `gorm:"type:varchar(255);primaryKey;column:username" json:"username"`
+	//UserID int64 `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
 }
 
 // ProblemWithFile 题目信息

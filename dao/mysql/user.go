@@ -90,14 +90,32 @@ func CheckUserIsAdmin(uid int64) (err error) {
 	return DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
 }
 
-// AddAdminUser 添加管理员用户
-func AddAdminUser(uid int64) (err error) {
+// CheckUserIsAdminByUsername 根据username判断用户是不是管理员
+func CheckUserIsAdminByUsername(username string) (err error) {
+	var admin Admin
+	return DB.Model(&Admin{}).Where("username=?", username).First(&admin).Error
+}
+
+//// AddAdminUserByUserId 添加管理员用户
+//func AddAdminUserByUserId(uid int64) (err error) {
+//	admin := Admin{
+//		UserID: uid,
+//	}
+//	return DB.Model(&Admin{}).Create(&admin).Error
+//}
+
+// AddAdminUserByUsername 添加管理员用户
+func AddAdminUserByUsername(username string) (err error) {
 	admin := Admin{
-		UserID: uid,
+		UserName: username,
 	}
 	return DB.Model(&Admin{}).Create(&admin).Error
 }
 
 func CheckAdminUserID(uid int64, countUserID *int64) error {
 	return DB.Model(&Admin{}).Where("user_id=?", uid).Count(countUserID).Error
+}
+
+func CheckAdminUsername(username string, countUsername *int64) error {
+	return DB.Model(&Admin{}).Where("username=?", username).Count(countUsername).Error
 }
