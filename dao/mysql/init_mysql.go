@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"online-judge/setting"
+	"time"
 )
 
 var DB *gorm.DB
@@ -65,6 +66,15 @@ func CreateDatabase(cfg *setting.MySQLConfig) {
 		zap.L().Error("mysql-CreateDatabase-Open connect DB failed ", zap.Error(err))
 		return
 	}
+	// 设置连接池
+	sqlDB, err := DB.DB()
+	if err != nil {
+		zap.L().Error("mysql-CreateDatabase-DB ", zap.Error(err))
+		return
+	}
+	sqlDB.SetMaxIdleConns(cfg.MaxIdelConns)
+	sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	return
 }

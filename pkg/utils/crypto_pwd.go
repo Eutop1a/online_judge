@@ -19,10 +19,10 @@ func CryptoPwd(password string) (string, error) {
 	return string(bytes), nil
 }
 
-// DecryptPwd 验证密码是否正确
-func DecryptPwd(cipher, plainText string) error {
+// CheckPwd 验证密码是否正确
+func CheckPwd(plainText, cipher string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(cipher), []byte(plainText))
-	return err
+	return err == nil
 }
 
 // CryptoSecret 密钥加密
