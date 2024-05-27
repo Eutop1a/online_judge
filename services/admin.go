@@ -14,14 +14,13 @@ import (
 // DeleteUser 删除用户
 func (u *UserService) DeleteUser() (response resp.Response) {
 	// 检验是否有这个用户ID
-	var UserIDCount int64
-	err := mysql.CheckUserID(u.UserID, &UserIDCount)
+	exist, err := mysql.CheckUserID(u.UserID)
 	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
 		return
 	}
-	if UserIDCount == 0 {
+	if !exist {
 		response.Code = consts.NotExistUserID
 		zap.L().Error("services-DeleteUser-CheckUserID "+
 			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
@@ -46,40 +45,31 @@ func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 
 	if utils.CryptoSecret(secret) != SECRETCIPHER {
 		response.Code = consts.SecretError
-		//zap.L().Error("services-AddSuperAdmin-CryptoSecret " +
-		//	fmt.Sprintf("secret error %d:%s", u.UserID, secret))
 		zap.L().Error("services-AddSuperAdmin-CryptoSecret " +
 			fmt.Sprintf("secret error %s:%s", u.UserName, secret))
 		return
 	}
-	var usernameCount int64
-	err := mysql.CheckUsername(u.UserName, &usernameCount)
+
+	// 检查改用户名是否已经存在已经存在后是否为管理员
+	userExists, adminExists, err := mysql.CheckUsernameAndAdminExists(u.UserName)
 	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-AddSuperAdmin-CheckUserID ", zap.Error(err))
+		zap.L().Error("services-AddSuperAdmin-CheckUsernameAndAdminExists ", zap.Error(err))
 		return
 	}
-	if usernameCount == 0 {
+	if !userExists {
 		response.Code = consts.NotExistUsername
 		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
 			fmt.Sprintf("do not have this username %d ", u.UserID), zap.Error(err))
 		return
 	}
-	// 检查这个ID是否已经存在于Admin数据库中
-	usernameCount = 0
-	err = mysql.CheckAdminUsername(u.UserName, &usernameCount)
-	if err != nil {
-		response.Code = consts.SearchDBError
-		zap.L().Error("services-AddSuperAdmin-CheckAdminUserID ", zap.Error(err))
-		return
-	}
-	if usernameCount != 0 {
+	if adminExists {
 		response.Code = consts.UsernameAlreadyExist
-		zap.L().Error("services-AddSuperAdmin-CheckAdminUsername "+
-			fmt.Sprintf("this username %d already exist", u.UserID), zap.Error(err))
+		zap.L().Error("services-AddSuperAdmin-CheckUsernameAlreadyExists "+
+			fmt.Sprintf("already have this username %s ", u.UserName), zap.Error(err))
 		return
 	}
-	// 添加到数据库中
+	// 如果不是管理员就添加到数据库中
 	err = mysql.AddAdminUserByUsername(u.UserName)
 	if err != nil {
 		response.Code = consts.SearchDBError
@@ -93,19 +83,26 @@ func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 
 // AddAdmin 添加管理员
 func (u *UserService) AddAdmin() (response resp.Response) {
-	var usernameCount int64
-	err := mysql.CheckUsername(u.UserName, &usernameCount)
+	// 检查改用户名是否已经存在已经存在后是否为管理员
+	userExists, adminExists, err := mysql.CheckUsernameAndAdminExists(u.UserName)
 	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-AddAdmin-CheckUsername ", zap.Error(err))
+		zap.L().Error("services-AddSuperAdmin-CheckUsernameAndAdminExists ", zap.Error(err))
 		return
 	}
-	if usernameCount == 0 {
+	if !userExists {
 		response.Code = consts.NotExistUsername
-		zap.L().Error("services-AddAdmin-CheckUsername "+
-			fmt.Sprintf("do not have this username %s ", u.UserName), zap.Error(err))
+		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
+			fmt.Sprintf("do not have this username %d ", u.UserID), zap.Error(err))
 		return
 	}
+	if adminExists {
+		response.Code = consts.UsernameAlreadyExist
+		zap.L().Error("services-AddSuperAdmin-CheckUsernameAlreadyExists "+
+			fmt.Sprintf("already have this username %s ", u.UserName), zap.Error(err))
+		return
+	}
+
 	err = mysql.AddAdminUserByUsername(u.UserName)
 	if err != nil {
 		response.Code = consts.SearchDBError
@@ -120,42 +117,29 @@ func (u *UserService) AddAdmin() (response resp.Response) {
 // CreateProblem 创建题目
 func (p *Problem) CreateProblem() (response resp.Response) {
 	// 检查题目标题是否重复
-	var problemNum int64
-	err := mysql.CheckProblemTitle(p.Title, &problemNum)
-	switch {
-	case err != nil: // 搜索数据库错误
+	exists, err := mysql.CheckProblemTitleExists(p.Title)
+	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
 		return
-	case problemNum > 0: // 题目已经存在
+	}
+	if exists {
 		response.Code = consts.ProblemAlreadyExist
 		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
 			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
 	}
-	var problems mysql.Problems
-	problems.ProblemID = p.ProblemID
-	problems.Title = p.Title
-	problems.Content = p.Content
-	problems.Difficulty = p.Difficulty
-	problems.MaxRuntime = p.MaxRuntime
-	problems.MaxMemory = p.MaxMemory
 
-	// 提前转换类型
-	var convertedTestCases []*mysql.TestCase
-	for _, tc := range p.TestCases {
-		// 进行类型转换
-		convertedTestCases = append(convertedTestCases, &mysql.TestCase{
-			TID:      tc.TID,
-			PID:      tc.PID,
-			Input:    tc.Input,
-			Expected: tc.Expected,
-		})
-	}
-
-	problems.TestCases = convertedTestCases
 	// 创建题目
-	err = mysql.CreateProblem(&problems)
+	err = mysql.CreateProblem(&mysql.Problems{
+		ProblemID:  p.ProblemID,
+		Title:      p.Title,
+		Content:    p.Content,
+		Difficulty: p.Difficulty,
+		MaxRuntime: p.MaxRuntime,
+		MaxMemory:  p.MaxMemory,
+		TestCases:  convertTestCases(p.TestCases),
+	})
 	if err != nil {
 		response.Code = consts.CreateProblemError
 		zap.L().Error("services-CreateProblem-CreateProblem ", zap.Error(err))
@@ -168,59 +152,43 @@ func (p *Problem) CreateProblem() (response resp.Response) {
 // UpdateProblem 更新题目
 func (p *Problem) UpdateProblem() (response resp.Response) {
 	// 检查题目id是否存在
-	var idNum int64
-	err := mysql.CheckProblemID(p.ProblemID, &idNum)
-	switch {
-	case err != nil: // 搜索数据库错误
+	exists, err := mysql.CheckProblemIDExists(p.ProblemID)
+	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
-	case idNum == 0: // 题目id不存在
+	}
+	if !exists {
 		response.Code = consts.ProblemNotExist
 		zap.L().Error("services-UpdateProblem-CheckProblemID " +
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
 	}
 
-	// 检查题目标题是否存在
-	var titleNum int64
-	err = mysql.CheckProblemTitle(p.Title, &titleNum)
-	switch {
-	case err != nil: // 搜索数据库错误
+	// 检查题目标题是否重复
+	exists, err = mysql.CheckProblemTitleExists(p.Title)
+	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-UpdateProblem-CheckProblemTitle", zap.Error(err))
+		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
 		return
-	case titleNum != 0: // 题目title已存在
+	}
+	if exists {
 		response.Code = consts.ProblemAlreadyExist
-		zap.L().Error("services-UpdateProblem-CheckProblemTitle" +
-			fmt.Sprintf("problem title %s already exist", p.Title))
+		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
+			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
 	}
 
-	var problems mysql.Problems
-	problems.ProblemID = p.ProblemID
-	problems.Title = p.Title
-	problems.Content = p.Content
-	problems.Difficulty = p.Difficulty
-	problems.MaxRuntime = p.MaxRuntime
-	problems.MaxMemory = p.MaxMemory
+	err = mysql.UpdateProblem(&mysql.Problems{
+		ProblemID:  p.ProblemID,
+		Title:      p.Title,
+		Content:    p.Content,
+		Difficulty: p.Difficulty,
+		MaxRuntime: p.MaxRuntime,
+		MaxMemory:  p.MaxMemory,
+		TestCases:  convertTestCases(p.TestCases),
+	})
 
-	// 提前转换类型
-	var convertedTestCases []*mysql.TestCase
-	for _, tc := range p.TestCases {
-
-		// 进行类型转换
-		convertedTestCases = append(convertedTestCases, &mysql.TestCase{
-			TID:      tc.TID,
-			PID:      tc.PID,
-			Input:    tc.Input,
-			Expected: tc.Expected,
-		})
-
-	}
-	problems.TestCases = convertedTestCases
-
-	err = mysql.UpdateProblem(&problems)
 	if err != nil {
 		zap.L().Error("services-UpdateProblem-UpdateProblem ", zap.Error(err))
 		response.Code = consts.InternalServerError
@@ -233,19 +201,19 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 // DeleteProblem 删除题目
 func (p *Problem) DeleteProblem() (response resp.Response) {
 	// 检查题目id是否存在
-	var idNum int64
-	err := mysql.CheckProblemID(p.ProblemID, &idNum)
-	switch {
-	case err != nil: // 搜索数据库错误
+	exists, err := mysql.CheckProblemIDExists(p.ProblemID)
+	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-DeleteProblem-CheckProblemID ", zap.Error(err))
+		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
-	case idNum == 0: // 题目id不存在
+	}
+	if !exists {
 		response.Code = consts.ProblemNotExist
-		zap.L().Error("services-DeleteProblem-CheckProblemID " +
+		zap.L().Error("services-UpdateProblem-CheckProblemID " +
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
 	}
+
 	// 删除题目
 	err = mysql.DeleteProblem(p.ProblemID)
 	if err != nil {
@@ -273,19 +241,18 @@ func (p *Problem) CreateProblemWithFile() (response resp.Response) {
 			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
 	}
-
-	var problems mysql.ProblemWithFile
-	problems.ProblemID = p.ProblemID
-	problems.Title = p.Title
-	problems.Content = p.Content
-	problems.Difficulty = p.Difficulty
-	problems.MaxRuntime = p.MaxRuntime
-	problems.MaxMemory = p.MaxMemory
-	problems.InputPath = p.InputDst
-	problems.ExpectedPath = p.ExpectedDst
-
 	// 创建题目
-	err = mysql.CreateProblemWithFile(&problems)
+	err = mysql.CreateProblemWithFile(&mysql.ProblemWithFile{
+		ProblemID:    p.ProblemID,
+		Title:        p.Title,
+		Content:      p.Content,
+		Difficulty:   p.Difficulty,
+		MaxRuntime:   p.MaxRuntime,
+		MaxMemory:    p.MaxMemory,
+		InputPath:    p.InputDst,
+		ExpectedPath: p.ExpectedDst,
+	})
+
 	if err != nil {
 		response.Code = consts.CreateProblemError
 		zap.L().Error("services-CreateProblemWithFile-CreateProblemWithFile ", zap.Error(err))
@@ -375,17 +342,16 @@ func (p *Problem) DeleteProblemTestCaseWithFile() (response resp.Response) {
 // UpdateProblemWithFile 更新题目
 func (p *Problem) UpdateProblemWithFile() (response resp.Response) {
 
-	var problems mysql.ProblemWithFile
-	problems.ProblemID = p.ProblemID
-	problems.Title = p.Title
-	problems.Content = p.Content
-	problems.Difficulty = p.Difficulty
-	problems.MaxRuntime = p.MaxRuntime
-	problems.MaxMemory = p.MaxMemory
-	problems.InputPath = p.InputDst
-	problems.ExpectedPath = p.ExpectedDst
-
-	err := mysql.UpdateProblemWithFile(&problems)
+	err := mysql.UpdateProblemWithFile(&mysql.ProblemWithFile{
+		ProblemID:    p.ProblemID,
+		Title:        p.Title,
+		Content:      p.Content,
+		Difficulty:   p.Difficulty,
+		MaxRuntime:   p.MaxRuntime,
+		MaxMemory:    p.MaxMemory,
+		InputPath:    p.InputDst,
+		ExpectedPath: p.ExpectedDst,
+	})
 	if err != nil {
 		zap.L().Error("services-UpdateProblemWithFile-UpdateProblemWithFile ", zap.Error(err))
 		response.Code = consts.InternalServerError

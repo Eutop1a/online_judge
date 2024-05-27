@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/smtp"
 	"online-judge/dao/redis"
-	"regexp"
 	"strconv"
 	"time"
 )
@@ -38,9 +37,4 @@ func CreateVerificationCode() (string, int64) {
 	timestamp := time.Now().Unix()
 	return ret, timestamp
 
-}
-
-func ValidateEmail(email string) bool {
-	regex := regexp.MustCompile(`^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$`)
-	return regex.MatchString(email)
 }

@@ -1,5 +1,11 @@
 package consts
 
+import "errors"
+
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials")
+)
+
 // 客户端请求错误
 const (
 	EmailAlreadyExist = 4000 + iota
@@ -15,4 +21,5 @@ const (
 	UnsupportedLanguage
 	SecretError
 	UserIDAlreadyExist
+	//ErrInvalidCredentials
 )

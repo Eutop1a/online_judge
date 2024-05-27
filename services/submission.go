@@ -30,43 +30,42 @@ type Submission struct {
 
 func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 	// 检查用户id是否存在
-	var idNum int64
-	err := mysql.CheckUserID(s.UserID, &idNum)
-	switch {
-	case err != nil: // 搜索数据库错误
+	// 检验是否有这个用户ID
+	exist, err := mysql.CheckUserID(s.UserID)
+	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-SubmitCode-CheckUserID ", zap.Error(err))
+		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
 		return
-	case idNum == 0: // 用户id不存在
+	}
+	if !exist {
 		response.Code = consts.NotExistUserID
-		zap.L().Error("services-SubmitCode-CheckUserID " +
-			fmt.Sprintf(" user_id %d do not exist ", s.UserID))
+		zap.L().Error("services-DeleteUser-CheckUserID "+
+			fmt.Sprintf("do not have this userID %d ", s.UserID), zap.Error(err))
 		return
 	}
-	idNum = 0
 	// 检查题目id是否存在
-	err = mysql.CheckProblemID(s.ProblemID, &idNum)
-	switch {
-	case err != nil: // 搜索数据库错误
+	exists, err := mysql.CheckProblemIDExists(s.ProblemID)
+	if err != nil {
 		response.Code = consts.SearchDBError
-		zap.L().Error("services-SubmitCode-CheckProblemID ", zap.Error(err))
-		return
-	case idNum == 0: // 题目id不存在
-		response.Code = consts.ProblemNotExist
-		zap.L().Error("services-SubmitCode-CheckProblemID " +
-			fmt.Sprintf("problemID %s do not exist ", s.ProblemID))
+		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
 	}
-	tmp := mysql.Submission{
+	if !exists {
+		response.Code = consts.ProblemNotExist
+		zap.L().Error("services-UpdateProblem-CheckProblemID " +
+			fmt.Sprintf("problemID %s do not exist", s.ProblemID))
+		return
+	}
+
+	err = mysql.SubmitCode(&mysql.Submission{
 		UserID:         s.UserID,
 		SubmissionID:   s.SubmissionID,
 		ProblemID:      s.ProblemID,
 		Language:       s.Language,
 		Code:           s.Code,
 		SubmissionTime: s.SubmissionTime,
-	}
+	})
 
-	err = mysql.SubmitCode(&tmp)
 	if err != nil {
 		response.Code = consts.SearchDBError
 		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
@@ -194,7 +193,7 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 	}
 
 	// 先向数据库中添加这一次的提交记录
-	sub := &mysql.Judgement{
+	err = mysql.InsertNewSubmission(&mysql.Judgement{
 		UID:          s.UserID,
 		JudgementID:  utils.GetUUID(),
 		SubmissionID: s.SubmissionID,
@@ -202,9 +201,7 @@ func (s *Submission) SubmitCode() (response resp.ResponseWithData) {
 		MemoryUsage:  int(resData.MemoryUsage),
 		Verdict:      verdict,
 		Runtime:      int(resData.Runtime),
-	}
-
-	err = mysql.InsertNewSubmission(sub)
+	})
 	if err != nil {
 		response.Code = consts.InsertToJudgementError
 		zap.L().Error("services-SubmitCode-InsertNewSubmission", zap.Error(err))

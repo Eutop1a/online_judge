@@ -139,6 +139,10 @@ func AddAdmin(c *gin.Context) {
 	case consts.NotExistUsername:
 		resp.ResponseError(c, resp.CodeUsernameNotExist)
 
+	// 用户已经是管理员了
+	case consts.UsernameAlreadyExist:
+		resp.ResponseError(c, resp.CodeUsernameAlreadyExist)
+
 	// 服务器内部错误
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)

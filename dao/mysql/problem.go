@@ -6,21 +6,19 @@ import (
 )
 
 // GetProblemList 获取题目列表
-func GetProblemList(page, size int, count *int64) (*[]Problems, error) {
+func GetProblemList(page, size int, count *int64) ([]Problems, error) {
 	offset := (page - 1) * size // 从哪里开始查询，例如page = 1，应该从数据库的第0条记录开始查询
 
 	var problemList []Problems
 
-	// 执行查询并只选取题号、题目和难度字段
-	//err := DB.Model(&Problems{}).Select("problem_id, title, difficulty").
-	//	Find(&problemList).Error
 	err := DB.Model(&Problems{}).Count(count).Select("id, problem_id, title, difficulty").
 		Offset(offset).Limit(size).Find(&problemList).Error
 	if err != nil {
 		// 处理错误
 		return nil, err
 	}
-	return &problemList, nil
+
+	return problemList, nil
 }
 
 // GetProblemDetail 获取单个题目详细信息
@@ -120,14 +118,24 @@ func DeleteProblem(pid string) error {
 	return nil
 }
 
-// CheckProblemTitle 检查题目标题是否已经存在
-func CheckProblemTitle(title string, num *int64) error {
-	return DB.Model(&Problems{}).Where("title = ?", title).Count(num).Error
+// CheckProblemTitleExists 检查题目标题是否已经存在
+func CheckProblemTitleExists(title string) (bool, error) {
+	var count int64
+	err := DB.Model(&Problems{}).Where("title = ?", title).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
-// CheckProblemID 检查题目id是否已经存在
-func CheckProblemID(id string, num *int64) error {
-	return DB.Model(&Problems{}).Where("problem_id = ?", id).Count(num).Error
+// CheckProblemIDExists 检查题目id是否已经存在
+func CheckProblemIDExists(id string) (bool, error) {
+	var count int64
+	err := DB.Model(&Problems{}).Where("problem_id = ?", id).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 // GetProblemID 获取题目ID

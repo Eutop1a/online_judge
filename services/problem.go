@@ -41,34 +41,21 @@ type TestCase struct {
 // GetProblemList 获取题目列表
 func (p *Problem) GetProblemList() (*[]Problem, error) {
 	var count int64
-	data, err := mysql.GetProblemList(p.Page, p.Size, &count)
+	problemList, err := mysql.GetProblemList(p.Page, p.Size, &count)
 	if err != nil {
 		zap.L().Error("services-GetProblemList-GetProblemList ", zap.Error(err))
 		return nil, err
 	}
 
-	problems := make([]Problem, len(*data))
-	for k, v := range *data {
+	problems := make([]Problem, len(problemList))
+	for k, v := range problemList {
 		problems[k].ID = v.ID
 		problems[k].ProblemID = v.ProblemID
-		problems[k].Content = v.Content
 		problems[k].Title = v.Title
 		problems[k].Difficulty = v.Difficulty
-		problems[k].MaxMemory = v.MaxMemory
-		problems[k].MaxRuntime = v.MaxRuntime
-		problems[k].MaxRuntime = v.MaxRuntime
 		problems[k].Count = count
 		problems[k].Size = p.Size
 		problems[k].Page = p.Page
-		problems[k].TestCases = make([]*TestCase, len(v.TestCases))
-		for i, tc := range v.TestCases {
-			problems[k].TestCases[i] = &TestCase{
-				TID:      tc.TID,
-				PID:      tc.PID,
-				Input:    tc.Input,
-				Expected: tc.Expected,
-			}
-		}
 	}
 
 	return &problems, nil

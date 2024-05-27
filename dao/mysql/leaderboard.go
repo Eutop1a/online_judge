@@ -6,12 +6,12 @@ type UserRank struct {
 }
 
 func GetUserLeaderboard() (data *[]UserRank, err error) {
-	var retSlice []UserRank
 	var userSlice []User
 	err = DB.Model(&User{}).Select("finish_num, username").Order("finish_num desc").Find(&userSlice).Error
 	if err != nil {
 		return nil, err
 	}
+	var retSlice []UserRank
 	for _, user := range userSlice {
 		retSlice = append(retSlice, UserRank{
 			FinishProblemNum: user.FinishProblemNum,
