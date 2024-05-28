@@ -2,7 +2,7 @@ package mq
 
 import (
 	"go.uber.org/zap"
-	"online-judge/consts"
+	"online-judge/consts/mq_name"
 
 	"github.com/streadway/amqp"
 )
@@ -12,7 +12,7 @@ func SendMessage2MQ(body []byte) (err error) {
 	if err != nil {
 		return
 	}
-	q, _ := ch.QueueDeclare(consts.RabbitMQProblemQueueName, true, false, false, false, nil)
+	q, _ := ch.QueueDeclare(mq_name.RabbitMQProblemQueueName, true, false, false, false, nil)
 	err = ch.Publish("", q.Name, false, false, amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  "application/json",

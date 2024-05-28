@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"online-judge/services"
@@ -44,16 +45,16 @@ func AddSuperAdmin(c *gin.Context) {
 	ret = addAdmin.AddSuperAdmin(secret)
 	switch ret.Code {
 
-	case consts.Success:
-		resp.ResponseSuccess(c, consts.Success)
+	case resp_code.Success:
+		resp.ResponseSuccess(c, resp_code.Success)
 
-	case consts.NotExistUsername:
+	case resp_code.NotExistUsername:
 		resp.ResponseError(c, resp.CodeUsernameNotExist)
 
-	case consts.SecretError:
+	case resp_code.SecretError:
 		resp.ResponseError(c, resp.CodeErrorSecret)
 
-	case consts.UsernameAlreadyExist:
+	case resp_code.UsernameAlreadyExist:
 		resp.ResponseError(c, resp.CodeUsernameAlreadyExist)
 
 	default:
@@ -90,11 +91,11 @@ func DeleteUser(c *gin.Context) {
 
 	switch ret.Code {
 	// 成功
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	// 用户不存在
-	case consts.NotExistUserID:
+	case resp_code.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseNotExist)
 
 	default:
@@ -132,15 +133,15 @@ func AddAdmin(c *gin.Context) {
 
 	switch ret.Code {
 	// 成功
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
 	// 用户名不存在
-	case consts.NotExistUsername:
+	case resp_code.NotExistUsername:
 		resp.ResponseError(c, resp.CodeUsernameNotExist)
 
 	// 用户已经是管理员了
-	case consts.UsernameAlreadyExist:
+	case resp_code.UsernameAlreadyExist:
 		resp.ResponseError(c, resp.CodeUsernameAlreadyExist)
 
 	// 服务器内部错误
@@ -212,10 +213,10 @@ func CreateProblem(c *gin.Context) {
 
 	response := createProblem.CreateProblem()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	case consts.ProblemAlreadyExist:
+	case resp_code.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 
 	default:
@@ -287,11 +288,11 @@ func UpdateProblem(c *gin.Context) {
 	updateProblem.TestCases = tCase
 	response := updateProblem.UpdateProblem()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
-	case consts.ProblemAlreadyExist:
+	case resp_code.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
@@ -317,10 +318,10 @@ func DeleteProblem(c *gin.Context) {
 	deleteProblem.ProblemID = c.Param("problem_id")
 	response := deleteProblem.DeleteProblem()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 
 	default:
@@ -391,10 +392,10 @@ func CreateProblemWithFile(c *gin.Context) {
 
 	response := createProblem.CreateProblemWithFile()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	case consts.ProblemAlreadyExist:
+	case resp_code.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 
 	default:
@@ -421,10 +422,10 @@ func DeleteProblemWithFile(c *gin.Context) {
 
 	response := deleteProblem.DeleteProblemWithFile()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
 
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 
 	default:
@@ -473,13 +474,13 @@ func UpdateProblemWithFile(c *gin.Context) {
 	// 在添加之前先删除所有的测试用例
 	response := updateProblem.DeleteProblemTestCaseWithFile()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 		return
 
-	case consts.ProblemAlreadyExist:
+	case resp_code.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 		return
 
@@ -494,11 +495,11 @@ func UpdateProblemWithFile(c *gin.Context) {
 
 	response = updateProblem.UpdateProblemWithFile()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
-	case consts.ProblemAlreadyExist:
+	case resp_code.ProblemAlreadyExist:
 		resp.ResponseError(c, resp.CodeProblemTitleExist)
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)

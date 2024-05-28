@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"go.uber.org/zap"
-	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
 	"online-judge/pkg/jwt"
@@ -30,19 +30,19 @@ func (u *UserService) Register() (response resp.Response) {
 	err := mysql.CheckEmailAndUsername(u.Email, u.UserName, &countEmail, &countUsername)
 	// UID作为唯一标识，但是email和username不能重复
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-Register-CheckEmailAndUsername ", zap.Error(err))
 		return
 	}
 
 	if countEmail > 0 {
-		response.Code = consts.EmailAlreadyExist
+		response.Code = resp_code.EmailAlreadyExist
 		zap.L().Warn("services-Register-CheckEmailAndUsername email already exist", zap.String("email", u.Email))
 		return
 	}
 
 	if countUsername > 0 {
-		response.Code = consts.UsernameAlreadyExist
+		response.Code = resp_code.UsernameAlreadyExist
 		zap.L().Warn("services-Register-CheckEmailAndUsername username already exist", zap.String("username", u.UserName))
 		return
 	}
@@ -52,11 +52,11 @@ func (u *UserService) Register() (response resp.Response) {
 	// 验证码过期
 	if err != nil {
 		if errors.Is(err, fmt.Errorf("verification code expired")) {
-			response.Code = consts.ExpiredVerCode
+			response.Code = resp_code.ExpiredVerCode
 			zap.L().Warn("services-Register-GetVerificationCode verification code expired",
 				zap.String("email", u.Email))
 		} else {
-			response.Code = consts.ErrorVerCode
+			response.Code = resp_code.ErrorVerCode
 			zap.L().Warn("services-Register-GetVerificationCode error verification code",
 				zap.String("email", u.Email))
 		}
@@ -64,7 +64,7 @@ func (u *UserService) Register() (response resp.Response) {
 	}
 	// 验证码错误
 	if code != u.Code {
-		response.Code = consts.ErrorVerCode
+		response.Code = resp_code.ErrorVerCode
 		zap.L().Warn("services-Register-GetVerificationCode incorrect verification code",
 			zap.String("email", u.Email))
 		return
@@ -73,7 +73,7 @@ func (u *UserService) Register() (response resp.Response) {
 	// 生成唯一的ID
 	node, err := snowflake.NewNode(1)
 	if err != nil {
-		response.Code = consts.GenerateNodeError
+		response.Code = resp_code.GenerateNodeError
 		zap.L().Error("services-Register-NewNode ", zap.Error(err))
 		return
 	}
@@ -82,20 +82,20 @@ func (u *UserService) Register() (response resp.Response) {
 	// 密码加密
 	u.Password, err = utils.CryptoPwd(u.Password)
 	if err != nil {
-		response.Code = consts.EncryptPwdError
+		response.Code = resp_code.EncryptPwdError
 		zap.L().Error("services-Register-CryptoPwd ", zap.Error(err))
 		return
 	}
 
 	// 插入数据库
 	if err = mysql.InsertNewUser(u.UserID, u.UserName, u.Password, u.Email); err != nil {
-		response.Code = consts.InsertNewUserError
+		response.Code = resp_code.InsertNewUserError
 		zap.L().Error("services-Register-InsertNewUser "+
 			fmt.Sprintf("insert new user %s error ", u.UserName), zap.Error(err))
 		return
 	}
 	// 设置响应的状态码
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -137,13 +137,13 @@ func (u *UserService) Login() (response resp.ResponseWithData) {
 	// 检查用户名和密码是否正确
 	userID, isAdmin, err := mysql.CheckUserCredentials(u.UserName, u.Password)
 	if err != nil {
-		if errors.Is(err, consts.ErrInvalidCredentials) {
-			response.Code = consts.ErrorPwd
+		if errors.Is(err, resp_code.ErrInvalidCredentials) {
+			response.Code = resp_code.ErrorPwd
 			zap.L().Warn("services-Login-CheckUserCredentials invalid credentials",
 				zap.String("username", u.UserName))
 			return
 		} else {
-			response.Code = consts.SearchDBError
+			response.Code = resp_code.SearchDBError
 			zap.L().Error("services-Login-CheckUserCredentials ", zap.Error(err))
 			return
 		}
@@ -152,12 +152,12 @@ func (u *UserService) Login() (response resp.ResponseWithData) {
 	// 生成token
 	token, err := jwt.GenerateToken(userID, u.UserName, isAdmin)
 	if err != nil {
-		response.Code = consts.GenerateTokenError
+		response.Code = resp_code.GenerateTokenError
 		zap.L().Error("service-Login-GenerateToken ", zap.Error(err))
 		return
 	}
 	// 设置响应的状态码和 token
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	response.Data = token
 	return
 }
@@ -167,12 +167,12 @@ func (u *UserService) GetUserDetail() (response resp.ResponseWithData) {
 	// 检验是否有这个用户ID
 	exist, err := mysql.CheckUserID(u.UserID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
 		return
 	}
 	if !exist {
-		response.Code = consts.NotExistUserID
+		response.Code = resp_code.NotExistUserID
 		zap.L().Error("services-DeleteUser-CheckUserID "+
 			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
 		return
@@ -181,13 +181,13 @@ func (u *UserService) GetUserDetail() (response resp.ResponseWithData) {
 	// 去数据库获取详细信息
 	data, err := mysql.GetUserDetail(u.UserID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-GetUserDetail-GetUserDetail "+
 			fmt.Sprintf("db scan userID %d detail information failed ", u.UserID), zap.Error(err))
 		return
 	}
 	response.Data = data
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -196,12 +196,12 @@ func (u *UserService) UpdateUserDetail() (response resp.Response) {
 	// 检验是否有这个用户ID
 	exist, err := mysql.CheckUserID(u.UserID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
 		return
 	}
 	if !exist {
-		response.Code = consts.NotExistUserID
+		response.Code = resp_code.NotExistUserID
 		zap.L().Error("services-DeleteUser-CheckUserID "+
 			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
 		return
@@ -213,14 +213,14 @@ func (u *UserService) UpdateUserDetail() (response resp.Response) {
 		code, err := redis.GetVerificationCode(u.Email)
 		// 验证码过期
 		if errors.Is(err, fmt.Errorf("verification code expired")) {
-			response.Code = consts.ExpiredVerCode
+			response.Code = resp_code.ExpiredVerCode
 			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
 				fmt.Sprintf("expired verfiction code %s:%s ", u.Email, code), zap.Error(err))
 			return
 		}
 		// 验证码错误
 		if code != u.Code {
-			response.Code = consts.ErrorVerCode
+			response.Code = resp_code.ErrorVerCode
 			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
 				fmt.Sprintf("error verfiction code %s:%s ", u.Email, code), zap.Error(err))
 			return
@@ -231,19 +231,19 @@ func (u *UserService) UpdateUserDetail() (response resp.Response) {
 		// 密码加密
 		u.Password, err = utils.CryptoPwd(u.Password)
 		if err != nil {
-			response.Code = consts.EncryptPwdError
+			response.Code = resp_code.EncryptPwdError
 			zap.L().Error("services-UpdateUserDetail-CryptoPwd ", zap.Error(err))
 			return
 		}
 	}
 	err = mysql.UpdateUserDetail(u.UserID, u.Email, u.Password)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateUserDetail-UpdateUserDetail "+
 			fmt.Sprintf("db update userID %d failed ", u.UserID), zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 

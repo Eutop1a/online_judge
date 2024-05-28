@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
@@ -16,12 +17,12 @@ func (u *UserService) DeleteUser() (response resp.Response) {
 	// 检验是否有这个用户ID
 	exist, err := mysql.CheckUserID(u.UserID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
 		return
 	}
 	if !exist {
-		response.Code = consts.NotExistUserID
+		response.Code = resp_code.NotExistUserID
 		zap.L().Error("services-DeleteUser-CheckUserID "+
 			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
 		return
@@ -29,13 +30,13 @@ func (u *UserService) DeleteUser() (response resp.Response) {
 	// 删除用户
 	err = mysql.DeleteUser(u.UserID)
 	if err != nil {
-		response.Code = consts.DBDeleteError
+		response.Code = resp_code.DBDeleteError
 		zap.L().Error("services-DeleteUser-DeleteUser "+
 			fmt.Sprintf("delete userID %d failed ", u.UserID), zap.Error(err))
 		return
 	}
 	// 删除成功
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -44,7 +45,7 @@ const SECRETCIPHER = "afd372788c1f7f646a678654901ce041ecc9012487dc0055b932cac9ac
 func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 
 	if utils.CryptoSecret(secret) != SECRETCIPHER {
-		response.Code = consts.SecretError
+		response.Code = resp_code.SecretError
 		zap.L().Error("services-AddSuperAdmin-CryptoSecret " +
 			fmt.Sprintf("secret error %s:%s", u.UserName, secret))
 		return
@@ -53,18 +54,18 @@ func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 	// 检查改用户名是否已经存在已经存在后是否为管理员
 	userExists, adminExists, err := mysql.CheckUsernameAndAdminExists(u.UserName)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-AddSuperAdmin-CheckUsernameAndAdminExists ", zap.Error(err))
 		return
 	}
 	if !userExists {
-		response.Code = consts.NotExistUsername
+		response.Code = resp_code.NotExistUsername
 		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
 			fmt.Sprintf("do not have this username %d ", u.UserID), zap.Error(err))
 		return
 	}
 	if adminExists {
-		response.Code = consts.UsernameAlreadyExist
+		response.Code = resp_code.UsernameAlreadyExist
 		zap.L().Error("services-AddSuperAdmin-CheckUsernameAlreadyExists "+
 			fmt.Sprintf("already have this username %s ", u.UserName), zap.Error(err))
 		return
@@ -72,11 +73,11 @@ func (u *UserService) AddSuperAdmin(secret string) (response resp.Response) {
 	// 如果不是管理员就添加到数据库中
 	err = mysql.AddAdminUserByUsername(u.UserName)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 
 	return
 }
@@ -86,18 +87,18 @@ func (u *UserService) AddAdmin() (response resp.Response) {
 	// 检查改用户名是否已经存在已经存在后是否为管理员
 	userExists, adminExists, err := mysql.CheckUsernameAndAdminExists(u.UserName)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-AddSuperAdmin-CheckUsernameAndAdminExists ", zap.Error(err))
 		return
 	}
 	if !userExists {
-		response.Code = consts.NotExistUsername
+		response.Code = resp_code.NotExistUsername
 		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
 			fmt.Sprintf("do not have this username %d ", u.UserID), zap.Error(err))
 		return
 	}
 	if adminExists {
-		response.Code = consts.UsernameAlreadyExist
+		response.Code = resp_code.UsernameAlreadyExist
 		zap.L().Error("services-AddSuperAdmin-CheckUsernameAlreadyExists "+
 			fmt.Sprintf("already have this username %s ", u.UserName), zap.Error(err))
 		return
@@ -105,11 +106,11 @@ func (u *UserService) AddAdmin() (response resp.Response) {
 
 	err = mysql.AddAdminUserByUsername(u.UserName)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 
 	return
 }
@@ -119,12 +120,12 @@ func (p *Problem) CreateProblem() (response resp.Response) {
 	// 检查题目标题是否重复
 	exists, err := mysql.CheckProblemTitleExists(p.Title)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
 		return
 	}
 	if exists {
-		response.Code = consts.ProblemAlreadyExist
+		response.Code = resp_code.ProblemAlreadyExist
 		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
 			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
@@ -141,11 +142,11 @@ func (p *Problem) CreateProblem() (response resp.Response) {
 		TestCases:  convertTestCases(p.TestCases),
 	})
 	if err != nil {
-		response.Code = consts.CreateProblemError
+		response.Code = resp_code.CreateProblemError
 		zap.L().Error("services-CreateProblem-CreateProblem ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -154,12 +155,12 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 	// 检查题目id是否存在
 	exists, err := mysql.CheckProblemIDExists(p.ProblemID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
 	}
 	if !exists {
-		response.Code = consts.ProblemNotExist
+		response.Code = resp_code.ProblemNotExist
 		zap.L().Error("services-UpdateProblem-CheckProblemID " +
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
@@ -168,12 +169,12 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 	// 检查题目标题是否重复
 	exists, err = mysql.CheckProblemTitleExists(p.Title)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
 		return
 	}
 	if exists {
-		response.Code = consts.ProblemAlreadyExist
+		response.Code = resp_code.ProblemAlreadyExist
 		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
 			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
@@ -191,10 +192,10 @@ func (p *Problem) UpdateProblem() (response resp.Response) {
 
 	if err != nil {
 		zap.L().Error("services-UpdateProblem-UpdateProblem ", zap.Error(err))
-		response.Code = consts.InternalServerError
+		response.Code = resp_code.InternalServerError
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -203,12 +204,12 @@ func (p *Problem) DeleteProblem() (response resp.Response) {
 	// 检查题目id是否存在
 	exists, err := mysql.CheckProblemIDExists(p.ProblemID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
 	}
 	if !exists {
-		response.Code = consts.ProblemNotExist
+		response.Code = resp_code.ProblemNotExist
 		zap.L().Error("services-UpdateProblem-CheckProblemID " +
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
@@ -217,11 +218,11 @@ func (p *Problem) DeleteProblem() (response resp.Response) {
 	// 删除题目
 	err = mysql.DeleteProblem(p.ProblemID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteProblem-DeleteProblem  ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -232,11 +233,11 @@ func (p *Problem) CreateProblemWithFile() (response resp.Response) {
 	err := mysql.CheckProblemIDWithFile(p.Title, &problemNum)
 	switch {
 	case err != nil: // 搜索数据库错误
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-CreateProblemWithFile-CheckProblemTitle ", zap.Error(err))
 		return
 	case problemNum > 0: // 题目已经存在
-		response.Code = consts.ProblemAlreadyExist
+		response.Code = resp_code.ProblemAlreadyExist
 		zap.L().Error("services-CreateProblemWithFile-CheckProblemTitle " +
 			fmt.Sprintf("title %s aleardy exist", p.Title))
 		return
@@ -254,11 +255,11 @@ func (p *Problem) CreateProblemWithFile() (response resp.Response) {
 	})
 
 	if err != nil {
-		response.Code = consts.CreateProblemError
+		response.Code = resp_code.CreateProblemError
 		zap.L().Error("services-CreateProblemWithFile-CreateProblemWithFile ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -269,11 +270,11 @@ func (p *Problem) DeleteProblemWithFile() (response resp.Response) {
 	err := mysql.CheckProblemIDWithFile(p.ProblemID, &idNum)
 	switch {
 	case err != nil: // 搜索数据库错误
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteProblemWithFile-CheckProblemIDWithFile ", zap.Error(err))
 		return
 	case idNum == 0: // 题目id不存在
-		response.Code = consts.ProblemNotExist
+		response.Code = resp_code.ProblemNotExist
 		zap.L().Error("services-DeleteProblemWithFile-CheckProblemIDWithFile " +
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
@@ -281,7 +282,7 @@ func (p *Problem) DeleteProblemWithFile() (response resp.Response) {
 	// 删除题目
 	problemID, err := mysql.DeleteProblemWithFile(p.ProblemID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteProblemWithFile-DeleteProblemWithFile ", zap.Error(err))
 		return
 	}
@@ -289,11 +290,11 @@ func (p *Problem) DeleteProblemWithFile() (response resp.Response) {
 	err = os.RemoveAll(filepath.Join(consts.FilePath, problemID))
 
 	if err != nil {
-		response.Code = consts.RemoveTestFileError
+		response.Code = resp_code.RemoveTestFileError
 		zap.L().Error("services-DeleteProblemWithFile-Remove ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -304,11 +305,11 @@ func (p *Problem) DeleteProblemTestCaseWithFile() (response resp.Response) {
 	err := mysql.CheckProblemIDWithFile(p.ProblemID, &idNum)
 	switch {
 	case err != nil: // 搜索数据库错误
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteProblemTestCaseWithFile-CheckProblemID ", zap.Error(err))
 		return
 	case idNum == 0: // 题目id不存在
-		response.Code = consts.ProblemNotExist
+		response.Code = resp_code.ProblemNotExist
 		zap.L().Error("services-DeleteProblemTestCaseWithFile-CheckProblemID " +
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
@@ -319,11 +320,11 @@ func (p *Problem) DeleteProblemTestCaseWithFile() (response resp.Response) {
 	err = mysql.CheckProblemTitleWithFile(p.Title, &titleNum)
 	switch {
 	case err != nil: // 搜索数据库错误
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateProblemWithFile-CheckProblemTitle", zap.Error(err))
 		return
 	case titleNum != 0: // 题目title已存在
-		response.Code = consts.ProblemAlreadyExist
+		response.Code = resp_code.ProblemAlreadyExist
 		zap.L().Error("services-UpdateProblemWithFile-CheckProblemTitle" +
 			fmt.Sprintf("problem title %s already exist", p.Title))
 		return
@@ -331,11 +332,11 @@ func (p *Problem) DeleteProblemTestCaseWithFile() (response resp.Response) {
 	err = os.RemoveAll(filepath.Join(consts.FilePath, p.ProblemID))
 
 	if err != nil {
-		response.Code = consts.RemoveTestFileError
+		response.Code = resp_code.RemoveTestFileError
 		zap.L().Error("services-DeleteProblemTestCaseWithFile-Remove ", zap.Error(err))
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }
 
@@ -354,9 +355,9 @@ func (p *Problem) UpdateProblemWithFile() (response resp.Response) {
 	})
 	if err != nil {
 		zap.L().Error("services-UpdateProblemWithFile-UpdateProblemWithFile ", zap.Error(err))
-		response.Code = consts.InternalServerError
+		response.Code = resp_code.InternalServerError
 		return
 	}
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	return
 }

@@ -3,7 +3,7 @@ package mysql
 import (
 	"errors"
 	"gorm.io/gorm"
-	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/pkg/utils"
 )
 
@@ -61,13 +61,13 @@ func CheckUserCredentials(username, password string) (int64, bool, error) {
 	err := DB.Model(&User{}).Where("username = ?", username).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return 0, false, consts.ErrInvalidCredentials
+			return 0, false, resp_code.ErrInvalidCredentials
 		}
 		return 0, false, err
 	}
 	// 检查密码是否正确
 	if !utils.CheckPwd(password, user.Password) {
-		return 0, false, consts.ErrInvalidCredentials
+		return 0, false, resp_code.ErrInvalidCredentials
 	}
 	// 检查是否为管理员
 	var isAdmin bool

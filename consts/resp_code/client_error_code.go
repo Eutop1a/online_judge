@@ -1,4 +1,4 @@
-package consts
+package resp_code
 
 import "errors"
 

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"online-judge/services"
@@ -43,16 +43,16 @@ func SubmitCode(c *gin.Context) {
 	submission.SubmissionTime = time.Now()
 	response := submission.SubmitCode()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, response.Data)
 
-	case consts.NotExistUserID:
+	case resp_code.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseIDNotExist)
 
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 
-	case consts.UnsupportedLanguage:
+	case resp_code.UnsupportedLanguage:
 		resp.ResponseError(c, resp.CodeUnsupportedLanguage)
 
 	default:
@@ -94,16 +94,16 @@ func SubmitCodeWithFile(c *gin.Context) {
 	submission.SubmissionTime = time.Now()
 	response := submission.SubmitCodeWithFile()
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, response.Data)
 
-	case consts.NotExistUserID:
+	case resp_code.NotExistUserID:
 		resp.ResponseError(c, resp.CodeUseIDNotExist)
 
-	case consts.ProblemNotExist:
+	case resp_code.ProblemNotExist:
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 
-	case consts.UnsupportedLanguage:
+	case resp_code.UnsupportedLanguage:
 		resp.ResponseError(c, resp.CodeUnsupportedLanguage)
 
 	default:

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/pkg/resp"
 	"online-judge/services"
 )
@@ -33,7 +33,7 @@ func GetUserLeaderboard(c *gin.Context) {
 		return
 	}
 	switch response.Code {
-	case consts.Success:
+	case resp_code.Success:
 		resp.ResponseSuccess(c, response.Data)
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
