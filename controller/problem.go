@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"online-judge/dao/redis"
 	"online-judge/pkg/define"
 	"online-judge/pkg/resp"
 	"online-judge/services"
@@ -24,7 +25,8 @@ func GetProblemList(c *gin.Context) {
 	var getProblemList services.Problem
 	getProblemList.Size, _ = strconv.Atoi(c.DefaultQuery("size", define.DefaultSize))
 	getProblemList.Page, _ = strconv.Atoi(c.DefaultQuery("page", define.DefaultPage))
-	data, err := getProblemList.GetProblemList()
+	data, err := getProblemList.GetProblemListWithCache(redis.Client)
+	//data, err := getProblemList.GetProblemList()
 	if err != nil {
 		resp.ResponseError(c, resp.CodeInternalServerError)
 		zap.L().Error("controller-GetProblemList-GetProblemList ", zap.Error(err))
@@ -50,7 +52,7 @@ func GetProblemDetail(c *gin.Context) {
 	pid := c.Param("problem_id")
 	getProblemDetail.ProblemID = pid
 
-	data, err := getProblemDetail.GetProblemDetail()
+	data, err := getProblemDetail.GetProblemDetailWithCache(redis.Client)
 	if err != nil {
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))

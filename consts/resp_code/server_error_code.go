@@ -1,4 +1,4 @@
-package consts
+package resp_code
 
 // 服务端请求错误
 const (

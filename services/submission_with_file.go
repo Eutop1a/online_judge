@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/dao/mysql"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
@@ -16,12 +17,12 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 	// 检验是否有这个用户ID
 	exists, err := mysql.CheckUserID(s.UserID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
 		return
 	}
 	if !exists {
-		response.Code = consts.NotExistUserID
+		response.Code = resp_code.NotExistUserID
 		zap.L().Error("services-DeleteUser-CheckUserID "+
 			fmt.Sprintf("do not have this userID %d ", s.UserID), zap.Error(err))
 		return
@@ -30,12 +31,12 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 	// 检查题目id是否存在
 	exists, err = mysql.CheckProblemIDExists(s.ProblemID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
 		return
 	}
 	if !exists {
-		response.Code = consts.ProblemNotExist
+		response.Code = resp_code.ProblemNotExist
 		zap.L().Error("services-UpdateProblem-CheckProblemID " +
 			fmt.Sprintf("problemID %s do not exist", s.ProblemID))
 		return
@@ -51,21 +52,21 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 	})
 
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
 		return
 	}
 	// 获取全部的题目信息
 	problemDetail, err := mysql.GetEntireProblemWithFile(s.ProblemID)
 	if err != nil {
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
 		return
 	}
 	// 得到输入和输出
 	input, expected, err := utils.GetInputAndExpectedFromFile(problemDetail.InputPath, problemDetail.ExpectedPath)
 	if err != nil {
-		response.Code = consts.ReadTestFileError
+		response.Code = resp_code.ReadTestFileError
 		zap.L().Error("services-SubmitCodeWithFile-GetInputAndExpectedFromFile ", zap.Error(err))
 		return
 	}
@@ -82,7 +83,7 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 	case "Python":
 		language = consts.PYTHON
 	default:
-		response.Code = consts.UnsupportedLanguage
+		response.Code = resp_code.UnsupportedLanguage
 		return
 	}
 	// 将需要的内容序列化
@@ -148,7 +149,7 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 		// 执行judgement函数
 		resData, err = s.Judgement(&data)
 		if err != nil {
-			response.Code = consts.InternalServerError
+			response.Code = resp_code.InternalServerError
 			return
 		}
 		wg.Done()
@@ -158,19 +159,19 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 	var verdict string
 
 	switch resData.Status {
-	case consts.Accepted:
+	case resp_code.Accepted:
 		verdict = "accepted"
-	case consts.WrongAnswer:
+	case resp_code.WrongAnswer:
 		verdict = "wrong answer"
-	case consts.ComplierError:
+	case resp_code.ComplierError:
 		verdict = "compiler error"
-	case consts.TimeLimited:
+	case resp_code.TimeLimited:
 		verdict = "time limited"
-	case consts.MemoryLimited:
+	case resp_code.MemoryLimited:
 		verdict = "memory limited"
-	case consts.RuntimeError:
+	case resp_code.RuntimeError:
 		verdict = "runtime error"
-	case consts.SystemError:
+	case resp_code.SystemError:
 		verdict = "system error"
 	default:
 		verdict = "unknown"
@@ -187,7 +188,7 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 		Runtime:      int(resData.Runtime),
 	})
 	if err != nil {
-		response.Code = consts.InsertToJudgementError
+		response.Code = resp_code.InsertToJudgementError
 		zap.L().Error("services-SubmitCode-InsertNewSubmission", zap.Error(err))
 		return
 	}
@@ -196,7 +197,7 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 	finished, err := mysql.CheckIfAlreadyFinished(s.UserID, s.ProblemID)
 	fmt.Println("services-SubmitCode-CheckIfAlreadyFinished:", finished, err)
 	if err != nil { // 查询数据库错误
-		response.Code = consts.SearchDBError
+		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
 		return
 	}
@@ -204,17 +205,17 @@ func (s *Submission) SubmitCodeWithFile() (response resp.ResponseWithData) {
 		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished " +
 			fmt.Sprintf("%d had finished this problem %s", s.UserID, s.ProblemID))
 	} else { // 题目还没有被完成过
-		if resData.Status == consts.Accepted {
+		if resData.Status == resp_code.Accepted {
 			err = mysql.AddPassNum(resData.UserId)
 			if err != nil {
 				zap.L().Error("services-SubmitCode-AddPassNum", zap.Error(err))
-				response.Code = consts.SearchDBError
+				response.Code = resp_code.SearchDBError
 				return
 			}
 		}
 	}
 
-	response.Code = consts.Success
+	response.Code = resp_code.Success
 	response.Data = struct {
 		UserId      string `json:"user_id"`
 		Status      int32  `json:"status"`

@@ -3,7 +3,7 @@ package services
 import (
 	"fmt"
 	"go.uber.org/zap"
-	"online-judge/consts"
+	"online-judge/consts/resp_code"
 	"online-judge/dao/redis"
 	mycaptcha "online-judge/pkg/my_captcha"
 	"online-judge/pkg/utils"
@@ -17,19 +17,19 @@ func SendEmailCode(userEmail string) (resCode int) {
 	// 发送验证码
 	err := utils.SendCode(userEmail, code)
 	if err != nil {
-		resCode = consts.SendCodeError
+		resCode = resp_code.SendCodeError
 		zap.L().Error("services-SendEmailCode-SendCode ", zap.Error(err))
 		return
 	}
 	// redis保存email和验证码的键值对
 	err = redis.StoreVerificationCode(userEmail, code, ts)
 	if err != nil {
-		resCode = consts.StoreVerCodeError
+		resCode = resp_code.StoreVerCodeError
 		zap.L().Error("services-SendEmailCode-StoreVerificationCode ", zap.Error(err))
 		return
 	}
 
-	resCode = consts.Success
+	resCode = resp_code.Success
 	return
 }
 
