@@ -20,4 +20,5 @@ const (
 	InsertToJudgementError
 	RemoveTestFileError
 	ReadTestFileError
+	DeleteCacheError
 )

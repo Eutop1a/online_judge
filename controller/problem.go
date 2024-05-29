@@ -98,7 +98,7 @@ func GetProblemID(c *gin.Context) {
 func GetProblemRandom(c *gin.Context) {
 	var getProblemDetail services.Problem
 
-	data, err := getProblemDetail.GetProblemRandom()
+	data, err := getProblemDetail.GetProblemRandom(redis.Client)
 	if err != nil {
 		resp.ResponseError(c, resp.CodeProblemIDNotExist)
 		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))

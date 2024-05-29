@@ -1,6 +1,10 @@
 package services
 
-import "online-judge/dao/mysql"
+import (
+	"context"
+	"github.com/go-redis/redis/v8"
+	"online-judge/dao/mysql"
+)
 
 func convertTestCases(testCases []*TestCase) []*mysql.TestCase {
 	// 提前转换类型
@@ -15,4 +19,18 @@ func convertTestCases(testCases []*TestCase) []*mysql.TestCase {
 		})
 	}
 	return convertedTestCases
+}
+
+func deleteCacheByPrefix(redisClient *redis.Client, prefix string) error {
+	ctx := context.Background()
+	iter := redisClient.Scan(ctx, 0, prefix+"*", 0).Iterator()
+	for iter.Next(ctx) {
+		if err := redisClient.Del(ctx, iter.Val()).Err(); err != nil {
+			return err
+		}
+	}
+	if err := iter.Err(); err != nil {
+		return err
+	}
+	return nil
 }

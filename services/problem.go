@@ -7,6 +7,8 @@ import (
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"online-judge/dao/mysql"
+	"online-judge/pkg/define"
+	"time"
 )
 
 // Problem 问题结构体
@@ -91,11 +93,27 @@ func (p *Problem) GetProblemID() (problemID string, err error) {
 }
 
 // GetProblemRandom 随机获取一个题目
-func (p *Problem) GetProblemRandom() (*mysql.Problems, error) {
+func (p *Problem) GetProblemRandom(redisClient *redis.Client) (*mysql.Problems, error) {
 	problem, err := mysql.GetProblemRandom()
 	if err != nil {
 		zap.L().Error("services-GetProblemRandom-GetProblemRandom", zap.Error(err))
 		return nil, err
+	}
+
+	// 加入redis缓存
+	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, problem.ProblemID)
+	// 将获取的题目列表数据保存到 Redis 缓存中
+	encodedData, err := json.Marshal(problem)
+	if err != nil {
+		zap.L().Error("services-GetProblemListWithCache-Marshal ", zap.Error(err))
+		return problem, nil
+	}
+
+	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
+	expiration := 5 * time.Hour
+	err = redisClient.Set(Ctx, cacheKey, encodedData, expiration).Err()
+	if err != nil {
+		zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
 	}
 	return problem, nil
 }
@@ -103,7 +121,7 @@ func (p *Problem) GetProblemRandom() (*mysql.Problems, error) {
 // GetProblemListWithCache 获取题目列表，使用 Redis 缓存
 func (p *Problem) GetProblemListWithCache(redisClient *redis.Client) (*[]Problem, error) {
 	// 尝试从缓存中获取题目列表
-	cacheKey := fmt.Sprintf("problemlist:%d:%d", p.Page, p.Size)
+	cacheKey := fmt.Sprintf("%s:%d:%d", define.GlobalCacheKeyMap.ProblemListPrefix, p.Page, p.Size)
 	cachedData, err := redisClient.Get(Ctx, cacheKey).Result()
 	if err == nil {
 		var problems []Problem
@@ -131,8 +149,8 @@ func (p *Problem) GetProblemListWithCache(redisClient *redis.Client) (*[]Problem
 	}
 
 	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
-	//expiration := 10 * time.Minute
-	err = redisClient.Set(Ctx, cacheKey, encodedData, 0).Err()
+	expiration := 5 * time.Hour
+	err = redisClient.Set(Ctx, cacheKey, encodedData, expiration).Err()
 	if err != nil {
 		zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
 	}
@@ -143,7 +161,8 @@ func (p *Problem) GetProblemListWithCache(redisClient *redis.Client) (*[]Problem
 // GetProblemDetailWithCache 获取单个题目详细信息
 func (p *Problem) GetProblemDetailWithCache(redisClient *redis.Client) (*mysql.Problems, error) {
 	// 尝试从缓存中获取题目列表
-	cacheKey := fmt.Sprintf("problem:%s", p.ProblemID)
+	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, p.ProblemID)
+
 	cachedData, err := redisClient.Get(Ctx, cacheKey).Result()
 	if err == nil {
 		var problems mysql.Problems
@@ -171,8 +190,8 @@ func (p *Problem) GetProblemDetailWithCache(redisClient *redis.Client) (*mysql.P
 	}
 
 	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
-	//expiration := 10 * time.Minute
-	err = redisClient.Set(Ctx, cacheKey, encodedData, 0).Err()
+	expiration := 5 * time.Hour
+	err = redisClient.Set(Ctx, cacheKey, encodedData, expiration).Err()
 	if err != nil {
 		zap.L().Error("services-GetProblemDetailWithCache-redisClient.Set ", zap.Error(err))
 	}

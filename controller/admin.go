@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"online-judge/consts"
 	"online-judge/consts/resp_code"
+	"online-judge/dao/redis"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
 	"online-judge/services"
@@ -211,7 +212,7 @@ func CreateProblem(c *gin.Context) {
 	}
 	createProblem.TestCases = tCase
 
-	response := createProblem.CreateProblem()
+	response := createProblem.CreateProblem(redis.Client, redis.Ctx)
 	switch response.Code {
 	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
@@ -286,7 +287,7 @@ func UpdateProblem(c *gin.Context) {
 		})
 	}
 	updateProblem.TestCases = tCase
-	response := updateProblem.UpdateProblem()
+	response := updateProblem.UpdateProblem(redis.Client, redis.Ctx)
 	switch response.Code {
 	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
@@ -316,7 +317,7 @@ func UpdateProblem(c *gin.Context) {
 func DeleteProblem(c *gin.Context) {
 	var deleteProblem services.Problem
 	deleteProblem.ProblemID = c.Param("problem_id")
-	response := deleteProblem.DeleteProblem()
+	response := deleteProblem.DeleteProblem(redis.Client, redis.Ctx)
 	switch response.Code {
 	case resp_code.Success:
 		resp.ResponseSuccess(c, resp.CodeSuccess)
