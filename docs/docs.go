@@ -1064,7 +1064,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{user_id}": {
+        "/users": {
             "get": {
                 "description": "获取用户详细信息接口",
                 "consumes": [
@@ -1080,9 +1080,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
-                        "name": "user_id",
-                        "in": "path",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -1110,10 +1110,16 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
-                        "name": "user_id",
-                        "in": "path",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData"
                     },
                     {
                         "type": "string",

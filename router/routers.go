@@ -28,13 +28,15 @@ func SetUp(mode string) *gin.Engine {
 	// api路由组
 	api := r.Group("/api/v1")
 	{
+		api.POST("/register", controller.Register) // 注册
+		api.POST("/login", controller.Login)       // 登录
+		api.POST("/user-id", controller.GetUserID) // 获取用户ID
+
+		users := api.Group("/users", middlewares.JWTUserAuthMiddleware())
 		// 用户相关
 		{
-			api.POST("/register", controller.Register)              // 注册
-			api.POST("/login", controller.Login)                    // 登录
-			api.GET("/users/:user_id", controller.GetUserDetail)    // 获取用户信息
-			api.PUT("/users/:user_id", controller.UpdateUserDetail) // 更新用户信息
-			api.POST("/user-id", controller.GetUserID)              // 获取用户ID
+			users.GET("/", controller.GetUserDetail)    // 获取用户信息
+			users.PUT("/", controller.UpdateUserDetail) // 更新用户信息
 		}
 
 		// 验证码相关操作

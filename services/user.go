@@ -194,24 +194,59 @@ func (u *UserService) GetUserDetail() (response resp.ResponseWithData) {
 // UpdateUserDetail 更新用户详细信息
 func (u *UserService) UpdateUserDetail() (response resp.Response) {
 	// 检验是否有这个用户ID
-	exist, err := mysql.CheckUserID(u.UserID)
+	exists, err := mysql.CheckUserID(u.UserID)
 	if err != nil {
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
+		zap.L().Error("services-UpdateUserDetail-CheckUserID ", zap.Error(err))
 		return
 	}
-	if !exist {
+	if !exists {
 		response.Code = resp_code.NotExistUserID
-		zap.L().Error("services-DeleteUser-CheckUserID "+
+		zap.L().Error("services-UpdateUserDetail-CheckUserID "+
 			fmt.Sprintf("do not have this userID %d ", u.UserID), zap.Error(err))
 		return
+	}
+	if u.UserName != "" {
+		// 检验是否有这个用户名
+		exists, err = mysql.CheckUsername(u.UserName)
+		if err != nil {
+			response.Code = resp_code.SearchDBError
+			zap.L().Error("services-UpdateUserDetail-CheckUsername ", zap.Error(err))
+			return
+		}
+		if exists {
+			response.Code = resp_code.UsernameAlreadyExist
+			zap.L().Error("services-UpdateUserDetail-CheckUsername "+
+				fmt.Sprintf("already have this username %s ", u.UserName), zap.Error(err))
+			return
+		}
 	}
 
 	// 更新用户信息
 	if u.Email != "" {
+		// 检查该邮箱是否已经存在
+		exists, err = mysql.CheckEmail(u.Email)
+		if err != nil {
+			response.Code = resp_code.SearchDBError
+			zap.L().Error("services-UpdateUserDetail-CheckUsername ", zap.Error(err))
+			return
+		}
+		if exists {
+			response.Code = resp_code.EmailAlreadyExist
+			zap.L().Error("services-UpdateUserDetail-CheckUsername "+
+				fmt.Sprintf("already have this username %s ", u.UserName), zap.Error(err))
+			return
+		}
+
 		//验证码获取及验证
 		code, err := redis.GetVerificationCode(u.Email)
 		// 验证码过期
+		if errors.Is(err, redis.Nil) {
+			response.Code = resp_code.NeedObtainVerificationCode
+			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
+				fmt.Sprintf("do not send verification code %s", u.Email), zap.Error(err))
+			return
+		}
 		if errors.Is(err, fmt.Errorf("verification code expired")) {
 			response.Code = resp_code.ExpiredVerCode
 			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
@@ -236,7 +271,7 @@ func (u *UserService) UpdateUserDetail() (response resp.Response) {
 			return
 		}
 	}
-	err = mysql.UpdateUserDetail(u.UserID, u.Email, u.Password)
+	err = mysql.UpdateUserDetail(u.UserID, u.UserName, u.Email, u.Password)
 	if err != nil {
 		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateUserDetail-UpdateUserDetail "+

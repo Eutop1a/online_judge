@@ -900,15 +900,15 @@ paths:
       summary: 获取用户ID
       tags:
       - User API
-  /users/{user_id}:
+  /users:
     get:
       consumes:
       - multipart/form-data
       description: 获取用户详细信息接口
       parameters:
-      - description: 用户ID
-        in: path
-        name: user_id
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -926,10 +926,14 @@ paths:
       - multipart/form-data
       description: 更新用户详细信息接口
       parameters:
-      - description: 用户ID
-        in: path
-        name: user_id
+      - description: token
+        in: header
+        name: Authorization
         required: true
+        type: string
+      - description: 用户名
+        in: formData
+        name: username
         type: string
       - description: 用户密码
         in: formData

@@ -8,8 +8,13 @@ import (
 )
 
 // CheckEmail 检查是否有这个邮箱
-func CheckEmail(email string, countEmail *int64) error {
-	return DB.Model(&User{}).Where("email=?", email).Count(countEmail).Error
+func CheckEmail(email string) (bool, error) {
+	var count int64
+	err := DB.Model(&User{}).Where("email=?", email).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 // CheckUsername 检查是否有这个用户名
@@ -118,8 +123,11 @@ func DeleteUser(UID int64) error {
 }
 
 // UpdateUserDetail 更新用户信息
-func UpdateUserDetail(UID int64, email, pwd string) (err error) {
+func UpdateUserDetail(UID int64, username, email, pwd string) (err error) {
 	updateData := make(map[string]interface{})
+	if username != "" {
+		updateData["username"] = username
+	}
 	if email != "" {
 		updateData["email"] = email
 	}
