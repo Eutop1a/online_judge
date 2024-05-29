@@ -21,5 +21,5 @@ const (
 	UnsupportedLanguage
 	SecretError
 	UserIDAlreadyExist
-	//ErrInvalidCredentials
+	NeedObtainVerificationCode
 )

@@ -1,13 +1,11 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"online-judge/consts/resp_code"
 	"online-judge/pkg/resp"
 	"online-judge/services"
-	"strconv"
 )
 
 // Register 用户注册接口
@@ -145,21 +143,28 @@ func Login(c *gin.Context) {
 // @Description 获取用户详细信息接口
 // @Accept multipart/form-data
 // @Produce json
-// @Param user_id path string true "用户ID"
+// // @Param user_id path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Success 200 {object} models.GetUserDetailResponse "获取用户信息成功"
 // @Failure 200 {object} models.GetUserDetailResponse "参数错误"
 // @Failure 200 {object} models.GetUserDetailResponse "没有此用户ID"
 // @Failure 200 {object} models.GetUserDetailResponse "服务器内部错误"
-// @Router /users/{user_id} [GET]
+// @Router /users [GET]
 func GetUserDetail(c *gin.Context) {
 	var getDetail services.UserService
-	uid := c.Param("user_id")
-	if uid == "" {
-		zap.L().Error("GetUserDetail params error")
-		resp.ResponseError(c, resp.CodeInvalidParam)
+	uid, ok := c.Get(resp.CtxUserIDKey)
+	if !ok {
+		resp.ResponseError(c, resp.CodeNeedLogin)
 		return
 	}
-	getDetail.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	//uid := c.Param("user_id")
+	//if uid == "" {
+	//	zap.L().Error("GetUserDetail params error")
+	//	resp.ResponseError(c, resp.CodeInvalidParam)
+	//	return
+	//}
+	//getDetail.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	getDetail.UserID = uid.(int64)
 	var ret resp.ResponseWithData
 	ret = getDetail.GetUserDetail()
 
@@ -184,7 +189,9 @@ func GetUserDetail(c *gin.Context) {
 // @Description 更新用户详细信息接口
 // @Accept multipart/form-data
 // @Produce json
-// @Param user_id path string true "用户ID"
+// // @Param user_id path string true "用户ID"
+// @Param Authorization header string true "token"
+// @Param username formData string false "用户名"
 // @Param password formData string false "用户密码"
 // @Param email formData string false "用户邮箱"
 // @Param code formData string false "邮箱验证码"
@@ -194,7 +201,7 @@ func GetUserDetail(c *gin.Context) {
 // @Failure 200 {object} models.UpdateUserDetailResponse "验证码错误"
 // @Failure 200 {object} models.UpdateUserDetailResponse "验证码过期"
 // @Failure 200 {object} models.UpdateUserDetailResponse "服务器内部错误"
-// @Router /users/{user_id} [PUT]
+// @Router /users [PUT]
 func UpdateUserDetail(c *gin.Context) {
 	var update services.UserService
 	if err := c.ShouldBind(&update); err != nil { //
@@ -202,14 +209,20 @@ func UpdateUserDetail(c *gin.Context) {
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
-	uid := c.Param("user_id")
-	if uid == "" {
-		zap.L().Error("UpdateUserDetail params error")
-		resp.ResponseError(c, resp.CodeInvalidParam)
+	uid, ok := c.Get(resp.CtxUserIDKey)
+	if !ok {
+		resp.ResponseError(c, resp.CodeNeedLogin)
 		return
 	}
-	update.UserID, _ = strconv.ParseInt(uid, 10, 64)
-	fmt.Println(update.UserID)
+	//uid := c.Param("user_id")
+	//if uid == "" {
+	//	zap.L().Error("UpdateUserDetail params error")
+	//	resp.ResponseError(c, resp.CodeInvalidParam)
+	//	return
+	//}
+	//update.UserID, _ = strconv.ParseInt(uid, 10, 64)
+	//fmt.Println(update.UserID)
+	update.UserID = uid.(int64)
 	var ret resp.Response
 	ret = update.UpdateUserDetail()
 
@@ -229,6 +242,18 @@ func UpdateUserDetail(c *gin.Context) {
 	// 验证码过期
 	case resp_code.ExpiredVerCode:
 		resp.ResponseError(c, resp.CodeExpiredVerCode)
+
+	// 新用户名已经存在
+	case resp_code.UsernameAlreadyExist:
+		resp.ResponseError(c, resp.CodeUsernameAlreadyExist)
+
+	// 未申请验证码
+	case resp_code.NeedObtainVerificationCode:
+		resp.ResponseError(c, resp.CodeObtainVerificationCode)
+
+	// 邮箱已经存在
+	case resp_code.EmailAlreadyExist:
+		resp.ResponseError(c, resp.CodeEmailExist)
 
 	default:
 		resp.ResponseError(c, resp.CodeInternalServerError)
