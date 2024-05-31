@@ -1,16 +1,19 @@
 package router
 
 import (
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"online-judge/controller"
 	_ "online-judge/docs"
 	"online-judge/logger"
 	"online-judge/middlewares"
 	"online-judge/pkg/resp"
 	"online-judge/pkg/utils"
+	"time"
 )
 
 // SetUp 路由注册
@@ -21,8 +24,18 @@ func SetUp(mode string) *gin.Engine {
 
 	r := gin.Default()
 
+	// 设置 Prometheus 中间件
+	p := ginprometheus.NewPrometheus("online-judge-gateway")
+	p.Use(r)
+
+	// Configure Gzip
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	r.Use(utils.Cors())
 	//r.Use(cors.Default())
+	// 限流中间件
+	r.Use(middlewares.RateLimiterMiddleWare(time.Second, 1000, 1000))
+
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
 	// api路由组
@@ -35,8 +48,8 @@ func SetUp(mode string) *gin.Engine {
 		users := api.Group("/users", middlewares.JWTUserAuthMiddleware())
 		// 用户相关
 		{
-			users.GET("/", controller.GetUserDetail)    // 获取用户信息
-			users.PUT("/", controller.UpdateUserDetail) // 更新用户信息
+			users.GET("/detail", controller.GetUserDetail)    // 获取用户信息
+			users.PUT("/update", controller.UpdateUserDetail) // 更新用户信息
 		}
 
 		// 验证码相关操作
@@ -122,8 +135,11 @@ func SetUp(mode string) *gin.Engine {
 		pprof.Register(r)
 
 		// NoRoute
-		r.NoRoute(func(c *gin.Context) {
+		r.NoRoute(func(c *gin.Context) { // used for HTTP 404
 			resp.ResponseError(c, resp.CodePageNotFound)
+		})
+		r.NoMethod(func(c *gin.Context) { // used for HTTP 405
+			resp.ResponseError(c, resp.CodeMethodNowAllow)
 		})
 	}
 

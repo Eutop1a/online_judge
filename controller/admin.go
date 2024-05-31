@@ -232,7 +232,7 @@ func CreateProblem(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param problem_id formData string true "题目ID"
+// @Param problem_id path string true "题目ID"
 // @Param title formData string false "题目标题"
 // @Param content formData string false "题目内容"
 // @Param difficulty formData string false "题目难度"
@@ -249,7 +249,7 @@ func CreateProblem(c *gin.Context) {
 func UpdateProblem(c *gin.Context) {
 	var updateProblem services.Problem
 
-	updateProblem.ProblemID = c.PostForm("problem_id")
+	updateProblem.ProblemID = c.Param("problem_id")
 	updateProblem.Title = c.PostForm("title")
 	updateProblem.Content = c.PostForm("content")
 	updateProblem.Difficulty = c.PostForm("difficulty")
