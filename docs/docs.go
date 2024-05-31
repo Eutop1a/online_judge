@@ -348,7 +348,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "题目ID",
                         "name": "problem_id",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -1064,7 +1064,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/users/get": {
             "get": {
                 "description": "获取用户详细信息接口",
                 "consumes": [
@@ -1094,7 +1094,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/users/update": {
             "put": {
                 "description": "更新用户详细信息接口",
                 "consumes": [

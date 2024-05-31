@@ -149,7 +149,7 @@ func Login(c *gin.Context) {
 // @Failure 200 {object} models.GetUserDetailResponse "参数错误"
 // @Failure 200 {object} models.GetUserDetailResponse "没有此用户ID"
 // @Failure 200 {object} models.GetUserDetailResponse "服务器内部错误"
-// @Router /users [GET]
+// @Router /users/get [GET]
 func GetUserDetail(c *gin.Context) {
 	var getDetail services.UserService
 	uid, ok := c.Get(resp.CtxUserIDKey)
@@ -189,7 +189,6 @@ func GetUserDetail(c *gin.Context) {
 // @Description 更新用户详细信息接口
 // @Accept multipart/form-data
 // @Produce json
-// // @Param user_id path string true "用户ID"
 // @Param Authorization header string true "token"
 // @Param username formData string false "用户名"
 // @Param password formData string false "用户密码"
@@ -201,7 +200,7 @@ func GetUserDetail(c *gin.Context) {
 // @Failure 200 {object} models.UpdateUserDetailResponse "验证码错误"
 // @Failure 200 {object} models.UpdateUserDetailResponse "验证码过期"
 // @Failure 200 {object} models.UpdateUserDetailResponse "服务器内部错误"
-// @Router /users [PUT]
+// @Router /users/update [PUT]
 func UpdateUserDetail(c *gin.Context) {
 	var update services.UserService
 	if err := c.ShouldBind(&update); err != nil { //

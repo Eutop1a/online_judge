@@ -236,7 +236,7 @@ paths:
         required: true
         type: string
       - description: 题目ID
-        in: formData
+        in: path
         name: problem_id
         required: true
         type: string
@@ -900,7 +900,7 @@ paths:
       summary: 获取用户ID
       tags:
       - User API
-  /users:
+  /users/get:
     get:
       consumes:
       - multipart/form-data
@@ -921,6 +921,7 @@ paths:
       summary: 获取用户详细信息
       tags:
       - User API
+  /users/update:
     put:
       consumes:
       - multipart/form-data

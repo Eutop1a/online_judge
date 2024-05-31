@@ -41,6 +41,7 @@ const (
 	CodeAdminUsernameAlreadyExist
 	CodeUsernameAlreadyExist
 	CodeObtainVerificationCode
+	CodeMethodNowAllow
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -74,6 +75,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeAdminUsernameAlreadyExist: "该用户已是管理员",
 	CodeUsernameAlreadyExist:      "该用户名已存在",
 	CodeObtainVerificationCode:    "需要先获取邮箱验证码",
+	CodeMethodNowAllow:            "方法不允许",
 }
 
 func (c ResCode) Msg() string {
