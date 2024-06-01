@@ -11,6 +11,20 @@ import (
 	"time"
 )
 
+type TestCaseTmp struct {
+	Input    string `json:"input"`
+	Expected string `json:"expected"`
+}
+
+type CreateProblemRequest struct {
+	Title      string        `json:"title"`
+	Content    string        `json:"content"`
+	Difficulty string        `json:"difficulty"`
+	MaxRuntime int           `json:"max_runtime"`
+	MaxMemory  int           `json:"max_memory"`
+	TestCases  []TestCaseTmp `json:"test_cases"`
+}
+
 // Problem 问题结构体
 type Problem struct {
 	ID                int                 `form:"id" json:"id"`                                     // primary key
