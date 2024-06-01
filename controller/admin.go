@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"online-judge/consts"
@@ -155,7 +154,7 @@ func AddAdmin(c *gin.Context) {
 // @Tags Admin API
 // @Summary 创建新题目
 // @Description 创建新题目接口
-// @Accept multipart/form-data
+// @Accept application/json,multipart/form-data
 // @Produce json,multipart/form-data
 // @Param Authorization header string true "token"
 // @Param title formData string true "题目标题"
@@ -172,45 +171,75 @@ func AddAdmin(c *gin.Context) {
 // @Failure 200 {object} models.CreateProblemResponse "1014 服务器内部错误"
 // @Router /admin/problem/create [POST]
 func CreateProblem(c *gin.Context) {
-	var createProblem services.Problem
-
-	createProblem.Title = c.PostForm("title")
-	createProblem.Content = c.PostForm("content")
-	createProblem.Difficulty = c.PostForm("difficulty")
-	createProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
-	createProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
-
-	testCase := c.PostFormArray("test_cases")
-	if len(testCase) == 0 {
-		zap.L().Error("controller-CreateProblem-PostFormArray testCase is empty")
+	//var createProblem services.Problem
+	// 解析 JSON 请求体
+	var req services.CreateProblemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		zap.L().Error("controller-CreateProblem-BindJSON error", zap.Error(err))
 		resp.ResponseError(c, resp.CodeInvalidParam)
 		return
 	}
 
-	createProblem.ProblemID = utils.GetUUID()
+	if len(req.TestCases) == 0 {
+		zap.L().Error("controller-CreateProblem-TestCases is empty")
+		resp.ResponseError(c, resp.CodeInvalidParam)
+		return
+	}
 
-	tCase := make([]*services.TestCase, 0)
-	for _, value := range testCase {
-		caseMap := make(map[string]string)
-		err := json.Unmarshal([]byte(value), &caseMap)
-		// 检测Map某个键是否存在
-		_, iok := caseMap["input"]
-		_, ook := caseMap["expected"]
-		if err != nil || !iok || !ook {
-			resp.ResponseError(c, resp.CodeTestCaseFormatError)
-			if err != nil {
-				zap.L().Error("controller-CreateProblem-Unmarshal caseMap unmarshal error ", zap.Error(err))
-			}
-			return
-		}
-		tCase = append(tCase, &services.TestCase{
+	createProblem := services.Problem{
+		ProblemID:  utils.GetUUID(),
+		Title:      req.Title,
+		Content:    req.Content,
+		Difficulty: req.Difficulty,
+		MaxRuntime: req.MaxRuntime,
+		MaxMemory:  req.MaxMemory,
+		TestCases:  make([]*services.TestCase, len(req.TestCases)),
+	}
+
+	for i, tc := range req.TestCases {
+		createProblem.TestCases[i] = &services.TestCase{
 			TID:      utils.GetUUID(),
 			PID:      createProblem.ProblemID,
-			Input:    caseMap["input"],
-			Expected: caseMap["expected"],
-		})
+			Input:    tc.Input,
+			Expected: tc.Expected,
+		}
 	}
-	createProblem.TestCases = tCase
+	//createProblem.Title = c.PostForm("title")
+	//createProblem.Content = c.PostForm("content")
+	//createProblem.Difficulty = c.PostForm("difficulty")
+	//createProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	//createProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
+
+	//testCase := c.PostFormArray("test_cases")
+	//if len(testCase) == 0 {
+	//	zap.L().Error("controller-CreateProblem-PostFormArray testCase is empty")
+	//	resp.ResponseError(c, resp.CodeInvalidParam)
+	//	return
+	//}
+	//
+	//createProblem.ProblemID = utils.GetUUID()
+	//
+	//tCase := make([]*services.TestCase, 0)
+	//for _, value := range testCase {
+	//	caseMap := make(map[string]string)
+	//	err := json.Unmarshal([]byte(value), &caseMap)
+	//	// 检测Map某个键是否存在
+	//	_, iok := caseMap["input"]
+	//	_, ook := caseMap["expected"]
+	//	if err != nil || !iok || !ook {
+	//		resp.ResponseError(c, resp.CodeTestCaseFormatError)
+	//		if err != nil {
+	//			zap.L().Error("controller-CreateProblem-Unmarshal caseMap unmarshal error ", zap.Error(err))
+	//		}
+	//		return
+	//	}
+	//	tCase = append(tCase, &services.TestCase{
+	//		TID:      utils.GetUUID(),
+	//		PID:      createProblem.ProblemID,
+	//		Input:    caseMap["input"],
+	//		Expected: caseMap["expected"],
+	//	})
+	//}
 
 	response := createProblem.CreateProblem(redis.Client, redis.Ctx)
 	switch response.Code {
@@ -247,46 +276,78 @@ func CreateProblem(c *gin.Context) {
 // @Failure 200 {object} models.UpdateProblemResponse "服务器内部错误"
 // @Router /admin/problem/{problem_id} [PUT]
 func UpdateProblem(c *gin.Context) {
-	var updateProblem services.Problem
+	//var updateProblem services.Problem
 
-	updateProblem.ProblemID = c.Param("problem_id")
-	updateProblem.Title = c.PostForm("title")
-	updateProblem.Content = c.PostForm("content")
-	updateProblem.Difficulty = c.PostForm("difficulty")
-	updateProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
-	updateProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
-	testCase := c.PostFormArray("test_cases")
+	//updateProblem.ProblemID = c.Param("problem_id")
+	//updateProblem.Title = c.PostForm("title")
+	//updateProblem.Content = c.PostForm("content")
+	//updateProblem.Difficulty = c.PostForm("difficulty")
+	//updateProblem.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	//updateProblem.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
+	//testCase := c.PostFormArray("test_cases")
+	//
+	////fmt.Println("id", updateProblem.ProblemID)
+	////fmt.Println("title", updateProblem.Title)
+	////fmt.Println("content", updateProblem.Content)
+	////fmt.Println("difficulty", updateProblem.Difficulty)
+	////fmt.Println("max_runtime", updateProblem.MaxRuntime)
+	////fmt.Println("max_memory", updateProblem.MaxMemory)
+	////fmt.Println("test_cases", testCase)
+	//
+	//tCase := make([]*services.TestCase, 0)
+	//for _, value := range testCase {
+	//	caseMap := make(map[string]string)
+	//	err := json.Unmarshal([]byte(value), &caseMap)
+	//	// 检测Map某个键是否存在
+	//	_, iok := caseMap["input"]
+	//	_, ook := caseMap["expected"]
+	//	if err != nil || !iok || !ook {
+	//		resp.ResponseError(c, resp.CodeTestCaseFormatError)
+	//		if err != nil {
+	//			zap.L().Error("controller-UpdateProblem-Unmarshal caseMap unmarshal error ", zap.Error(err))
+	//		}
+	//		return
+	//	}
+	//	tCase = append(tCase, &services.TestCase{
+	//		TID:      utils.GetUUID(),
+	//		PID:      updateProblem.ProblemID,
+	//		Input:    caseMap["input"],
+	//		Expected: caseMap["expected"],
+	//	})
+	//}
+	//updateProblem.TestCases = tCase
 
-	//fmt.Println("id", updateProblem.ProblemID)
-	//fmt.Println("title", updateProblem.Title)
-	//fmt.Println("content", updateProblem.Content)
-	//fmt.Println("difficulty", updateProblem.Difficulty)
-	//fmt.Println("max_runtime", updateProblem.MaxRuntime)
-	//fmt.Println("max_memory", updateProblem.MaxMemory)
-	//fmt.Println("test_cases", testCase)
+	var req services.CreateProblemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		zap.L().Error("controller-UpdateProblem-BindJSON error", zap.Error(err))
+		resp.ResponseError(c, resp.CodeInvalidParam)
+		return
+	}
 
-	tCase := make([]*services.TestCase, 0)
-	for _, value := range testCase {
-		caseMap := make(map[string]string)
-		err := json.Unmarshal([]byte(value), &caseMap)
-		// 检测Map某个键是否存在
-		_, iok := caseMap["input"]
-		_, ook := caseMap["expected"]
-		if err != nil || !iok || !ook {
-			resp.ResponseError(c, resp.CodeTestCaseFormatError)
-			if err != nil {
-				zap.L().Error("controller-UpdateProblem-Unmarshal caseMap unmarshal error ", zap.Error(err))
-			}
-			return
-		}
-		tCase = append(tCase, &services.TestCase{
+	if len(req.TestCases) == 0 {
+		zap.L().Error("controller-UpdateProblem-TestCases is empty")
+		resp.ResponseError(c, resp.CodeInvalidParam)
+		return
+	}
+
+	updateProblem := services.Problem{
+		ProblemID:  c.Param("problem_id"),
+		Title:      req.Title,
+		Content:    req.Content,
+		Difficulty: req.Difficulty,
+		MaxRuntime: req.MaxRuntime,
+		MaxMemory:  req.MaxMemory,
+		TestCases:  make([]*services.TestCase, len(req.TestCases)),
+	}
+
+	for i, tc := range req.TestCases {
+		updateProblem.TestCases[i] = &services.TestCase{
 			TID:      utils.GetUUID(),
 			PID:      updateProblem.ProblemID,
-			Input:    caseMap["input"],
-			Expected: caseMap["expected"],
-		})
+			Input:    tc.Input,
+			Expected: tc.Expected,
+		}
 	}
-	updateProblem.TestCases = tCase
 	response := updateProblem.UpdateProblem(redis.Client, redis.Ctx)
 	switch response.Code {
 	case resp_code.Success:
