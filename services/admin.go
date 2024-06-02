@@ -181,19 +181,20 @@ func (p *Problem) UpdateProblem(redisClient *redis.Client, ctx context.Context) 
 			fmt.Sprintf("problemID %s do not exist", p.ProblemID))
 		return
 	}
-
-	// 检查题目标题是否重复
-	exists, err = mysql.CheckProblemTitleExists(p.Title)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
-		return
-	}
-	if exists {
-		response.Code = resp_code.ProblemAlreadyExist
-		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
-			fmt.Sprintf("title %s aleardy exist", p.Title))
-		return
+	if p.Title != "" {
+		// 检查题目标题是否重复
+		exists, err = mysql.CheckProblemTitleExists(p.Title)
+		if err != nil {
+			response.Code = resp_code.SearchDBError
+			zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
+			return
+		}
+		if exists {
+			response.Code = resp_code.ProblemAlreadyExist
+			zap.L().Error("services-CreateProblem-CheckProblemTitle " +
+				fmt.Sprintf("title %s aleardy exist", p.Title))
+			return
+		}
 	}
 
 	err = mysql.UpdateProblem(&mysql.Problems{
