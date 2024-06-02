@@ -54,6 +54,10 @@ func SendEmailCode(c *gin.Context) {
 // @Router /send-picture-code [POST]
 func SendPictureCode(c *gin.Context) {
 	username := c.PostForm("username")
+	if username == "" {
+		resp.ResponseError(c, resp.CodeNeedUsername)
+		return
+	}
 	b64s, err := services.SendPictureCode(username)
 	// 生成图片验证码失败
 	if err != nil {

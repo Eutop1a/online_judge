@@ -115,9 +115,9 @@ func SetUp(mode string) *gin.Engine {
 					file.PUT("/update", controller.UpdateProblemWithFile)         // 创建新题目
 					file.DELETE("/:problem_id", controller.DeleteProblemWithFile) // 删除题目
 				}
-				adminProblem.POST("/create", controller.CreateProblem)        // 创建新题目
-				adminProblem.PUT("/:problem_id", controller.UpdateProblem)    // 更新题目信息
-				adminProblem.DELETE("/:problem_id", controller.DeleteProblem) // 删除题目
+				adminProblem.POST("/create", controller.CreateProblem)               // 创建新题目
+				adminProblem.PUT("/update/:problem_id", controller.UpdateProblem)    // 更新题目信息
+				adminProblem.DELETE("/delete/:problem_id", controller.DeleteProblem) // 删除题目
 				// 以文件为输入输出的题目CRUD
 
 			}
