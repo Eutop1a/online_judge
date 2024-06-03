@@ -14,7 +14,7 @@ type Model struct {
 // User 用户基本信息
 type User struct {
 	Model
-	UserID           int64  `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
+	UserID           uint64 `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
 	FinishProblemNum int64  `gorm:"type:int(11);default:0;column:finish_num" json:"finish_num"`
 	UserName         string `gorm:"type:varchar(255);not null;column:username" json:"username"`
 	Password         string `gorm:"type:varchar(255);not null;column:password" json:"password"`
@@ -81,7 +81,7 @@ type TestCase struct {
 // Submission 提交记录
 type Submission struct {
 	Model
-	UserID         int64     `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`                   //用户ID
+	UserID         uint64    `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`                   //用户ID
 	SubmissionID   string    `gorm:"type:char(36);primaryKey;column:submission_id" json:"submission_id"`                                      // 提交ID
 	ProblemID      string    `gorm:"type:char(36);foreignKey:problem_id;references:problems(problem_id);column:problem_id" json:"problem_id"` //题目ID
 	Language       string    `gorm:"type:varchar(16);column:language" json:"language"`                                                        //编程语言
@@ -92,7 +92,7 @@ type Submission struct {
 // Judgement 评测结果
 type Judgement struct {
 	Model
-	UID          int64  `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`
+	UID          uint64 `gorm:"type:bigint;foreignKey:user_id;references:user(user_id);column:user_id" json:"user_id"`
 	JudgementID  string `gorm:"type:char(36);primaryKey;column:judgement_id" json:"judgement_id"`                                                      // 评测ID
 	SubmissionID string `gorm:"type:char(36);foreignKey:submission_id;references:submission(submission_id);column:submission_id" json:"submission_id"` //提交记录
 	ProblemID    string `gorm:"type:char(36);foreignKey:problem_id;references:problems(problem_id);column:problem_id" json:"problem_id"`
