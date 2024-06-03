@@ -52,18 +52,18 @@ services:
 #    networks:
 #      - online-judge
 
-#  etcd-keeper:
-#    image: "evildecay/etcdkeeper:latest"
-#    container_name: etcd-keeper
-#    environment:
-#      - ETCD_HOSTS=http://etcd:2379
-#      - SW_STORAGE_ETCD_CLUSTER_NODES=etcd:2379
-#      - HOST=127.0.0.1
-#      - HOSTNAME=etcd-keeper
-#    links:
-#      - etcd
-#    ports:
-#      - "8080:8080"
+  etcd-keeper:
+    image: "evildecay/etcdkeeper:latest"
+    container_name: etcd-keeper
+    environment:
+      - ETCD_HOSTS=http://etcd:2379
+      - SW_STORAGE_ETCD_CLUSTER_NODES=etcd:2379
+      - HOST=127.0.0.1
+      - HOSTNAME=etcd-keeper
+    links:
+      - etcd
+    ports:
+      - "8085:8080"
 #    networks:
 #      - online-judge
 
@@ -89,16 +89,18 @@ services:
       - mysql
       - redis
       - etcd
-#      - etcd-keeper
+      - etcd-keeper
       - rabbitmq
-
-    command: [
-      "/app/wait-for-it.sh", "mysql:3306", "--timeout=30", "--",
-      "/app/wait-for-it.sh", "redis:6379", "--",
-      "/app/wait-for-it.sh", "rabbitmq:5672", "--",
-      "/app/wait-for-it.sh", "etcd:2379", "--",
-      "sh", "-c", "nohup ./judgement & ./online-judge"
-    ]
+    command: sh -c "./app/wait-for-it.sh mysql:3306 redis:6380 rabbitmq:5673 etcd:2380 etcd-keeper:8085 -- nohup ./judgement & ./online-judge"
+#    command: [
+#
+#
+#        #      "/app/wait-for-it.sh", "mysql:3306", "--timeout=30", "--",
+#      "/app/wait-for-it.sh", "redis:6379", "--",
+#      "/app/wait-for-it.sh", "rabbitmq:5672", "--",
+#      "/app/wait-for-it.sh", "etcd:2379", "--",
+#      "sh", "-c", "nohup ./judgement & ./online-judge"
+#    ]
 
 volumes:
   mysql_data:
