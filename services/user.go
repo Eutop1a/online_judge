@@ -14,7 +14,7 @@ import (
 )
 
 type UserService struct {
-	UserID   uint64 `form:"user_id" json:"user_id"`
+	UserID   int64  `form:"user_id" json:"user_id"`
 	UserName string `form:"username" json:"username" validate:"required"`
 	Password string `form:"password" json:"password" validate:"required"`
 	Email    string `form:"email" json:"email" validate:"required"`
@@ -80,7 +80,7 @@ func (u *UserService) Register() (response resp.Response) {
 	//}
 
 	// 生成唯一的ID
-	Id, err := snowflake.GetID()
+	Id := snowflake.GetID()
 	u.UserID = Id
 	// 密码加密
 	u.Password, err = utils.CryptoPwd(u.Password)
