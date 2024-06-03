@@ -16,8 +16,8 @@ import (
 	"time"
 )
 
-// SetUp 路由注册
-func SetUp(mode string) *gin.Engine {
+// SetUpRouter 路由注册
+func SetUpRouter(mode string) *gin.Engine {
 	if mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
 	}

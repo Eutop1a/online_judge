@@ -63,24 +63,26 @@ type EtcdConfig struct {
 }
 
 func Init() (err error) {
+	// 读取配置文件
 	viper.SetConfigFile("./conf/config.yaml")
-
-	err = viper.ReadInConfig() // 读取配置信息
-	if err != nil {
-		fmt.Printf("viper.ReadInConfig() failed, err: %v\n", err)
-		return
-	}
-	// 将配置文件读取到Conf变量中
-	if err := viper.Unmarshal(Conf); err != nil {
-		fmt.Printf("viper.Unmarshal() failed, err: %v\n", err)
-	}
-
-	// 检测到配置文件变动就读取
+	// 读取环境变量
 	viper.WatchConfig()
+	// 监听配置文件变化
 	viper.OnConfigChange(func(in fsnotify.Event) {
+		fmt.Println("Config file changed:", in.Name)
 		if err := viper.Unmarshal(Conf); err != nil {
 			fmt.Printf("viper.Unmarshal() failed, err: %v\n", err)
 		}
 	})
+	// 查找并读取配置文件
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("viper.ReadInConfig() failed, err: %v", err))
+	}
+	// 把读取到的配置信息反序列化到Conf变量中
+	if err = viper.Unmarshal(&Conf); err != nil {
+		panic(fmt.Errorf("viper.Unmarshal() failed, err: %v\n", err))
+	}
+
 	return
 }

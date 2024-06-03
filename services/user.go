@@ -3,18 +3,18 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/bwmarrin/snowflake"
 	"go.uber.org/zap"
 	"online-judge/consts/resp_code"
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
 	"online-judge/pkg/jwt"
 	"online-judge/pkg/resp"
+	"online-judge/pkg/snowflake"
 	"online-judge/pkg/utils"
 )
 
 type UserService struct {
-	UserID   int64  `form:"user_id" json:"user_id"`
+	UserID   uint64 `form:"user_id" json:"user_id"`
 	UserName string `form:"username" json:"username" validate:"required"`
 	Password string `form:"password" json:"password" validate:"required"`
 	Email    string `form:"email" json:"email" validate:"required"`
@@ -70,15 +70,18 @@ func (u *UserService) Register() (response resp.Response) {
 		return
 	}
 
-	// 生成唯一的ID
-	node, err := snowflake.NewNode(1)
-	if err != nil {
-		response.Code = resp_code.GenerateNodeError
-		zap.L().Error("services-Register-NewNode ", zap.Error(err))
-		return
-	}
+	//
+	//node, err := snowflake.GetID()
+	////node, err := snowflake.NewNode(1)
+	//if err != nil {
+	//	response.Code = resp_code.GenerateNodeError
+	//	zap.L().Error("services-Register-NewNode ", zap.Error(err))
+	//	return
+	//}
 
-	u.UserID = int64(node.Generate())
+	// 生成唯一的ID
+	Id, err := snowflake.GetID()
+	u.UserID = Id
 	// 密码加密
 	u.Password, err = utils.CryptoPwd(u.Password)
 	if err != nil {

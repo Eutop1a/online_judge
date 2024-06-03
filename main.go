@@ -11,6 +11,7 @@ import (
 	"online-judge/dao/mysql"
 	"online-judge/dao/redis"
 	"online-judge/logger"
+	"online-judge/pkg/snowflake"
 	"online-judge/router"
 	"online-judge/setting"
 	"os"
@@ -59,6 +60,13 @@ func main() {
 		fmt.Printf("init redis failed, err: %v\n", err)
 		return
 	}
+	defer redis.Close()
+
+	// 雪花算法生成分布式ID
+	if err := snowflake.Init(1); err != nil {
+		fmt.Printf("init snowflake failed, err:%v\n", err)
+		return
+	}
 
 	//// 5. init rabbitmq connection
 	//if err := mq.InitRabbitMQ(setting.Conf.RabbitMQConfig); err != nil {
@@ -66,7 +74,7 @@ func main() {
 	//	return
 	//}
 	// 6. register route
-	r := router.SetUp(setting.Conf.Mode)
+	r := router.SetUpRouter(setting.Conf.Mode)
 
 	err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port))
 	if err != nil {
