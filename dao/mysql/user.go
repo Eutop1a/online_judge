@@ -39,7 +39,7 @@ func CheckEmailAndUsername(email, username string, countEmail, countUsername *in
 }
 
 // CheckUserID 检查是否有这个用户ID
-func CheckUserID(userID uint64) (bool, error) {
+func CheckUserID(userID int64) (bool, error) {
 	var count int64
 	err := DB.Model(&User{}).Where("user_id=?", userID).Count(&count).Error
 	if err != nil {
@@ -49,7 +49,7 @@ func CheckUserID(userID uint64) (bool, error) {
 }
 
 // InsertNewUser 插入用户
-func InsertNewUser(uID uint64, Username, password, email string) error {
+func InsertNewUser(uID int64, Username, password, email string) error {
 	newUser := User{
 		UserID:   uID,
 		UserName: Username,
@@ -60,7 +60,7 @@ func InsertNewUser(uID uint64, Username, password, email string) error {
 	return DB.Create(&newUser).Error
 }
 
-func CheckUserCredentials(username, password string) (uint64, bool, error) {
+func CheckUserCredentials(username, password string) (int64, bool, error) {
 	// 提取用户名和密码
 	var user User
 	err := DB.Model(&User{}).Where("username = ?", username).First(&user).Error
@@ -111,19 +111,19 @@ func CheckUserCredentials(username, password string) (uint64, bool, error) {
 //}
 
 // GetUserDetail 获取用户详细信息
-func GetUserDetail(UID uint64) (data User, err error) {
+func GetUserDetail(UID int64) (data User, err error) {
 	err = DB.Model(&User{}).Select("user_id, username, email").
 		Where("user_id=?", UID).First(&data).Error
 	return
 }
 
 // DeleteUser 删除用户
-func DeleteUser(UID uint64) error {
+func DeleteUser(UID int64) error {
 	return DB.Delete(&User{}, UID).Error // 根据主键删除
 }
 
 // UpdateUserDetail 更新用户信息
-func UpdateUserDetail(UID uint64, username, email, pwd string) (err error) {
+func UpdateUserDetail(UID int64, username, email, pwd string) (err error) {
 	updateData := make(map[string]interface{})
 	if username != "" {
 		updateData["username"] = username
@@ -139,7 +139,7 @@ func UpdateUserDetail(UID uint64, username, email, pwd string) (err error) {
 }
 
 // GetUserID 根据 username 获取用户ID
-func GetUserID(username string) (uid uint64, err error) {
+func GetUserID(username string) (uid int64, err error) {
 	var user User
 	err = DB.Take(&user, "username=?", username).Error
 	if err != nil {
@@ -149,7 +149,7 @@ func GetUserID(username string) (uid uint64, err error) {
 }
 
 // CheckUserIsAdmin 根据uid判断用户是不是管理员
-func CheckUserIsAdmin(uid uint64) (err error) {
+func CheckUserIsAdmin(uid int64) (err error) {
 	var admin Admin
 	return DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
 }

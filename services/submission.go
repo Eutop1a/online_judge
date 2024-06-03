@@ -22,7 +22,7 @@ import (
 // Submission 提交记录
 type Submission struct {
 	SubmissionID   string    `form:"submission_id" json:"submission_id"`     // 提交ID
-	UserID         uint64    `form:"user_id" json:"user_id"`                 //用户ID
+	UserID         int64     `form:"user_id" json:"user_id"`                 //用户ID
 	ProblemID      string    `form:"problem_id" json:"problem_id"`           //题目ID
 	Language       string    `form:"language" json:"language"`               //编程语言
 	Code           string    `form:"code" json:"code"`                       // 代码

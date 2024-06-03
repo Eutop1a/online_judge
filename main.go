@@ -63,10 +63,7 @@ func main() {
 	defer redis.Close()
 
 	// 雪花算法生成分布式ID
-	if err := snowflake.Init(1); err != nil {
-		fmt.Printf("init snowflake failed, err:%v\n", err)
-		return
-	}
+	snowflake.Init()
 
 	//// 5. init rabbitmq connection
 	//if err := mq.InitRabbitMQ(setting.Conf.RabbitMQConfig); err != nil {
