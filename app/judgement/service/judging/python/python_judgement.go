@@ -81,7 +81,8 @@ func JudgePYTHON(request *pb.SubmitRequest, response *pb.SubmitResponse) (*pb.Su
 			//TODO:处理答案错误
 
 			if expected[i] != string(output) {
-				fmt.Println("test Output: ", expected[i])
+				response.Output = fmt.Sprintf("Intput: %s\nExpected: %s\nOutput: %s", input[i], expected[i], string(output))
+				fmt.Println(response.Output)
 				WA <- 1
 				return
 			}
