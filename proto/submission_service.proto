@@ -20,6 +20,8 @@ message SubmitResponse {
   int32 total_num=4;
   int32 memory_usage=5;
   int32 runtime=6;
+  //@inject_tag: json:"output" form:"output"
+  string output=7;
 }
 
 service Submission {
