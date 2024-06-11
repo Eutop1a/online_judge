@@ -29,6 +29,7 @@ const docTemplate = `{
             "post": {
                 "description": "创建新题目接口",
                 "consumes": [
+                    "application/json",
                     "multipart/form-data"
                 ],
                 "produces": [
@@ -98,7 +99,7 @@ const docTemplate = `{
                     "200": {
                         "description": "1014 服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.CreateProblemResponse"
+                            "$ref": "#/definitions/common.CreateProblemResponse"
                         }
                     }
                 }
@@ -187,7 +188,7 @@ const docTemplate = `{
                     "200": {
                         "description": "1014 服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.CreateProblemResponse"
+                            "$ref": "#/definitions/common.CreateProblemResponse"
                         }
                     }
                 }
@@ -278,7 +279,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateProblemResponse"
+                            "$ref": "#/definitions/common.UpdateProblemResponse"
                         }
                     }
                 }
@@ -317,7 +318,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.DeleteProblemResponse"
+                            "$ref": "#/definitions/common.DeleteProblemResponse"
                         }
                     }
                 }
@@ -396,7 +397,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateProblemResponse"
+                            "$ref": "#/definitions/common.UpdateProblemResponse"
                         }
                     }
                 }
@@ -433,7 +434,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.DeleteProblemResponse"
+                            "$ref": "#/definitions/common.DeleteProblemResponse"
                         }
                     }
                 }
@@ -472,7 +473,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.AddAdminResponse"
+                            "$ref": "#/definitions/common.AddAdminResponse"
                         }
                     }
                 }
@@ -511,7 +512,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.AddSuperAdminResponse"
+                            "$ref": "#/definitions/common.AddSuperAdminResponse"
                         }
                     }
                 }
@@ -550,7 +551,101 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.DeleteUserResponse"
+                            "$ref": "#/definitions/common.DeleteUserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "用户登录接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Auth API"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.LoginResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "用户注册接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Auth API"
+                ],
+                "summary": "用户注册",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "邮箱",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "验证码",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.RegisterResponse"
                         }
                     }
                 }
@@ -589,7 +684,7 @@ const docTemplate = `{
                     "200": {
                         "description": "用户名不存在",
                         "schema": {
-                            "$ref": "#/definitions/models.CheckPictureCodeResponse"
+                            "$ref": "#/definitions/common.CheckPictureCodeResponse"
                         }
                     }
                 }
@@ -612,47 +707,7 @@ const docTemplate = `{
                     "200": {
                         "description": "1014 服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.GetUserLeaderboardResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/login": {
-            "post": {
-                "description": "用户登录接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json",
-                    "text/xml"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户登录",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "密码",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/models.LoginResponse"
+                            "$ref": "#/definitions/common.GetUserLeaderboardResponse"
                         }
                     }
                 }
@@ -691,7 +746,7 @@ const docTemplate = `{
                     "200": {
                         "description": "1008 需要登录",
                         "schema": {
-                            "$ref": "#/definitions/models.GetProblemIDResponse"
+                            "$ref": "#/definitions/common.GetProblemIDResponse"
                         }
                     }
                 }
@@ -729,7 +784,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.GetProblemListResponse"
+                            "$ref": "#/definitions/common.GetProblemListResponse"
                         }
                     }
                 }
@@ -762,7 +817,7 @@ const docTemplate = `{
                     "200": {
                         "description": "1008 需要登录",
                         "schema": {
-                            "$ref": "#/definitions/models.GetProblemRandomResponse"
+                            "$ref": "#/definitions/common.GetProblemRandomResponse"
                         }
                     }
                 }
@@ -802,61 +857,7 @@ const docTemplate = `{
                     "200": {
                         "description": "1021 题目ID不存在",
                         "schema": {
-                            "$ref": "#/definitions/models.GetProblemDetailResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "description": "用户注册接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json",
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户注册",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "密码",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "邮箱",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "验证码",
-                        "name": "code",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/models.RegisterResponse"
+                            "$ref": "#/definitions/common.GetProblemDetailResponse"
                         }
                     }
                 }
@@ -888,7 +889,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.SendEmailCodeResponse"
+                            "$ref": "#/definitions/common.SendEmailCodeResponse"
                         }
                     }
                 }
@@ -920,13 +921,13 @@ const docTemplate = `{
                     "200": {
                         "description": "1014 服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.SendPictureCodeResponse"
+                            "$ref": "#/definitions/common.SendPictureCodeResponse"
                         }
                     }
                 }
             }
         },
-        "/submissions/code": {
+        "/submission/code": {
             "post": {
                 "description": "提交代码接口",
                 "consumes": [
@@ -973,13 +974,13 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.SubmitCodeResponse"
+                            "$ref": "#/definitions/common.SubmitCodeResponse"
                         }
                     }
                 }
             }
         },
-        "/submissions/file/code": {
+        "/submission/file/code": {
             "post": {
                 "description": "提交代码接口(文件)",
                 "consumes": [
@@ -1026,45 +1027,13 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.SubmitCodeResponse"
+                            "$ref": "#/definitions/common.SubmitCodeResponse"
                         }
                     }
                 }
             }
         },
-        "/user-id": {
-            "post": {
-                "description": "获取用户ID接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "获取用户ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "用户名不存在",
-                        "schema": {
-                            "$ref": "#/definitions/models.GetUserIDResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/get": {
+        "/users/detail": {
             "get": {
                 "description": "获取用户详细信息接口",
                 "consumes": [
@@ -1090,7 +1059,7 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.GetUserDetailResponse"
+                            "$ref": "#/definitions/common.GetUserDetailResponse"
                         }
                     }
                 }
@@ -1146,7 +1115,46 @@ const docTemplate = `{
                     "200": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateUserDetailResponse"
+                            "$ref": "#/definitions/common.UpdateUserDetailResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/user-id": {
+            "post": {
+                "description": "获取用户ID接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "获取用户ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户名不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.GetUserIDResponse"
                         }
                     }
                 }
@@ -1154,7 +1162,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AddAdminResponse": {
+        "common.AddAdminResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1167,7 +1175,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.AddSuperAdminResponse": {
+        "common.AddSuperAdminResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1180,7 +1188,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.CheckPictureCodeResponse": {
+        "common.CheckPictureCodeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1193,7 +1201,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.CreateProblemResponse": {
+        "common.CreateProblemResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1206,7 +1214,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.DeleteProblemResponse": {
+        "common.DeleteProblemResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1217,7 +1225,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.DeleteUserResponse": {
+        "common.DeleteUserResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1230,7 +1238,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetProblemDetailResponse": {
+        "common.GetProblemDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1243,7 +1251,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetProblemIDResponse": {
+        "common.GetProblemIDResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1256,7 +1264,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetProblemListResponse": {
+        "common.GetProblemListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1269,7 +1277,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetProblemRandomResponse": {
+        "common.GetProblemRandomResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1282,7 +1290,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetUserDetailResponse": {
+        "common.GetUserDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1295,7 +1303,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetUserIDResponse": {
+        "common.GetUserIDResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1308,7 +1316,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.GetUserLeaderboardResponse": {
+        "common.GetUserLeaderboardResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1321,7 +1329,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.LoginResponse": {
+        "common.LoginResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1334,7 +1342,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.RegisterResponse": {
+        "common.RegisterResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1347,7 +1355,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.SendEmailCodeResponse": {
+        "common.SendEmailCodeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1360,7 +1368,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.SendPictureCodeResponse": {
+        "common.SendPictureCodeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1373,7 +1381,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.SubmitCodeResponse": {
+        "common.SubmitCodeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1386,7 +1394,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.UpdateProblemResponse": {
+        "common.UpdateProblemResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1397,7 +1405,7 @@ const docTemplate = `{
                 "msg": {}
             }
         },
-        "models.UpdateUserDetailResponse": {
+        "common.UpdateUserDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1419,7 +1427,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "127.0.0.1:65533",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "online-judge",
+	Title:            "online_judge",
 	Description:      "Refactoring",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

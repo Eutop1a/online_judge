@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"online-judge/setting"
+	"online_judge/setting"
 )
 
 var (

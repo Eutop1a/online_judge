@@ -8,19 +8,19 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
-	"online-judge/dao/mysql"
-	"online-judge/dao/redis"
-	"online-judge/logger"
-	"online-judge/pkg/snowflake"
-	"online-judge/router"
-	"online-judge/setting"
+	"online_judge/dao/mysql"
+	"online_judge/dao/redis"
+	"online_judge/logger"
+	"online_judge/pkg/snowflake"
+	"online_judge/router"
+	"online_judge/setting"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
 
-// @title online-judge
+// @title online_judge
 // @version 1.0
 // @description Refactoring
 // @termsOfService http://swagger.io/terms/

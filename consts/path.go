@@ -1,7 +1,7 @@
 package consts
 
 const (
-	FilePath     = "D:/online-judge/test-file"
+	FilePath     = "D:/online_judge/test-file"
 	FileInput    = "input"
 	FileExpected = "expected"
 )

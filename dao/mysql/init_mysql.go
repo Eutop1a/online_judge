@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"online-judge/setting"
+	"online_judge/setting"
 	"time"
 )
 
@@ -13,15 +13,19 @@ var DB *gorm.DB
 
 func Init(cfg *setting.MySQLConfig) (err error) {
 	// 创建 onlinejudge 数据库
-	CreateDatabase(cfg)
+	if err = CreateDatabase(cfg); err != nil {
+		return err
+	}
 	// 创建 onlinejudge 数据库中所有需要使用的表
-	err = CreateTables()
+	if err = CreateTables(); err != nil {
+		return err
+	}
 	// 开启后台删除功能，删除 deleted 的记录
 	go BgDeleteMysql()
 	return
 }
 
-func CreateDatabase(cfg *setting.MySQLConfig) {
+func CreateDatabase(cfg *setting.MySQLConfig) (err error) {
 	// 创建数据库
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s?charset=utf8mb4&parseTime=True",
 		cfg.User,
@@ -61,7 +65,16 @@ func CreateDatabase(cfg *setting.MySQLConfig) {
 		cfg.DbName,
 	)
 
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	//DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(mysql.New(mysql.Config{
+		DSN:                       dsn,
+		DefaultStringSize:         256,   // string 类型字段的默认长度
+		DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+		DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+		DontSupportRenameColumn:   true,  // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+		SkipInitializeWithVersion: false, // 根据当前 MySQL 版本自动配置
+	}), &gorm.Config{})
+
 	if err != nil {
 		zap.L().Error("mysql-CreateDatabase-Open connect DB failed ", zap.Error(err))
 		return
@@ -81,74 +94,24 @@ func CreateDatabase(cfg *setting.MySQLConfig) {
 
 func CreateTables() (err error) {
 	// 创建表
-	// 不存在就创建
-	if !DB.Migrator().HasTable(&User{}) {
-		if DB.Debug().AutoMigrate(&User{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-User ", zap.Error(err))
-			return
-		}
+	models := []interface{}{
+		&User{},
+		&Admin{},
+		&Problems{},
+		&TestCase{},
+		&ProblemWithFile{},
+		&TestCaseWithFile{},
+		&ProblemCategory{},
+		&Submission{},
+		&ProblemTypeCategory{},
+		&Judgement{},
 	}
 
-	if !DB.Migrator().HasTable(&Admin{}) {
-		if DB.Debug().AutoMigrate(&Admin{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-Admin ", zap.Error(err))
-			return
-		}
+	if err = DB.AutoMigrate(models...); err != nil {
+		zap.L().Error("mysql-CreateTables-AutoMigrate", zap.Error(err))
+		return
 	}
 
-	if !DB.Migrator().HasTable(&Problems{}) {
-		if DB.Debug().AutoMigrate(&Problems{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-Problems ", zap.Error(err))
-			return
-		}
-	}
-
-	if !DB.Migrator().HasTable(&TestCase{}) {
-		if DB.Debug().AutoMigrate(&TestCase{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-TestCase ", zap.Error(err))
-			return
-		}
-	}
-
-	if !DB.Migrator().HasTable(&ProblemWithFile{}) {
-		if DB.Debug().AutoMigrate(&ProblemWithFile{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-ProblemWithFile ", zap.Error(err))
-			return
-		}
-	}
-	//if !DB.Migrator().HasTable(&TestCaseWithFile{}) {
-	//	if DB.Debug().AutoMigrate(&TestCaseWithFile{}) != nil {
-	//		zap.L().Error("mysql-CreateTables-AutoMigrate-ProblemWithFile ", zap.Error(err))
-	//		return
-	//	}
-	//}
-	//if !DB.Migrator().HasTable(&ProgrammingLanguage{}) {
-	//	if DB.Debug().AutoMigrate(&ProgrammingLanguage{}) != nil {
-	//		zap.L().Error("mysql-CreateTables-AutoMigrate-ProgrammingLanguage ", zap.Error(err))
-	//      return
-	//	}
-	//}
-
-	if !DB.Migrator().HasTable(&Submission{}) {
-		if DB.Debug().AutoMigrate(&Submission{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-Submission ", zap.Error(err))
-			return
-		}
-	}
-
-	//if !DB.Migrator().HasTable(&SubmissionResult{}) {
-	//	if DB.Debug().AutoMigrate(&SubmissionResult{}) != nil {
-	//		zap.L().Error("mysql-CreateTables-AutoMigrate-SubmissionResult ", zap.Error(err))
-	//		return
-	//	}
-	//}
-
-	if !DB.Migrator().HasTable(&Judgement{}) {
-		if DB.Debug().AutoMigrate(&Judgement{}) != nil {
-			zap.L().Error("mysql-CreateTables-AutoMigrate-Judgement ", zap.Error(err))
-			return
-		}
-	}
 	// 设置innodb事务行锁等待时间为10s，默认50s
 	if err = DB.Exec("SET innodb_lock_wait_timeout = 10").Error; err != nil {
 		zap.L().Error("mysql-CreateTables-Exec-SET-innodb_lock_wait_timeout ", zap.Error(err))

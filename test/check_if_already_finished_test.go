@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"online-judge/dao/mysql"
+	"online_judge/dao/mysql"
 	"testing"
 )
 

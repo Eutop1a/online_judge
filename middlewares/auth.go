@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
-	"online-judge/pkg/jwt"
-	"online-judge/pkg/resp"
+	"online_judge/models/common/response"
+	"online_judge/pkg/jwt"
 )
 
 // JWTUserAuthMiddleware 基于JWT的用户身份认证中间件
@@ -16,7 +16,7 @@ func JWTUserAuthMiddleware() func(c *gin.Context) {
 		//authHeader := c.Request.Header.Get("Authorization")
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			resp.ResponseError(c, resp.CodeNeedLogin)
+			response.ResponseError(c, response.CodeNeedLogin)
 			c.Abort()
 			return
 		}
@@ -26,20 +26,20 @@ func JWTUserAuthMiddleware() func(c *gin.Context) {
 		//// 按空格分割
 		//parts := strings.SplitN(authHeader, " ", 2)
 		//if !(len(parts) == 2 && parts[0] == "Bearer") {
-		//	resp.ResponseError(c, resp.CodeInvalidToken)
+		//	response.ResponseError(c, response.CodeInvalidToken)
 		//	c.Abort()
 		//	return
 		//}
 		// parts[1]是获取到的tokenString，我们使用之前定义好的解析JWT的函数来解析它
 		mc, err := jwt.ParseToken(authHeader)
 		if err != nil {
-			resp.ResponseError(c, resp.CodeInvalidToken)
+			response.ResponseError(c, response.CodeInvalidToken)
 			c.Abort()
 			return
 		}
 		// 将当前请求的useID信息和username保存到请求的上下文c上
-		c.Set(resp.CtxUserIDKey, mc.UserID)
-		c.Set(resp.CtxUserNameKey, mc.Username)
+		c.Set(response.CtxUserIDKey, mc.UserID)
+		c.Set(response.CtxUserNameKey, mc.Username)
 		c.Next() // 后续的处理请求的函数可以用过c.Get(CtxUserIDKey)来获取当前请求的用户信息
 	}
 }
@@ -54,7 +54,7 @@ func JWTAdminAuthMiddleware() func(c *gin.Context) {
 		//authHeader := c.Request.Header.Get("Authorization")
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			resp.ResponseError(c, resp.CodeNeedLogin)
+			response.ResponseError(c, response.CodeNeedLogin)
 			c.Abort()
 			return
 		}
@@ -64,7 +64,7 @@ func JWTAdminAuthMiddleware() func(c *gin.Context) {
 		//// 按空格分割
 		//parts := strings.SplitN(authHeader, " ", 2)
 		//if !(len(parts) == 2 && parts[0] == "Bearer") {
-		//	resp.ResponseError(c, resp.CodeInvalidToken)
+		//	response.ResponseError(c, response.CodeInvalidToken)
 		//	c.Abort()
 		//	return
 		//}
@@ -72,20 +72,20 @@ func JWTAdminAuthMiddleware() func(c *gin.Context) {
 		mc, err := jwt.ParseToken(authHeader)
 
 		if err != nil {
-			resp.ResponseError(c, resp.CodeInvalidToken)
+			response.ResponseError(c, response.CodeInvalidToken)
 			c.Abort()
 			return
 		}
 
 		if !mc.UserIsAdmin {
-			resp.ResponseError(c, resp.CodeUnauthorized)
+			response.ResponseError(c, response.CodeUnauthorized)
 			c.Abort()
 			return
 		}
 
 		// 将当前请求的useID信息和username保存到请求的上下文c上
-		c.Set(resp.CtxUserIDKey, mc.UserID)
-		c.Set(resp.CtxUserNameKey, mc.Username)
+		c.Set(response.CtxUserIDKey, mc.UserID)
+		c.Set(response.CtxUserNameKey, mc.Username)
 		c.Next() // 后续的处理请求的函数可以用过c.Get(CtxUserIDKey)来获取当前请求的用户信息
 	}
 }

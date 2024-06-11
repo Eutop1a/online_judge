@@ -1,6 +1,6 @@
 # version: "3.8"
 #networks:
-#  online-judge:
+#  online_judge:
 #    driver: bridge
 
 services:
@@ -15,7 +15,7 @@ services:
     ports:
       - "3307:3306"
 #    networks:
-#      - online-judge
+#      - online_judge
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -28,7 +28,7 @@ services:
     ports:
       - "6380:6379"
 #    networks:
-#      - online-judge
+#      - online_judge
     volumes:
       - redis_data:/data
 
@@ -45,12 +45,12 @@ services:
       - ETCD_CERT_FILE="/path/to/server.crt"
       - ETCD_KEY_FILE="/path/to/server.key"
       - ETCD_AUTH="simple"
-      - ETCD_AUTH_USER="online-judge"
-      - ETCD_AUTH_PASSWORD="online-judge"
+      - ETCD_AUTH_USER="online_judge"
+      - ETCD_AUTH_PASSWORD="online_judge"
     ports:
       - "2380:2379"
 #    networks:
-#      - online-judge
+#      - online_judge
 
   etcd-keeper:
     image: "evildecay/etcdkeeper:latest"
@@ -65,7 +65,7 @@ services:
     ports:
       - "8085:8080"
 #    networks:
-#      - online-judge
+#      - online_judge
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -77,9 +77,9 @@ services:
       - RABBITMQ_DEFAULT_USER=guest # 设置 RabbitMQ 默认用户名
       - RABBITMQ_DEFAULT_PASS=guest # 设置 RabbitMQ 默认密码
 #    networks:
-#      - online-judge
+#      - online_judge
 
-  online-judge:
+  online_judge:
     build: .
     environment:
       TZ: Asia/Shanghai
@@ -91,7 +91,7 @@ services:
       - etcd
       - etcd-keeper
       - rabbitmq
-    command: sh -c "./app/wait-for-it.sh mysql:3306 redis:6380 rabbitmq:5673 etcd:2380 etcd-keeper:8085 -- nohup ./judgement & ./online-judge"
+    command: sh -c "./app/wait-for-it.sh mysql:3306 redis:6380 rabbitmq:5673 etcd:2380 etcd-keeper:8085 -- nohup ./judgement & ./online_judge"
 #    command: [
 #
 #
@@ -99,7 +99,7 @@ services:
 #      "/app/wait-for-it.sh", "redis:6379", "--",
 #      "/app/wait-for-it.sh", "rabbitmq:5672", "--",
 #      "/app/wait-for-it.sh", "etcd:2379", "--",
-#      "sh", "-c", "nohup ./judgement & ./online-judge"
+#      "sh", "-c", "nohup ./judgement & ./online_judge"
 #    ]
 
 volumes:

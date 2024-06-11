@@ -3,9 +3,9 @@ package java
 import (
 	"fmt"
 	"io"
-	"online-judge/app/judgement/responses"
-	"online-judge/app/judgement/service/judging/utility"
-	pb "online-judge/proto"
+	"online_judge/app/judgement/responses"
+	"online_judge/app/judgement/service/judging/utility"
+	pb "online_judge/proto"
 	"os/exec"
 	"runtime"
 	"strconv"

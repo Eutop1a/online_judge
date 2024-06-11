@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 	"math/rand"
 	"net/smtp"
-	"online-judge/dao/redis"
+	"online_judge/dao/redis"
 	"strconv"
 	"time"
 )
@@ -15,7 +15,7 @@ import (
 func SendCode(toUser, code string) error {
 	e := email.NewEmail()
 	e.Subject = "Verification code"
-	e.HTML = []byte("your verification code is: <b>" + code + "</b>" + "   expired time: " +
+	e.HTML = []byte("your verify code is: <b>" + code + "</b>" + "   expired time: " +
 		strconv.FormatInt(redis.Expired/60, 10) + " minutes")
 
 	e.From = "Eutop1a <w1905700640@163.com>"

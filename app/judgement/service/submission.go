@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap"
-	pb "online-judge/proto"
+	pb "online_judge/proto"
 	"sync"
 )
 
