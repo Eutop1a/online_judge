@@ -1,4 +1,4 @@
-name: "online-judge"
+name: "online_judge"
 #mode: "release"
 mode: "dev"
 port: 65533
@@ -9,7 +9,7 @@ auth:
   jwt_expire: 8760
 log:
   level: "debug"
-  filename: "online-judge.log"
+  filename: "online_judge.log"
   max_size: 200
   max_age: 30
   max_backups: 7

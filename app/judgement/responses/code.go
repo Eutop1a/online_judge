@@ -12,5 +12,5 @@ const (
 
 // Path 位置
 const (
-	Path = "D:/online-judge/submit"
+	Path = "D:/online_judge/submit"
 )

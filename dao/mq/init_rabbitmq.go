@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
-	"online-judge/setting"
+	"online_judge/setting"
 )
 
 var RabbitMq *amqp.Connection

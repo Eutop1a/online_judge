@@ -5,9 +5,9 @@ import (
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
-	"online-judge/app/judgement/service"
-	pb "online-judge/proto"
-	"online-judge/setting"
+	"online_judge/app/judgement/service"
+	pb "online_judge/proto"
+	"online_judge/setting"
 )
 
 func main() {

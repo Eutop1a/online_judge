@@ -2,7 +2,7 @@ package snowflake
 
 import (
 	"github.com/yitter/idgenerator-go/idgen"
-	"online-judge/pkg/define"
+	"online_judge/pkg/define"
 )
 
 func Init() {

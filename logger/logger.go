@@ -13,7 +13,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
-	"online-judge/setting"
+	"online_judge/setting"
 	"os"
 	"runtime/debug"
 	"strings"

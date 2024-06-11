@@ -3,8 +3,8 @@ package mysql
 import (
 	"errors"
 	"gorm.io/gorm"
-	"online-judge/consts/resp_code"
-	"online-judge/pkg/utils"
+	"online_judge/consts/resp_code"
+	"online_judge/pkg/utils"
 )
 
 // CheckEmail 检查是否有这个邮箱

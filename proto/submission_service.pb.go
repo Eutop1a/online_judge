@@ -25,22 +25,14 @@ type SubmitRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// @inject_tag: json:"user_id" form:"user_id"
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// @inject_tag: json:"language" form:"language"
-	Language int32 `protobuf:"varint,2,opt,name=language,proto3" json:"language,omitempty"`
-	// @inject_tag: json:"code" form:"code"
-	Code string `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
-	// @inject_tag: json:"input" form:"input"
-	Input []string `protobuf:"bytes,4,rep,name=input,proto3" json:"input,omitempty"`
-	// @inject_tag: json:"expected" form:"expected"
-	Expected []string `protobuf:"bytes,5,rep,name=expected,proto3" json:"expected,omitempty"`
-	// @inject_tag: json:"time_limit" form:"time_limit"
-	TimeLimit int32 `protobuf:"varint,6,opt,name=time_limit,json=timeLimit,proto3" json:"time_limit,omitempty"`
-	// @inject_tag: json:"memory_limit" form:"memory_limit"
-	MemoryLimit int32 `protobuf:"varint,7,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`
-	// @inject_tag: json:"total_num" form:"total_num"
-	TotalNum int32 `protobuf:"varint,8,opt,name=total_num,json=totalNum,proto3" json:"total_num,omitempty"`
+	UserId      int64    `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Language    int32    `protobuf:"varint,2,opt,name=language,proto3" json:"language,omitempty"`
+	Code        string   `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
+	Input       []string `protobuf:"bytes,4,rep,name=input,proto3" json:"input,omitempty"`
+	Expected    []string `protobuf:"bytes,5,rep,name=expected,proto3" json:"expected,omitempty"`
+	TimeLimit   int32    `protobuf:"varint,6,opt,name=time_limit,json=timeLimit,proto3" json:"time_limit,omitempty"`
+	MemoryLimit int32    `protobuf:"varint,7,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`
+	TotalNum    int32    `protobuf:"varint,8,opt,name=total_num,json=totalNum,proto3" json:"total_num,omitempty"`
 }
 
 func (x *SubmitRequest) Reset() {
@@ -136,19 +128,12 @@ type SubmitResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// @inject_tag: json:"user_id" form:"user_id"
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// @inject_tag: json:"status" form:"status"
-	Status int32 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
-	// @inject_tag: json:"pass_num" form:"pass_num"
-	PassNum int32 `protobuf:"varint,3,opt,name=pass_num,json=passNum,proto3" json:"pass_num,omitempty"`
-	// @inject_tag: json:"total_num" form:"total_num"
-	TotalNum int32 `protobuf:"varint,4,opt,name=total_num,json=totalNum,proto3" json:"total_num,omitempty"`
-	// @inject_tag: json:"memory_usage" form:"memory_usage"
+	UserId      int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Status      int32 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
+	PassNum     int32 `protobuf:"varint,3,opt,name=pass_num,json=passNum,proto3" json:"pass_num,omitempty"`
+	TotalNum    int32 `protobuf:"varint,4,opt,name=total_num,json=totalNum,proto3" json:"total_num,omitempty"`
 	MemoryUsage int32 `protobuf:"varint,5,opt,name=memory_usage,json=memoryUsage,proto3" json:"memory_usage,omitempty"`
-	// @inject_tag: json:"runtime" form:"runtime"
 	Runtime int32 `protobuf:"varint,6,opt,name=runtime,proto3" json:"runtime,omitempty"`
-	// @inject_tag: json:"output" form:"output"
 	Output string `protobuf:"bytes,7,opt,name=output,proto3" json:"output,omitempty"`
 }
 

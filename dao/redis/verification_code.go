@@ -65,8 +65,8 @@ func GetVerificationCode(email string) (string, error) {
 	// 检查验证码是否过期
 	if time.Now().Unix() > ts+Expired {
 		zap.L().Error("redis-GetVerificationCode-Split " +
-			fmt.Sprintf("verification code for email %s has expired ", email))
-		return "", fmt.Errorf("verification code expired")
+			fmt.Sprintf("verify code for email %s has expired ", email))
+		return "", fmt.Errorf("verify code expired")
 	}
 	// 使用完之后删除
 	_, err = Client.HDel(Ctx, "VerificationDataMap", email).Result()

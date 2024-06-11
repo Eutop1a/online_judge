@@ -12,7 +12,7 @@ go.sum
 *.dll
 *.so
 OnlineJudge
-online-judge
+online_judge
 
 *.zip
 *.7z

@@ -2,7 +2,7 @@ package mq
 
 import (
 	"go.uber.org/zap"
-	"online-judge/consts/mq_name"
+	"online_judge/consts/mq_name"
 
 	"github.com/streadway/amqp"
 )

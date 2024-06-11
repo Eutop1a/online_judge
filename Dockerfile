@@ -26,7 +26,7 @@ COPY . .
 RUN chmod 777 ./wait-for-it.sh &&  \
 #    chmod 777 ./shell/start.sh && \
        go build -o judgement ./app/judgement/cmd/main.go && \
-       go build -o online-judge main.go
+       go build -o online_judge main.go
 
 # 基于 centos 官方镜像
 FROM centos:latest
@@ -39,7 +39,7 @@ WORKDIR /app
 COPY --from=builder /app/conf /app/conf
 
 # 拷贝可执行文件
-COPY --from=builder /app/online-judge /app/online-judge
+COPY --from=builder /app/online_judge /app/online_judge
 COPY --from=builder /app/judgement /app/judgement
 COPY --from=builder /app/wait-for-it.sh /app/wait-for-it.sh
 #COPY --from=builder /app/start.sh /app/start.sh
@@ -49,9 +49,9 @@ EXPOSE 65533
 EXPOSE 8082
 
 # 启动你的应用程序
-#CMD ["sh", "-c", "./online-judge"]
+#CMD ["sh", "-c", "./online_judge"]
 
 # 最后一步，设置启动命令
-CMD nohup ./judgement & ./online-judge
+CMD nohup ./judgement & ./online_judge
 
 

@@ -2,12 +2,12 @@ package service
 
 import (
 	"fmt"
-	"online-judge/app/judgement/service/judging/cpp"
-	"online-judge/app/judgement/service/judging/golang"
-	"online-judge/app/judgement/service/judging/java"
-	"online-judge/app/judgement/service/judging/python"
-	"online-judge/consts"
-	pb "online-judge/proto"
+	"online_judge/app/judgement/service/judging/cpp"
+	"online_judge/app/judgement/service/judging/golang"
+	"online_judge/app/judgement/service/judging/java"
+	"online_judge/app/judgement/service/judging/python"
+	"online_judge/consts"
+	pb "online_judge/proto"
 )
 
 func LanguageCheck(request *pb.SubmitRequest, response *pb.SubmitResponse) (err error) {
