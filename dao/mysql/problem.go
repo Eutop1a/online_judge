@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"math/rand"
 )
@@ -41,6 +42,7 @@ func GetProblemRandom() (problem *Problems, err error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("len: ", len(problemsList))
 	randomIdx := rand.Intn(len(problemsList))
 	problemIdx := &problemsList[randomIdx].ID
 

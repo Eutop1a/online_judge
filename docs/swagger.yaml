@@ -672,11 +672,6 @@ paths:
       - multipart/form-data
       description: 获取单个题目详细接口
       parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: 题目ID
         in: path
         name: problem_id
@@ -699,11 +694,6 @@ paths:
       - multipart/form-data
       description: 获取题目ID接口
       parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: 标题
         in: formData
         name: title
@@ -723,16 +713,11 @@ paths:
     get:
       description: 获取题目列表接口
       parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: 'input current page num, default: 1'
         in: query
         name: page
         type: integer
-      - description: pageSize
+      - description: 'pageSize, default: 10'
         in: query
         name: size
         type: integer
@@ -749,12 +734,6 @@ paths:
       consumes:
       - multipart/form-data
       description: 随机获取一个题目接口
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       - multipart/form-data
