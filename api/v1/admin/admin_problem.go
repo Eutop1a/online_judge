@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 	"online_judge/consts"
 	"online_judge/consts/resp_code"
-	"online_judge/dao/mysql"
 	"online_judge/dao/redis"
 	"online_judge/models/admin/request"
 	"online_judge/models/common/response"
@@ -39,41 +38,29 @@ import (
 func (a *ApiAdmin) CreateProblem(c *gin.Context) {
 	//var createProblem services.Problem
 	// 解析 JSON 请求体
-	var createProblemReq request.AdminCreateProblemReq
-	if err := c.ShouldBind(&createProblemReq); err != nil {
+	var req request.AdminCreateProblemReq
+
+	if err := c.ShouldBindJSON(&req); err != nil {
 		zap.L().Error("controller-CreateProblem-BindJSON error", zap.Error(err))
 		response.ResponseError(c, response.CodeInvalidParam)
 		return
 	}
 
-	if len(createProblemReq.TestCases) == 0 {
+	if len(req.TestCases) == 0 {
 		zap.L().Error("controller-CreateProblem-TestCases is empty")
 		response.ResponseError(c, response.CodeInvalidParam)
 		return
 	}
+	req.ProblemID = utils.GetUUID()
 
-	createProblem := mysql.Problems{
-		ProblemID:  utils.GetUUID(),
-		Title:      createProblemReq.Title,
-		Content:    createProblemReq.Content,
-		Difficulty: createProblemReq.Difficulty,
-		MaxRuntime: createProblemReq.MaxRuntime,
-		MaxMemory:  createProblemReq.MaxMemory,
-		TestCases:  make([]*mysql.TestCase, len(createProblemReq.TestCases)),
+	for _, v := range req.TestCases {
+		v.TID = utils.GetUUID()
+		v.PID = req.ProblemID
 	}
+	req.RedisClient = redis.Client
+	req.Ctx = redis.Ctx
 
-	for i, tc := range createProblemReq.TestCases {
-		createProblem.TestCases[i] = &mysql.TestCase{
-			TID:      utils.GetUUID(),
-			PID:      createProblem.ProblemID,
-			Input:    tc.Input,
-			Expected: tc.Expected,
-		}
-	}
-	createProblemReq.RedisClient = redis.Client
-	createProblemReq.Ctx = redis.Ctx
-
-	resp := AdminService.CreateProblem(createProblemReq)
+	resp := AdminService.CreateProblem(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)
@@ -109,42 +96,53 @@ func (a *ApiAdmin) CreateProblem(c *gin.Context) {
 // @Router /admin/problem/{problem_id} [PUT]
 func (a *ApiAdmin) UpdateProblem(c *gin.Context) {
 
-	var updateProblemReq request.AdminUpdateProblemReq
-	if err := c.ShouldBindJSON(&updateProblemReq); err != nil {
+	var req request.AdminUpdateProblemReq
+	req.ProblemID = c.Param("problem_id")
+
+	if err := c.ShouldBindJSON(&req); err != nil {
 		zap.L().Error("controller-UpdateProblem-BindJSON error", zap.Error(err))
 		response.ResponseError(c, response.CodeInvalidParam)
 		return
 	}
 
-	if len(updateProblemReq.TestCases) == 0 {
+	if len(req.TestCases) == 0 {
 		zap.L().Error("controller-UpdateProblem-TestCases is empty")
 		response.ResponseError(c, response.CodeInvalidParam)
 		return
 	}
+	//fmt.Println("problem_id", req.ProblemID)
+	//fmt.Println("title", req.Title)
+	//fmt.Println("content", req.Content)
+	//fmt.Println("max_memory", req.MaxMemory)
+	//fmt.Println("max_runtime", req.MaxRuntime)
+	//fmt.Println("difficulty", req.Difficulty)
+	//fmt.Println("test_cases", req.TestCases)
+	//for _, v := range req.TestCases {
+	//	fmt.Println("pid", v.PID)
+	//	fmt.Println("tid", v.TID)
+	//	fmt.Println("input", v.Input)
+	//	fmt.Println("expected", v.Expected)
+	//}
 
-	updateProblem := mysql.Problems{
-		ProblemID:  c.Param("problem_id"),
-		Title:      updateProblemReq.Title,
-		Content:    updateProblemReq.Content,
-		Difficulty: updateProblemReq.Difficulty,
-		MaxRuntime: updateProblemReq.MaxRuntime,
-		MaxMemory:  updateProblemReq.MaxMemory,
-		TestCases:  make([]*mysql.TestCase, len(updateProblemReq.TestCases)),
+	//updateProblem := mysql.Problems{
+	//	ProblemID:  c.Param("problem_id"),
+	//	Title:      req.Title,
+	//	Content:    req.Content,
+	//	Difficulty: req.Difficulty,
+	//	MaxRuntime: req.MaxRuntime,
+	//	MaxMemory:  req.MaxMemory,
+	//	TestCases:  make([]*mysql.TestCase, len(req.TestCases)),
+	//}
+
+	for _, v := range req.TestCases {
+		v.TID = utils.GetUUID()
+		v.PID = req.ProblemID
 	}
 
-	for i, tc := range updateProblemReq.TestCases {
-		updateProblem.TestCases[i] = &mysql.TestCase{
-			TID:      utils.GetUUID(),
-			PID:      updateProblem.ProblemID,
-			Input:    tc.Input,
-			Expected: tc.Expected,
-		}
-	}
+	req.RedisClient = redis.Client
+	req.Ctx = redis.Ctx
 
-	updateProblemReq.RedisClient = redis.Client
-	updateProblemReq.Ctx = redis.Ctx
-
-	resp := AdminService.UpdateProblem(updateProblemReq)
+	resp := AdminService.UpdateProblem(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)
@@ -172,13 +170,13 @@ func (a *ApiAdmin) UpdateProblem(c *gin.Context) {
 // @Failure 200 {object} common.DeleteProblemResponse "服务器内部错误"
 // @Router /admin/problem/{problem_id} [DELETE]
 func (a *ApiAdmin) DeleteProblem(c *gin.Context) {
-	var deleteProblemReq request.AdminDeleteProblemReq
-	deleteProblemReq.ProblemID = c.Param("problem_id")
+	var req request.AdminDeleteProblemReq
+	req.ProblemID = c.Param("problem_id")
 
-	deleteProblemReq.RedisClient = redis.Client
-	deleteProblemReq.Ctx = redis.Ctx
+	req.RedisClient = redis.Client
+	req.Ctx = redis.Ctx
 
-	resp := AdminService.DeleteProblem(deleteProblemReq)
+	resp := AdminService.DeleteProblem(req)
 
 	switch resp.Code {
 	case resp_code.Success:
@@ -215,7 +213,7 @@ func (a *ApiAdmin) DeleteProblem(c *gin.Context) {
 // @Failure 200 {object} common.CreateProblemResponse "1014 服务器内部错误"
 // @Router /admin/problem/file/create [POST]
 func (a *ApiAdmin) CreateProblemWithFile(c *gin.Context) {
-	var createProblemReq request.AdminCreateProblemWithFileReq
+	var req request.AdminCreateProblemWithFileReq
 
 	err := c.Request.ParseMultipartForm(32 << 20)
 	if err != nil {
@@ -224,17 +222,17 @@ func (a *ApiAdmin) CreateProblemWithFile(c *gin.Context) {
 		return
 	}
 
-	createProblemReq.Title = c.PostForm("title")
-	createProblemReq.Content = c.PostForm("content")
-	createProblemReq.Difficulty = c.PostForm("difficulty")
-	createProblemReq.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
-	createProblemReq.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
+	req.Title = c.PostForm("title")
+	req.Content = c.PostForm("content")
+	req.Difficulty = c.PostForm("difficulty")
+	req.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	req.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
 
 	inputFile := c.Request.MultipartForm.File["input"]
 	outputFile := c.Request.MultipartForm.File["expected"]
-	createProblemReq.ProblemID = utils.GetUUID()
+	req.ProblemID = utils.GetUUID()
 
-	problemDir := filepath.Join(consts.FilePath, createProblemReq.ProblemID)
+	problemDir := filepath.Join(consts.FilePath, req.ProblemID)
 	err = os.MkdirAll(problemDir, os.ModePerm)
 	if err != nil {
 		zap.L().Error("controller-CreateProblemWithFile-MkdirAll", zap.Error(err))
@@ -242,18 +240,18 @@ func (a *ApiAdmin) CreateProblemWithFile(c *gin.Context) {
 		return
 	}
 
-	inputDst := filepath.Join(consts.FilePath, createProblemReq.ProblemID, consts.FileInput)
-	expectedDst := filepath.Join(consts.FilePath, createProblemReq.ProblemID, consts.FileExpected)
+	inputDst := filepath.Join(consts.FilePath, req.ProblemID, consts.FileInput)
+	expectedDst := filepath.Join(consts.FilePath, req.ProblemID, consts.FileExpected)
 
-	createProblemReq.InputDst = inputDst
-	createProblemReq.ExpectedDst = expectedDst
+	req.InputDst = inputDst
+	req.ExpectedDst = expectedDst
 
 	// 保存输入文件
 	a.SaveFile(c, inputFile, inputDst)
 	// 保存输出文件
 	a.SaveFile(c, outputFile, expectedDst)
 
-	resp := AdminService.CreateProblemWithFile(createProblemReq)
+	resp := AdminService.CreateProblemWithFile(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)
@@ -280,10 +278,10 @@ func (a *ApiAdmin) CreateProblemWithFile(c *gin.Context) {
 // @Failure 200 {object} common.DeleteProblemResponse "服务器内部错误"
 // @Router /admin/problem/file/{problem_id} [DELETE]
 func (a *ApiAdmin) DeleteProblemWithFile(c *gin.Context) {
-	var deleteProblemReq request.AdminDeleteProblemWithFileReq
-	deleteProblemReq.ProblemID = c.Param("problem_id")
+	var req request.AdminDeleteProblemWithFileReq
+	req.ProblemID = c.Param("problem_id")
 
-	resp := AdminService.DeleteProblemWithFile(deleteProblemReq)
+	resp := AdminService.DeleteProblemWithFile(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)
@@ -320,22 +318,22 @@ func (a *ApiAdmin) DeleteProblemWithFile(c *gin.Context) {
 // @Failure 200 {object} common.UpdateProblemResponse "服务器内部错误"
 // @Router /admin/problem/file/update [PUT]
 func (a *ApiAdmin) UpdateProblemWithFile(c *gin.Context) {
-	var updateProblemReq request.AdminUpdateProblemWithFileReq
+	var req request.AdminUpdateProblemWithFileReq
 
-	updateProblemReq.ProblemID = c.PostForm("problem_id")
-	updateProblemReq.Title = c.PostForm("title")
-	updateProblemReq.Content = c.PostForm("content")
-	updateProblemReq.Difficulty = c.PostForm("difficulty")
-	updateProblemReq.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
-	updateProblemReq.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
+	req.ProblemID = c.PostForm("problem_id")
+	req.Title = c.PostForm("title")
+	req.Content = c.PostForm("content")
+	req.Difficulty = c.PostForm("difficulty")
+	req.MaxRuntime, _ = strconv.Atoi(c.PostForm("max_runtime"))
+	req.MaxMemory, _ = strconv.Atoi(c.PostForm("max_memory"))
 
 	inputFile := c.Request.MultipartForm.File["input"]
 	outputFile := c.Request.MultipartForm.File["expected"]
 
-	updateProblemReq.InputDst = filepath.Join(consts.FilePath, updateProblemReq.ProblemID, consts.FileInput)
-	updateProblemReq.ExpectedDst = filepath.Join(consts.FilePath, updateProblemReq.ProblemID, consts.FileExpected)
+	req.InputDst = filepath.Join(consts.FilePath, req.ProblemID, consts.FileInput)
+	req.ExpectedDst = filepath.Join(consts.FilePath, req.ProblemID, consts.FileExpected)
 	// 在添加之前先删除所有的测试用例
-	resp := AdminService.DeleteProblemTestCaseWithFile(updateProblemReq)
+	resp := AdminService.DeleteProblemTestCaseWithFile(req)
 	switch resp.Code {
 	case resp_code.Success:
 
@@ -352,11 +350,11 @@ func (a *ApiAdmin) UpdateProblemWithFile(c *gin.Context) {
 		return
 	}
 	// 保存输入文件
-	a.SaveFile(c, inputFile, updateProblemReq.InputDst)
+	a.SaveFile(c, inputFile, req.InputDst)
 	// 保存输出文件
-	a.SaveFile(c, outputFile, updateProblemReq.ExpectedDst)
+	a.SaveFile(c, outputFile, req.ExpectedDst)
 
-	resp = AdminService.UpdateProblemWithFile(updateProblemReq)
+	resp = AdminService.UpdateProblemWithFile(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)

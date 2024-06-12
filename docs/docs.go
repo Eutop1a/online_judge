@@ -729,13 +729,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "标题",
                         "name": "title",
                         "in": "formData",
@@ -761,13 +754,6 @@ const docTemplate = `{
                 "summary": "获取题目列表",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "input current page num, default: 1",
                         "name": "page",
@@ -775,7 +761,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "pageSize",
+                        "description": "pageSize, default: 10",
                         "name": "size",
                         "in": "query"
                     }
@@ -804,15 +790,6 @@ const docTemplate = `{
                     "Problem API"
                 ],
                 "summary": "随机获取一个题目",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "1008 需要登录",
@@ -838,13 +815,6 @@ const docTemplate = `{
                 ],
                 "summary": "获取单个题目详细",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "题目ID",

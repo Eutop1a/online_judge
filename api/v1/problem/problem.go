@@ -17,9 +17,9 @@ type ApiProblem struct{}
 // @Tags Problem API
 // @Summary 获取题目列表
 // @Description 获取题目列表接口
-// @Param Authorization header string true "token"
+// // @Param Authorization header string true "token"
 // @Param page query int false "input current page num, default: 1"
-// @Param size query int false "pageSize"
+// @Param size query int false "pageSize, default: 10"
 // @Success 200 {object} common.GetProblemListResponse "获取题目列表成功"
 // @Failure 200 {object} common.GetProblemListResponse "需要登录"
 // @Failure 200 {object} common.GetProblemListResponse "服务器内部错误"
@@ -48,7 +48,7 @@ func (p *ApiProblem) GetProblemList(c *gin.Context) {
 // @Description 获取单个题目详细接口
 // @Accept multipart/form-data
 // @Produce json,multipart/form-data
-// @Param Authorization header string true "token"
+// // @Param Authorization header string true "token"
 // @Param problem_id path string true "题目ID"
 // @Success 200 {object} common.GetProblemDetailResponse "1000 获取成功"
 // @Failure 200 {object} common.GetProblemDetailResponse "1008 需要登录"
@@ -75,7 +75,7 @@ func (p *ApiProblem) GetProblemDetail(c *gin.Context) {
 // @Description 获取题目ID接口
 // @Accept multipart/form-data
 // @Produce json
-// @Param Authorization header string true "token"
+// // @Param Authorization header string true "token"
 // @Param title formData string true "标题"
 // @Success 200 {object} common.GetProblemIDResponse "1000 获取题目ID成功"
 // @Failure 200 {object} common.GetProblemIDResponse "1020 题目title不存在"
@@ -102,7 +102,7 @@ func (p *ApiProblem) GetProblemID(c *gin.Context) {
 // @Description 随机获取一个题目接口
 // @Accept multipart/form-data
 // @Produce json,multipart/form-data
-// @Param Authorization header string true "token"
+// // @Param Authorization header string true "token"
 // @Success 200 {object} common.GetProblemRandomResponse "1000 获取成功"
 // @Failure 200 {object} common.GetProblemRandomResponse "1008 需要登录"
 // @Router /problem/random [GET]

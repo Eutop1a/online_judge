@@ -109,7 +109,7 @@ func (p *ProblemService) GetProblemListWithCache(req request.GetProblemListReq) 
 	}
 
 	// 将获取的题目列表数据保存到 Redis 缓存中
-	encodedData, err := json.Marshal(problems)
+	encodedData, err := json.Marshal(problems.Data)
 	if err != nil {
 		zap.L().Error("services-GetProblemListWithCache-Marshal ", zap.Error(err))
 		return problems, nil
