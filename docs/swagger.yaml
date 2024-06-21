@@ -185,6 +185,71 @@ definitions:
         description: omitempty 字段为空就忽略
       msg: {}
     type: object
+  request.AdminCreateProblemReq:
+    properties:
+      category:
+        description: 题目分类
+        items:
+          type: string
+        type: array
+      content:
+        description: problem description
+        type: string
+      difficulty:
+        description: easy mid hard
+        type: string
+      max_memory:
+        description: 内存限制
+        type: integer
+      max_runtime:
+        description: 时间限制
+        type: integer
+      test_cases:
+        description: 测试样例集
+        items:
+          $ref: '#/definitions/request.TestCase'
+        type: array
+      title:
+        description: problem title
+        type: string
+    type: object
+  request.AdminUpdateProblemReq:
+    properties:
+      category:
+        description: 题目分类
+        items:
+          type: string
+        type: array
+      content:
+        description: problem description
+        type: string
+      difficulty:
+        description: easy mid hard
+        type: string
+      max_memory:
+        description: 内存限制
+        type: integer
+      max_runtime:
+        description: 时间限制
+        type: integer
+      test_cases:
+        description: 测试样例集
+        items:
+          $ref: '#/definitions/request.TestCase'
+        type: array
+      title:
+        description: problem title
+        type: string
+    type: object
+  request.TestCase:
+    properties:
+      expected:
+        description: 期望输出
+        type: string
+      input:
+        description: 输入
+        type: string
+    type: object
 host: 127.0.0.1:65533
 info:
   contact:
@@ -199,7 +264,117 @@ info:
   title: online_judge
   version: "1.0"
 paths:
-  /admin/problem/{problem_id}:
+  /admin/category/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 增加分类接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 分类名称
+        in: formData
+        name: category_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.CreateProblemResponse'
+      summary: 增加分类
+      tags:
+      - Admin API
+  /admin/category/delete:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: 删除分类接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 分类ID
+        in: query
+        name: category_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.CreateProblemResponse'
+      summary: 删除分类
+      tags:
+      - Admin API
+  /admin/category/update:
+    put:
+      consumes:
+      - multipart/form-data
+      description: 更新分类接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 分类ID
+        in: formData
+        name: category_id
+        required: true
+        type: string
+      - description: 分类名称
+        in: formData
+        name: category_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.CreateProblemResponse'
+      summary: 更新分类
+      tags:
+      - Admin API
+  /admin/problem/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新题目接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 创建题目信息的请求体
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.AdminCreateProblemReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.CreateProblemResponse'
+      summary: 创建新题目
+      tags:
+      - Admin API
+  /admin/problem/delete:
     delete:
       consumes:
       - multipart/form-data
@@ -211,7 +386,7 @@ paths:
         required: true
         type: string
       - description: 题目ID
-        in: path
+        in: query
         name: problem_id
         required: true
         type: string
@@ -223,114 +398,6 @@ paths:
           schema:
             $ref: '#/definitions/common.DeleteProblemResponse'
       summary: 删除题目
-      tags:
-      - Admin API
-    put:
-      consumes:
-      - multipart/form-data
-      description: 更新题目信息接口
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 题目ID
-        in: path
-        name: problem_id
-        required: true
-        type: string
-      - description: 题目标题
-        in: formData
-        name: title
-        type: string
-      - description: 题目内容
-        in: formData
-        name: content
-        type: string
-      - description: 题目难度
-        in: formData
-        name: difficulty
-        type: string
-      - description: 时间限制
-        in: formData
-        name: max_runtime
-        type: string
-      - description: 内存限制
-        in: formData
-        name: max_memory
-        type: string
-      - collectionFormat: multi
-        description: 测试样例集
-        in: formData
-        items:
-          type: string
-        name: test_cases
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.UpdateProblemResponse'
-      summary: 更新题目信息
-      tags:
-      - Admin API
-  /admin/problem/create:
-    post:
-      consumes:
-      - application/json
-      - multipart/form-data
-      description: 创建新题目接口
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 题目标题
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: 题目内容
-        in: formData
-        name: content
-        required: true
-        type: string
-      - description: 题目难度
-        in: formData
-        name: difficulty
-        required: true
-        type: string
-      - description: 时间限制
-        in: formData
-        name: max_runtime
-        required: true
-        type: integer
-      - description: 内存限制
-        in: formData
-        name: max_memory
-        required: true
-        type: integer
-      - collectionFormat: multi
-        description: 测试样例集
-        in: formData
-        items:
-          type: string
-        name: test_cases
-        required: true
-        type: array
-      produces:
-      - application/json
-      - multipart/form-data
-      responses:
-        "200":
-          description: 1014 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.CreateProblemResponse'
-      summary: 创建新题目
       tags:
       - Admin API
   /admin/problem/file/{problem_id}:
@@ -473,6 +540,38 @@ paths:
         name: expected
         required: true
         type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.UpdateProblemResponse'
+      summary: 更新题目信息
+      tags:
+      - Admin API
+  /admin/problem/update:
+    put:
+      consumes:
+      - application/json
+      description: 更新题目信息接口
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 题目ID
+        in: query
+        name: problem_id
+        required: true
+        type: string
+      - description: 更新题目信息的请求体
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.AdminUpdateProblemReq'
       produces:
       - application/json
       responses:
@@ -688,6 +787,44 @@ paths:
       summary: 获取单个题目详细
       tags:
       - Problem API
+  /problem/category-list:
+    get:
+      consumes:
+      - application/json
+      description: 获取分类列表
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 1001 参数错误
+          schema:
+            $ref: '#/definitions/common.GetProblemRandomResponse'
+      summary: 获取分类列表
+      tags:
+      - Problem API
+  /problem/category/search:
+    post:
+      consumes:
+      - application/json
+      description: 按照分类搜索题目
+      parameters:
+      - description: 题目分类
+        in: query
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 1001 参数错误
+          schema:
+            $ref: '#/definitions/common.GetProblemRandomResponse'
+      summary: 按照分类搜索题目
+      tags:
+      - Problem API
   /problem/id:
     post:
       consumes:
@@ -743,6 +880,28 @@ paths:
           schema:
             $ref: '#/definitions/common.GetProblemRandomResponse'
       summary: 随机获取一个题目
+      tags:
+      - Problem API
+  /problem/title/search:
+    post:
+      consumes:
+      - application/json
+      description: 搜索题目
+      parameters:
+      - description: 题目名称
+        in: query
+        name: msg
+        required: true
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 1001 参数错误
+          schema:
+            $ref: '#/definitions/common.GetProblemRandomResponse'
+      summary: 搜索题目
       tags:
       - Problem API
   /send-email-code:

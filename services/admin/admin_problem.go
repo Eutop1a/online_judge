@@ -13,6 +13,7 @@ import (
 	"online_judge/pkg/define"
 	"os"
 	"path/filepath"
+	"reflect"
 )
 
 type AdminProblemService struct{}
@@ -32,22 +33,33 @@ func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemRe
 			fmt.Sprintf("title %s aleardy exist", request.Title))
 		return
 	}
+	// 处理分类
+	categories := make([]*mysql.ProblemCategory, 0)
+	for _, cid := range request.Category {
+		categories = append(categories, &mysql.ProblemCategory{
+			ProblemIdentity:  request.ProblemID,
+			CategoryIdentity: cid,
+		})
+	}
 
 	// 创建题目
 	err = mysql.CreateProblem(&mysql.Problems{
-		ProblemID:  request.ProblemID,
-		Title:      request.Title,
-		Content:    request.Content,
-		Difficulty: request.Difficulty,
-		MaxRuntime: request.MaxRuntime,
-		MaxMemory:  request.MaxMemory,
-		TestCases:  p.convertTestCases(request.TestCases),
+		ProblemID:         request.ProblemID,
+		Title:             request.Title,
+		Content:           request.Content,
+		Difficulty:        request.Difficulty,
+		MaxRuntime:        request.MaxRuntime,
+		MaxMemory:         request.MaxMemory,
+		TestCases:         p.convertTestCases(request.TestCases),
+		ProblemCategories: categories,
 	})
+
 	if err != nil {
 		response.Code = resp_code.CreateProblemError
 		zap.L().Error("services-CreateProblem-CreateProblem ", zap.Error(err))
 		return
 	}
+
 	// 添加成功后删除缓存
 	if err := p.deleteCacheByPrefix(request.RedisClient, define.GlobalCacheKeyMap.ProblemListPrefix); err != nil {
 		zap.L().Error("services-CreateProblem-deleteCacheByPrefix ", zap.Error(err))
@@ -65,8 +77,44 @@ func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemRe
 	return
 }
 
+// 解析变量的值，如果为空则用默认值代替
+func (p *AdminProblemService) defaultResolve(testVal, defaultVal interface{}) interface{} {
+	// 使用反射检查类型
+	testValType := reflect.TypeOf(testVal)
+	defaultValType := reflect.TypeOf(defaultVal)
+
+	// 检查类型是否匹配
+	if testValType != defaultValType {
+		return testVal
+	}
+
+	switch testVal.(type) {
+	case int:
+		if testVal.(int) == 0 {
+			return defaultVal
+		}
+	case string:
+		if testVal.(string) == "" {
+			return defaultVal
+		}
+	// 可以添加其他类型的处理
+	default:
+		return testVal
+	}
+
+	return testVal
+}
+
 // UpdateProblem 更新题目
 func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemReq) (response response.Response) {
+	// 先获取原先的题目信息，如果request中没有对应的记录，就用原先的信息代替
+	oldProblem, err := mysql.GetEntireProblem(request.ProblemID)
+	if err != nil {
+		response.Code = resp_code.SearchDBError
+		zap.L().Error("services-UpdateProblem-GetEntireProblem ", zap.Error(err))
+		return
+	}
+
 	// 检查题目id是否存在
 	exists, err := mysql.CheckProblemIDExists(request.ProblemID)
 	if err != nil {
@@ -80,8 +128,8 @@ func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemRe
 			fmt.Sprintf("problemID %s do not exist", request.ProblemID))
 		return
 	}
+	// 检查题目Title是否重复
 	if request.Title != "" {
-		// 检查题目标题是否重复
 		exists, err = mysql.CheckProblemTitleExists(request.Title)
 		if err != nil {
 			response.Code = resp_code.SearchDBError
@@ -96,15 +144,19 @@ func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemRe
 		}
 	}
 
-	err = mysql.UpdateProblem(&mysql.Problems{
-		ProblemID:  request.ProblemID,
-		Title:      request.Title,
-		Content:    request.Content,
-		Difficulty: request.Difficulty,
-		MaxRuntime: request.MaxRuntime,
-		MaxMemory:  request.MaxMemory,
+	// 初始化新的题目信息
+	newProblem := &mysql.Problems{
+		ID:         oldProblem.ID,
+		ProblemID:  p.defaultResolve(request.ProblemID, oldProblem.ProblemID).(string),
+		Title:      p.defaultResolve(request.Title, oldProblem.Title).(string),
+		Content:    p.defaultResolve(request.Content, oldProblem.Content).(string),
+		Difficulty: p.defaultResolve(request.Difficulty, oldProblem.Difficulty).(string),
+		MaxRuntime: p.defaultResolve(request.MaxRuntime, oldProblem.MaxRuntime).(int),
+		MaxMemory:  p.defaultResolve(request.MaxMemory, oldProblem.MaxMemory).(int),
 		TestCases:  p.convertTestCases(request.TestCases),
-	})
+	}
+
+	err = mysql.UpdateProblem(newProblem, oldProblem.ProblemID, request.Category)
 
 	if err != nil {
 		zap.L().Error("services-UpdateProblem-UpdateProblem ", zap.Error(err))

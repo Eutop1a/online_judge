@@ -3,6 +3,7 @@ package router
 import (
 	"online_judge/router/admin"
 	"online_judge/router/auth"
+	"online_judge/router/category"
 	"online_judge/router/evaluation"
 	"online_judge/router/leaderboard"
 	"online_judge/router/problem"
@@ -20,6 +21,7 @@ type RouterGroup struct {
 	Submission  submission.RouterGroup
 	Leaderboard leaderboard.RouterGroup
 	Evaluation  evaluation.RouterGroup
+	Category    category.RouterGroup
 }
 
 var RouterGroupApp = new(RouterGroup)

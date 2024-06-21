@@ -25,16 +25,138 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/category/create": {
+            "post": {
+                "description": "增加分类接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "增加分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "分类名称",
+                        "name": "category_name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1014 服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.CreateProblemResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category/delete": {
+            "delete": {
+                "description": "删除分类接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "删除分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "category_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1014 服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.CreateProblemResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category/update": {
+            "put": {
+                "description": "更新分类接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "更新分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "category_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "分类名称",
+                        "name": "category_name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1014 服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.CreateProblemResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/problem/create": {
             "post": {
                 "description": "创建新题目接口",
                 "consumes": [
-                    "application/json",
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
-                    "application/json",
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "tags": [
                     "Admin API"
@@ -49,50 +171,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "题目标题",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目内容",
-                        "name": "content",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目难度",
-                        "name": "difficulty",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "时间限制",
-                        "name": "max_runtime",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "内存限制",
-                        "name": "max_memory",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "测试样例集",
-                        "name": "test_cases",
-                        "in": "formData",
-                        "required": true
+                        "description": "创建题目信息的请求体",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AdminCreateProblemReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -100,6 +185,45 @@ const docTemplate = `{
                         "description": "1014 服务器内部错误",
                         "schema": {
                             "$ref": "#/definitions/common.CreateProblemResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/problem/delete": {
+            "delete": {
+                "description": "删除题目接口",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "删除题目",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "题目ID",
+                        "name": "problem_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.DeleteProblemResponse"
                         }
                     }
                 }
@@ -324,11 +448,11 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/problem/{problem_id}": {
+        "/admin/problem/update": {
             "put": {
                 "description": "更新题目信息接口",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -349,48 +473,17 @@ const docTemplate = `{
                         "type": "string",
                         "description": "题目ID",
                         "name": "problem_id",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "题目标题",
-                        "name": "title",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目内容",
-                        "name": "content",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目难度",
-                        "name": "difficulty",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "时间限制",
-                        "name": "max_runtime",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "内存限制",
-                        "name": "max_memory",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "测试样例集",
-                        "name": "test_cases",
-                        "in": "formData"
+                        "description": "更新题目信息的请求体",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AdminUpdateProblemReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -398,43 +491,6 @@ const docTemplate = `{
                         "description": "服务器内部错误",
                         "schema": {
                             "$ref": "#/definitions/common.UpdateProblemResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "删除题目接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Admin API"
-                ],
-                "summary": "删除题目",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "题目ID",
-                        "name": "problem_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.DeleteProblemResponse"
                         }
                     }
                 }
@@ -713,6 +769,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/problem/category-list": {
+            "get": {
+                "description": "获取分类列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "获取分类列表",
+                "responses": {
+                    "200": {
+                        "description": "1001 参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.GetProblemRandomResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/category/search": {
+            "post": {
+                "description": "按照分类搜索题目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "按照分类搜索题目",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "题目分类",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1001 参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.GetProblemRandomResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/problem/id": {
             "post": {
                 "description": "获取题目ID接口",
@@ -793,6 +906,39 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "1008 需要登录",
+                        "schema": {
+                            "$ref": "#/definitions/common.GetProblemRandomResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/title/search": {
+            "post": {
+                "description": "搜索题目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "搜索题目",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "题目名称",
+                        "name": "msg",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1001 参数错误",
                         "schema": {
                             "$ref": "#/definitions/common.GetProblemRandomResponse"
                         }
@@ -1386,6 +1532,97 @@ const docTemplate = `{
                     "description": "omitempty 字段为空就忽略"
                 },
                 "msg": {}
+            }
+        },
+        "request.AdminCreateProblemReq": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "题目分类",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "content": {
+                    "description": "problem description",
+                    "type": "string"
+                },
+                "difficulty": {
+                    "description": "easy mid hard",
+                    "type": "string"
+                },
+                "max_memory": {
+                    "description": "内存限制",
+                    "type": "integer"
+                },
+                "max_runtime": {
+                    "description": "时间限制",
+                    "type": "integer"
+                },
+                "test_cases": {
+                    "description": "测试样例集",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.TestCase"
+                    }
+                },
+                "title": {
+                    "description": "problem title",
+                    "type": "string"
+                }
+            }
+        },
+        "request.AdminUpdateProblemReq": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "题目分类",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "content": {
+                    "description": "problem description",
+                    "type": "string"
+                },
+                "difficulty": {
+                    "description": "easy mid hard",
+                    "type": "string"
+                },
+                "max_memory": {
+                    "description": "内存限制",
+                    "type": "integer"
+                },
+                "max_runtime": {
+                    "description": "时间限制",
+                    "type": "integer"
+                },
+                "test_cases": {
+                    "description": "测试样例集",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.TestCase"
+                    }
+                },
+                "title": {
+                    "description": "problem title",
+                    "type": "string"
+                }
+            }
+        },
+        "request.TestCase": {
+            "type": "object",
+            "properties": {
+                "expected": {
+                    "description": "期望输出",
+                    "type": "string"
+                },
+                "input": {
+                    "description": "输入",
+                    "type": "string"
+                }
             }
         }
     }

@@ -21,4 +21,6 @@ const (
 	RemoveTestFileError
 	ReadTestFileError
 	DeleteCacheError
+	CategoryTypeAlreadyExist
+	CategoryIDDoNotExist
 )

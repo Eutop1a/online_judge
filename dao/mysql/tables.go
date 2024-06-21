@@ -61,14 +61,14 @@ type TestCaseWithFile struct {
 // Problems 题目信息
 type Problems struct {
 	Model
-	ID                int                `gorm:"autoIncrement;column:id" json:"id"`                                   // primary key
-	ProblemID         string             `gorm:"type:char(36);uniqueIndex;column:problem_id" json:"problem_id"`       // unique key
-	ProblemCategories []*ProblemCategory `gorm:"foreignKey:ProblemID;references:ProblemID" json:"problem_categories"` // 分类表
-	Title             string             `gorm:"type:varchar(255);not null;column:title" json:"title"`                // problem title
-	Content           string             `gorm:"type:text;not null;column:content" json:"content"`                    // problem description
-	Difficulty        string             `gorm:"type:char(4);not null;column:difficulty" json:"difficulty"`           // easy mid hard
-	MaxRuntime        int                `gorm:"type:bigint;not null;column:max_runtime" json:"max_runtime"`          // 时间限制
-	MaxMemory         int                `gorm:"type:bigint;not null;column:max_memory" json:"max_memory"`            // 内存限制
+	ID                int                `gorm:"autoIncrement;column:id" json:"id"`                                         // primary key
+	ProblemID         string             `gorm:"type:char(36);uniqueIndex;column:problem_id" json:"problem_id"`             // unique key
+	ProblemCategories []*ProblemCategory `gorm:"foreignKey:ProblemIdentity;references:ProblemID" json:"problem_categories"` // 分类表
+	Title             string             `gorm:"type:varchar(255);not null;column:title" json:"title"`                      // problem title
+	Content           string             `gorm:"type:text;not null;column:content" json:"content"`                          // problem description
+	Difficulty        string             `gorm:"type:char(4);not null;column:difficulty" json:"difficulty"`                 // easy mid hard
+	MaxRuntime        int                `gorm:"type:bigint;not null;column:max_runtime" json:"max_runtime"`                // 时间限制
+	MaxMemory         int                `gorm:"type:bigint;not null;column:max_memory" json:"max_memory"`                  // 内存限制
 
 	TestCases []*TestCase `gorm:"foreignKey:PID;references:ProblemID" json:"test_cases"` // 测试样例集
 }
@@ -107,17 +107,17 @@ type Judgement struct {
 
 type ProblemCategory struct {
 	Model
-	ProblemID           string               `gorm:"type:char(36);column:problem_id;not null" json:"problem_id"`
-	CategoryID          string               `gorm:"type:char(36);primaryKey;column:category_id;not null" json:"category_id"`
-	ProblemTypeCategory *ProblemTypeCategory `gorm:"foreignKey:CategoryIdentity;references:CategoryID"`
-	//关联分类表 ProblemTypeCategory:ProblemCategory.category_id->ProblemTypeCategory.category_identity
+	ProblemIdentity  string    `gorm:"type:char(36);column:problem_id;not null" json:"problem_id"`
+	CategoryIdentity string    `gorm:"type:char(36);column:category_id;not null" json:"category_id"`
+	Category         *Category `gorm:"foreignKey:CategoryIdentity;references:CategoryID"`
+	//关联分类表 Category:ProblemCategory.CategoryIdentity->Category.CategoryID
 }
 
-type ProblemTypeCategory struct {
+type Category struct {
 	Model
-	Name             string `gorm:"type:varchar(255);not null;column:name" json:"name"`
-	ParentName       string `gorm:"column:parent_name;type:varchar(100)" json:"parent_id" ` //父级ID
-	CategoryIdentity string `gorm:"type:varchar(255);primaryKey;column:category_identity" json:"category_identity"`
+	Name       string `gorm:"type:varchar(255);not null;column:name" json:"name"`
+	ParentName string `gorm:"type:varchar(100);column:parent_name" json:"parent_name" ` //父级ID
+	CategoryID string `gorm:"type:varchar(36);primaryKey;column:category_id" json:"category_id"`
 }
 
 // TableName gorm自动改表名
@@ -153,6 +153,6 @@ func (p *ProblemCategory) TableName() string {
 	return "problem_category"
 }
 
-func (s *ProblemTypeCategory) TableName() string {
-	return "problem_type_category"
+func (s *Category) TableName() string {
+	return "category"
 }

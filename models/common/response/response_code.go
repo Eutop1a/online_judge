@@ -44,6 +44,12 @@ const (
 	CodeMethodNowAllow
 
 	CodeNeedUsername
+
+	CodeProblemNotFound
+	CodeCategoryTypeAlreadyExist
+	CodeCategoryTypeDoNotExist
+	CodeCategoryIsNotEmpty
+	CodeDontHaveThisCategory
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -79,6 +85,11 @@ var codeMsgMap = map[ResCode]string{
 	CodeObtainVerificationCode:    "需要先获取邮箱验证码",
 	CodeMethodNowAllow:            "方法不允许",
 	CodeNeedUsername:              "需要用户名",
+	CodeProblemNotFound:           "找不到对应的题目",
+	CodeCategoryTypeAlreadyExist:  "该分类名称已经存在",
+	CodeCategoryTypeDoNotExist:    "该分类ID不存在",
+	CodeCategoryIsNotEmpty:        "分类下题目列表非空",
+	CodeDontHaveThisCategory:      "没有这个分类",
 }
 
 func (c ResCode) Msg() string {

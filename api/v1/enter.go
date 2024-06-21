@@ -3,6 +3,7 @@ package v1
 import (
 	"online_judge/api/v1/admin"
 	"online_judge/api/v1/auth"
+	"online_judge/api/v1/category"
 	"online_judge/api/v1/evaluation"
 	"online_judge/api/v1/leaderboard"
 	"online_judge/api/v1/problem"
@@ -20,6 +21,7 @@ type ApiGroup struct {
 	ApiSubmission  submission.ApiGroup
 	ApiLeaderboard leaderboard.ApiGroup
 	ApiEvaluation  evaluation.ApiGroup
+	ApiCategory    category.ApiGroup
 }
 
 var ApiGroupApp = new(ApiGroup)

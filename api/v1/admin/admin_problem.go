@@ -15,6 +15,9 @@ import (
 	"strconv"
 )
 
+type ApiAdminProblem struct{}
+
+/*
 // CreateProblem 创建新题目接口
 // @Tags Admin API
 // @Summary 创建新题目
@@ -23,6 +26,7 @@ import (
 // @Produce json,multipart/form-data
 // @Param Authorization header string true "token"
 // @Param title formData string true "题目标题"
+// @Param category formData []string true "分类id"  collectionFormat(multi)
 // @Param content formData string true "题目内容"
 // @Param difficulty formData string true "题目难度"
 // @Param max_runtime formData int true "时间限制"
@@ -35,7 +39,25 @@ import (
 // @Failure 200 {object} common.CreateProblemResponse "1008 需要登录"
 // @Failure 200 {object} common.CreateProblemResponse "1014 服务器内部错误"
 // @Router /admin/problem/create [POST]
-func (a *ApiAdmin) CreateProblem(c *gin.Context) {
+*/
+
+// CreateProblem 创建新题目接口
+// @swagger:order
+// @Tags Admin API
+// @Summary 创建新题目
+// @Description 创建新题目接口
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param req body request.AdminCreateProblemReq true "创建题目信息的请求体"
+// @Success 200 {object} common.CreateProblemResponse "1000 创建成功"
+// @Failure 200 {object} common.CreateProblemResponse "1001 参数错误"
+// @Failure 200 {object} common.CreateProblemResponse "1018 测试用例格式错误"
+// @Failure 200 {object} common.CreateProblemResponse "1019 题目标题已存在"
+// @Failure 200 {object} common.CreateProblemResponse "1008 需要登录"
+// @Failure 200 {object} common.CreateProblemResponse "1014 服务器内部错误"
+// @Router /admin/problem/create [POST]
+func (a *ApiAdminProblem) CreateProblem(c *gin.Context) {
 	//var createProblem services.Problem
 	// 解析 JSON 请求体
 	var req request.AdminCreateProblemReq
@@ -46,11 +68,20 @@ func (a *ApiAdmin) CreateProblem(c *gin.Context) {
 		return
 	}
 
+	// 测试用例为空
 	if len(req.TestCases) == 0 {
 		zap.L().Error("controller-CreateProblem-TestCases is empty")
 		response.ResponseError(c, response.CodeInvalidParam)
 		return
 	}
+
+	// 题目类型为空
+	if len(req.Category) == 0 {
+		zap.L().Error("controller-CreateProblem-Category is empty")
+		response.ResponseError(c, response.CodeInvalidParam)
+		return
+	}
+
 	req.ProblemID = utils.GetUUID()
 
 	for _, v := range req.TestCases {
@@ -73,6 +104,7 @@ func (a *ApiAdmin) CreateProblem(c *gin.Context) {
 	}
 }
 
+/*
 // UpdateProblem 更新题目信息接口
 // @Tags Admin API
 // @Summary 更新题目信息
@@ -86,6 +118,7 @@ func (a *ApiAdmin) CreateProblem(c *gin.Context) {
 // @Param difficulty formData string false "题目难度"
 // @Param max_runtime formData string false "时间限制"
 // @Param max_memory formData string false "内存限制"
+// @Param category formData []string false "分类id" collectionFormat(multi)
 // @Param test_cases formData []string false "测试样例集" collectionFormat(multi)
 // @Success 200 {object} common.UpdateProblemResponse "修改成功"
 // @Failure 200 {object} common.UpdateProblemResponse "题目ID不存在"
@@ -94,10 +127,28 @@ func (a *ApiAdmin) CreateProblem(c *gin.Context) {
 // @Failure 200 {object} common.UpdateProblemResponse "需要登录"
 // @Failure 200 {object} common.UpdateProblemResponse "服务器内部错误"
 // @Router /admin/problem/{problem_id} [PUT]
-func (a *ApiAdmin) UpdateProblem(c *gin.Context) {
+*/
+
+// UpdateProblem 更新题目信息接口
+// @Tags Admin API
+// @Summary 更新题目信息
+// @Description 更新题目信息接口
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param problem_id query string true "题目ID"
+// @Param req body request.AdminUpdateProblemReq true "更新题目信息的请求体"
+// @Success 200 {object} common.UpdateProblemResponse "修改成功"
+// @Failure 200 {object} common.UpdateProblemResponse "题目ID不存在"
+// @Failure 200 {object} common.UpdateProblemResponse "题目标题已存在"
+// @Failure 200 {object} common.UpdateProblemResponse "测试用例格式错误"
+// @Failure 200 {object} common.UpdateProblemResponse "需要登录"
+// @Failure 200 {object} common.UpdateProblemResponse "服务器内部错误"
+// @Router /admin/problem/update [PUT]
+func (a *ApiAdminProblem) UpdateProblem(c *gin.Context) {
 
 	var req request.AdminUpdateProblemReq
-	req.ProblemID = c.Param("problem_id")
+	req.ProblemID = c.Query("problem_id")
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		zap.L().Error("controller-UpdateProblem-BindJSON error", zap.Error(err))
@@ -110,29 +161,6 @@ func (a *ApiAdmin) UpdateProblem(c *gin.Context) {
 		response.ResponseError(c, response.CodeInvalidParam)
 		return
 	}
-	//fmt.Println("problem_id", req.ProblemID)
-	//fmt.Println("title", req.Title)
-	//fmt.Println("content", req.Content)
-	//fmt.Println("max_memory", req.MaxMemory)
-	//fmt.Println("max_runtime", req.MaxRuntime)
-	//fmt.Println("difficulty", req.Difficulty)
-	//fmt.Println("test_cases", req.TestCases)
-	//for _, v := range req.TestCases {
-	//	fmt.Println("pid", v.PID)
-	//	fmt.Println("tid", v.TID)
-	//	fmt.Println("input", v.Input)
-	//	fmt.Println("expected", v.Expected)
-	//}
-
-	//updateProblem := mysql.Problems{
-	//	ProblemID:  c.Param("problem_id"),
-	//	Title:      req.Title,
-	//	Content:    req.Content,
-	//	Difficulty: req.Difficulty,
-	//	MaxRuntime: req.MaxRuntime,
-	//	MaxMemory:  req.MaxMemory,
-	//	TestCases:  make([]*mysql.TestCase, len(req.TestCases)),
-	//}
 
 	for _, v := range req.TestCases {
 		v.TID = utils.GetUUID()
@@ -163,16 +191,15 @@ func (a *ApiAdmin) UpdateProblem(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param problem_id path string true "题目ID"
+// @Param problem_id query string true "题目ID"
 // @Success 200 {object} common.DeleteProblemResponse "删除成功"
 // @Failure 200 {object} common.DeleteProblemResponse "题目ID不存在"
 // @Failure 200 {object} common.DeleteProblemResponse "需要登录"
 // @Failure 200 {object} common.DeleteProblemResponse "服务器内部错误"
-// @Router /admin/problem/{problem_id} [DELETE]
-func (a *ApiAdmin) DeleteProblem(c *gin.Context) {
+// @Router /admin/problem/delete [DELETE]
+func (a *ApiAdminProblem) DeleteProblem(c *gin.Context) {
 	var req request.AdminDeleteProblemReq
-	req.ProblemID = c.Param("problem_id")
-
+	req.ProblemID = c.Query("problem_id")
 	req.RedisClient = redis.Client
 	req.Ctx = redis.Ctx
 
@@ -212,7 +239,7 @@ func (a *ApiAdmin) DeleteProblem(c *gin.Context) {
 // @Failure 200 {object} common.CreateProblemResponse "1008 需要登录"
 // @Failure 200 {object} common.CreateProblemResponse "1014 服务器内部错误"
 // @Router /admin/problem/file/create [POST]
-func (a *ApiAdmin) CreateProblemWithFile(c *gin.Context) {
+func (a *ApiAdminProblem) CreateProblemWithFile(c *gin.Context) {
 	var req request.AdminCreateProblemWithFileReq
 
 	err := c.Request.ParseMultipartForm(32 << 20)
@@ -277,7 +304,7 @@ func (a *ApiAdmin) CreateProblemWithFile(c *gin.Context) {
 // @Failure 200 {object} common.DeleteProblemResponse "需要登录"
 // @Failure 200 {object} common.DeleteProblemResponse "服务器内部错误"
 // @Router /admin/problem/file/{problem_id} [DELETE]
-func (a *ApiAdmin) DeleteProblemWithFile(c *gin.Context) {
+func (a *ApiAdminProblem) DeleteProblemWithFile(c *gin.Context) {
 	var req request.AdminDeleteProblemWithFileReq
 	req.ProblemID = c.Param("problem_id")
 
@@ -317,7 +344,7 @@ func (a *ApiAdmin) DeleteProblemWithFile(c *gin.Context) {
 // @Failure 200 {object} common.UpdateProblemResponse "需要登录"
 // @Failure 200 {object} common.UpdateProblemResponse "服务器内部错误"
 // @Router /admin/problem/file/update [PUT]
-func (a *ApiAdmin) UpdateProblemWithFile(c *gin.Context) {
+func (a *ApiAdminProblem) UpdateProblemWithFile(c *gin.Context) {
 	var req request.AdminUpdateProblemWithFileReq
 
 	req.ProblemID = c.PostForm("problem_id")
@@ -368,7 +395,7 @@ func (a *ApiAdmin) UpdateProblemWithFile(c *gin.Context) {
 	return
 }
 
-func (a *ApiAdmin) SaveFile(c *gin.Context, fileHeader []*multipart.FileHeader, dstDir string) {
+func (a *ApiAdminProblem) SaveFile(c *gin.Context, fileHeader []*multipart.FileHeader, dstDir string) {
 	// 保存输出文件
 	err := os.MkdirAll(dstDir, os.ModePerm)
 	if err != nil {

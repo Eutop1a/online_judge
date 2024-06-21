@@ -12,7 +12,9 @@ func GetProblemList(page, size int, count *int64) ([]Problems, error) {
 
 	var problemList []Problems
 
-	err := DB.Model(&Problems{}).Count(count).Select("id, problem_id, title, difficulty").
+	err := DB.Model(&Problems{}).Count(count).
+		Preload("ProblemCategories.Category").
+		Select("id, problem_id, title, difficulty").
 		Offset(offset).Limit(size).Find(&problemList).Error
 	if err != nil {
 		// 处理错误
@@ -24,10 +26,12 @@ func GetProblemList(page, size int, count *int64) ([]Problems, error) {
 
 // GetProblemDetail 获取单个题目详细信息
 func GetProblemDetail(pid string) (problem *Problems, err error) {
-	//err = DB.Preload("TestCases").Where("problem_id = ?", pid).First(&problem).Error
-	err = DB.Where("problem_id = ?", pid).Preload("TestCases", func(db *gorm.DB) *gorm.DB {
-		return db.Limit(2) // 在这里使用 Limit 方法限制 TestCases 的数量
-	}).First(&problem).Error
+	err = DB.Where("problem_id = ?", pid).
+		Preload("TestCases", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(2) // 在这里使用 Limit 方法限制 TestCases 的数量
+		}).
+		Preload("ProblemCategories.Category").
+		First(&problem).Error
 
 	if err != nil {
 		return nil, err
@@ -71,10 +75,11 @@ func CreateProblem(problem *Problems) error {
 }
 
 // UpdateProblem 更新题目
-func UpdateProblem(problem *Problems) error {
-	// TODO: 开启事务
-	// TODO: 更新问题基础信息
-	// TODO: 更新关联的问题测试样例
+func UpdateProblem(problem *Problems, oldProblemID string, category []string) error {
+	// TODO:更新问题基础信息
+	// TODO:更新关联的问题分类
+	// TODO:更新关联的问题测试样例
+	// 开启事务
 	ts := DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -82,12 +87,37 @@ func UpdateProblem(problem *Problems) error {
 		}
 	}()
 
+	// TODO:更新问题基础信息
 	err := ts.Where("problem_id = ?", problem.ProblemID).Updates(&problem).Error
 	if err != nil {
 		return err
 	}
+
+	//TODO:更新关联的问题分类
+	//浅复制即可
+	/*先删除原来的再添加,若categoryIds为空表示无需修改分类*/
+	if len(category) != 0 {
+		err = ts.Model(&ProblemCategory{}).Where("problem_id = ?", oldProblemID).Delete(&ProblemCategory{}).Error
+		if err != nil {
+			return err
+		}
+		pcSlice := make([]*ProblemCategory, 0)
+		for _, v := range category {
+			pcSlice = append(pcSlice, &ProblemCategory{
+				ProblemIdentity:  oldProblemID,
+				CategoryIdentity: v,
+			})
+		}
+		err = ts.Create(&pcSlice).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	//TODO:更新关联的问题测试样例
+	/*先删除原来的再添加,若testCases为空表示无需修改测试用例*/
 	if len(problem.TestCases) != 0 {
-		ts.Where("pid = ?", problem.ProblemID).Delete(new(TestCase))
+		ts.Where("pid = ?", problem.ProblemID).Delete(&TestCase{})
 		err = ts.Create(&problem.TestCases).Error
 		if err != nil {
 			return err
@@ -99,7 +129,7 @@ func UpdateProblem(problem *Problems) error {
 
 // DeleteProblem 删除题目
 func DeleteProblem(pid string) error {
-	// TODO: 开启事务，删除题目基本信息，删除题目测试样例
+	//TODO: 开启事务处理
 	ts := DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -107,16 +137,25 @@ func DeleteProblem(pid string) error {
 		}
 	}()
 
+	//TODO:删除问题本体
 	err := ts.Where("problem_id = ?", pid).Delete(&Problems{}).Error
 	if err != nil {
 		return err
 	}
 
+	//TODO:删除问题分类关联表的对应内容
+	err = ts.Where("problem_id = ?", pid).Delete(&ProblemCategory{}).Error
+	if err != nil {
+		return err
+	}
+
+	//TODO:删除测试用例
 	err = ts.Where("pid = ?", pid).Delete(&TestCase{}).Error
 	if err != nil {
 		return err
 	}
 	ts.Commit()
+
 	return nil
 }
 
@@ -191,4 +230,39 @@ func GetEntireProblemWithFile(pid string) (problem *ProblemWithFile, err error) 
 		return nil, err
 	}
 	return
+}
+
+// SearchProblemByMsg 模糊搜索题目获取题目列表
+func SearchProblemByMsg(problems *[]Problems, searchQuery string) error {
+	return DB.Model(&Problems{}).Where("title LIKE ? OR content LIKE ?", searchQuery, searchQuery).
+		Preload("ProblemCategories.Category").
+		Find(&problems).Error
+	//return DB.Model(&Problems{}).Select("id, problem_id, title, difficulty").
+	//	Where("title LIKE ?", searchQuery).Order("id asc").Find(&problems).Error
+}
+
+// GetProblemListByCategory 根据分类ID获取题目列表
+func GetProblemListByCategory(categoryID string) ([]Problems, error) {
+	var problems []Problems
+
+	err := DB.Joins("JOIN problem_category ON problems.problem_id = problem_category.problem_id").
+		Where("problem_category.category_id = ?", categoryID).
+		Preload("ProblemCategories.Category").
+		Find(&problems).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return problems, nil
+}
+
+// GetCategoryList 获取分类列表
+func GetCategoryList() ([]*Category, error) {
+	var tmp []*Category
+	err := DB.Model(&Category{}).Find(&tmp).Error
+	if err != nil {
+		return nil, err
+	}
+	return tmp, nil
 }

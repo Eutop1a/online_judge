@@ -58,6 +58,7 @@ func SetUpRouter(mode string) *gin.Engine {
 	submissionRouter := RouterGroupApp.Submission
 	leaderboardRouter := RouterGroupApp.Leaderboard
 	evaluationRouter := RouterGroupApp.Evaluation
+	categoryRouter := RouterGroupApp.Category
 
 	{
 		// 健康监测
@@ -90,8 +91,9 @@ func SetUpRouter(mode string) *gin.Engine {
 	adminGroup := router.Group("/admin")
 	adminGroup.Use(middlewares.JWTAdminAuthMiddleware())
 	{
-		adminRouter.InitAdminProblem(adminGroup) // 注册管理员的 problem 相关路由
-		adminRouter.InitAdminUser(adminGroup)    // 注册管理员的 user 相关路由
+		adminRouter.InitAdminProblem(adminGroup)  // 注册管理员的 problem 相关路由
+		adminRouter.InitAdminUser(adminGroup)     // 注册管理员的 user 相关路由
+		adminRouter.InitAdminCategory(adminGroup) // 注册管理员的 category 相关路由
 	}
 
 	adminApi := v1.ApiGroupApp.ApiAdmin
@@ -135,8 +137,13 @@ func SetUpRouter(mode string) *gin.Engine {
 		evaluationRouter.InitEvaluate(evaluationGroup)
 	}
 
-	return r
+	// 分类相关api
+	categoryGroup := router.Group("/category")
+	{
+		categoryRouter.InitCategory(categoryGroup)
+	}
 
+	return r
 }
 
 //

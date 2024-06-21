@@ -18,8 +18,8 @@ func (a *ApiAdminProblem) InitAdminProblem(Router *gin.RouterGroup) {
 			file.PUT("/update", adminApi.UpdateProblemWithFile)         // 创建新题目
 			file.DELETE("/:problem_id", adminApi.DeleteProblemWithFile) // 删除题目
 		}
-		adminProblem.POST("/create", adminApi.CreateProblem)               // 创建新题目
-		adminProblem.PUT("/update/:problem_id", adminApi.UpdateProblem)    // 更新题目信息
-		adminProblem.DELETE("/delete/:problem_id", adminApi.DeleteProblem) // 删除题目
+		adminProblem.POST("/create", adminApi.CreateProblem)   // 创建新题目
+		adminProblem.PUT("/update", adminApi.UpdateProblem)    // 更新题目信息
+		adminProblem.DELETE("/delete", adminApi.DeleteProblem) // 删除题目
 	}
 }

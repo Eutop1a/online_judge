@@ -22,4 +22,5 @@ const (
 	SecretError
 	UserIDAlreadyExist
 	NeedObtainVerificationCode
+	CategoryIsNotEmpty
 )
