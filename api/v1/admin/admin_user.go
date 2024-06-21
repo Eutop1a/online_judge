@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-type ApiAdmin struct{}
+type ApiAdminUser struct{}
 
 // AddSuperAdmin 添加超级管理员接口
 // @Tags Admin API
@@ -26,7 +26,7 @@ type ApiAdmin struct{}
 // @Failure 200 {object} common.AddSuperAdminResponse "密钥错误"
 // @Failure 200 {object} common.AddSuperAdminResponse "服务器内部错误"
 // @Router /admin/users/add-super-admin [POST]
-func (a *ApiAdmin) AddSuperAdmin(c *gin.Context) {
+func (a *ApiAdminUser) AddSuperAdmin(c *gin.Context) {
 	var addSuperAdminReq request.AdminAddSuperAdminReq
 	//uid := c.PostForm("user_id")
 	if err := c.ShouldBind(&addSuperAdminReq); err != nil {
@@ -77,7 +77,7 @@ func (a *ApiAdmin) AddSuperAdmin(c *gin.Context) {
 // @Failure 200 {object} common.DeleteUserResponse "需要登录"
 // @Failure 200 {object} common.DeleteUserResponse "服务器内部错误"
 // @Router /admin/users/{user_id} [DELETE]
-func (a *ApiAdmin) DeleteUser(c *gin.Context) {
+func (a *ApiAdminUser) DeleteUser(c *gin.Context) {
 	var deleteUserReq request.AdminDeleteUserReq
 	uid := c.Param("user_id")
 	if uid == "" {
@@ -118,7 +118,7 @@ func (a *ApiAdmin) DeleteUser(c *gin.Context) {
 // @Failure 200 {object} common.AddAdminResponse "需要登录"
 // @Failure 200 {object} common.AddAdminResponse "服务器内部错误"
 // @Router /admin/users/add-admin [POST]
-func (a *ApiAdmin) AddAdmin(c *gin.Context) {
+func (a *ApiAdminUser) AddAdmin(c *gin.Context) {
 	var req request.AdminAddAdminReq
 	//uid := c.PostForm("user_id")
 	req.Username = c.PostForm("username")

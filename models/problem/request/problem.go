@@ -33,6 +33,7 @@ type GetProblemRandomReq struct {
 }
 
 type SearchProblemReq struct {
+	Msg         string `json:"msg" form:"msg"`
 	RedisClient *redis.Client
 	Ctx         context.Context
 }

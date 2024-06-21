@@ -3,6 +3,7 @@ package services
 import (
 	"online_judge/services/admin"
 	"online_judge/services/auth"
+	"online_judge/services/category"
 	"online_judge/services/evaluation"
 	"online_judge/services/leaderboard"
 	"online_judge/services/problem"
@@ -20,6 +21,7 @@ type ServiceGroup struct {
 	SubmissionService  submission.ServiceGroup
 	LeaderboardService leaderboard.ServiceGroup
 	EvaluationService  evaluation.ServiceGroup
+	CategoryService    category.ServiceGroup
 }
 
 var ServiceGroupApp = new(ServiceGroup)

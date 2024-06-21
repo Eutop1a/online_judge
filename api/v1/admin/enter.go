@@ -3,7 +3,9 @@ package admin
 import "online_judge/services"
 
 type ApiGroup struct {
-	ApiAdmin
+	ApiAdminUser
+	ApiAdminProblem
+	ApiAdminCategory
 }
 
 var (

@@ -101,15 +101,27 @@ func CreateTables() (err error) {
 		&TestCase{},
 		&ProblemWithFile{},
 		&TestCaseWithFile{},
+		&Category{},
 		&ProblemCategory{},
 		&Submission{},
-		&ProblemTypeCategory{},
 		&Judgement{},
 	}
 
 	if err = DB.AutoMigrate(models...); err != nil {
 		zap.L().Error("mysql-CreateTables-AutoMigrate", zap.Error(err))
 		return
+	}
+
+	// 检查是否存在索引
+	var count int64
+	DB.Raw("SELECT COUNT(1) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'problems' AND index_name = 'idx_title'").Scan(&count)
+	if count == 0 {
+		// 添加FULLTEXT索引
+		err := DB.Exec("ALTER TABLE problems ADD FULLTEXT INDEX idx_title (title)").Error
+		if err != nil {
+			zap.L().Error("mysql-CreateTables-create FULLTEXT error ", zap.Error(err))
+			return err
+		}
 	}
 
 	// 设置innodb事务行锁等待时间为10s，默认50s
