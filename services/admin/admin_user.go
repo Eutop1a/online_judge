@@ -75,35 +75,36 @@ func (u *AdminUserService) AddSuperAdmin(request request.AdminAddSuperAdminReq) 
 	return
 }
 
-// AddAdmin 添加管理员
-func (u *AdminUserService) AddAdmin(request request.AdminAddAdminReq) (response response.Response) {
-	// 检查改用户名是否已经存在已经存在后是否为管理员
-	userExists, adminExists, err := mysql.CheckUsernameAndAdminExists(request.Username)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-AddSuperAdmin-CheckUsernameAndAdminExists ", zap.Error(err))
-		return
-	}
-	if !userExists {
-		response.Code = resp_code.NotExistUsername
-		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
-			fmt.Sprintf("do not have this username %d ", request.Username), zap.Error(err))
-		return
-	}
-	if adminExists {
-		response.Code = resp_code.UsernameAlreadyExist
-		zap.L().Error("services-AddSuperAdmin-CheckUsernameAlreadyExists "+
-			fmt.Sprintf("already have this username %s ", request.Username), zap.Error(err))
-		return
-	}
-
-	err = mysql.AddAdminUserByUsername(request.Username)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
-		return
-	}
-	response.Code = resp_code.Success
-
-	return
-}
+//
+//// AddAdmin 添加管理员
+//func (u *AdminUserService) AddAdmin(request request.AdminAddAdminReq) (response response.Response) {
+//	// 检查改用户名是否已经存在已经存在后是否为管理员
+//	userExists, adminExists, err := mysql.CheckUsernameAndAdminExists(request.Username)
+//	if err != nil {
+//		response.Code = resp_code.SearchDBError
+//		zap.L().Error("services-AddSuperAdmin-CheckUsernameAndAdminExists ", zap.Error(err))
+//		return
+//	}
+//	if !userExists {
+//		response.Code = resp_code.NotExistUsername
+//		zap.L().Error("services-AddSuperAdmin-CheckUsername "+
+//			fmt.Sprintf("do not have this username %d ", request.Username), zap.Error(err))
+//		return
+//	}
+//	if adminExists {
+//		response.Code = resp_code.UsernameAlreadyExist
+//		zap.L().Error("services-AddSuperAdmin-CheckUsernameAlreadyExists "+
+//			fmt.Sprintf("already have this username %s ", request.Username), zap.Error(err))
+//		return
+//	}
+//
+//	err = mysql.AddAdminUserByUsername(request.Username)
+//	if err != nil {
+//		response.Code = resp_code.SearchDBError
+//		zap.L().Error("services-AddAdmin-AddAdminUser ", zap.Error(err))
+//		return
+//	}
+//	response.Code = resp_code.Success
+//
+//	return
+//}

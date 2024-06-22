@@ -23,6 +23,24 @@ import (
 type SubmissionService struct{}
 
 func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response response.ResponseWithData) {
+	// problem ID 错误
+	if len(request.ProblemID) != 36 {
+		response.Code = resp_code.ProblemNotExist
+		zap.L().Error("service-SubmitCode-SaveSubmitCode",
+			zap.String("message: problem ID does not exist", request.ProblemID),
+		)
+		return
+	}
+	// user ID 错误
+	UserIDLen := len(strconv.FormatInt(request.UserID, 10))
+	if UserIDLen != 14 {
+		response.Code = resp_code.NotExistUserID
+		zap.L().Error("service-SubmitCode-SaveSubmitCode",
+			zap.String("message: user ID does not exist",
+				strconv.FormatInt(request.UserID, 10)),
+		)
+		return
+	}
 	// 直接在提交的时候通过外键判断 problemID 和 userID 是否存在
 	err := mysql.SaveSubmitCode(&mysql.Submission{
 		UserID:         request.UserID,
@@ -43,6 +61,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 					zap.String("message: user ID does not exist",
 						strconv.FormatInt(request.UserID, 10)),
 					zap.Error(err))
+				return
 			}
 			// problemID 不存在
 			if strings.Contains(err.Error(), "submission_problem_id_fkey") {
@@ -50,6 +69,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 				zap.L().Error("service-SubmitCode-SaveSubmitCode",
 					zap.String("message: problem ID does not exist", request.ProblemID),
 					zap.Error(err))
+				return
 			}
 		}
 		response.Code = resp_code.SearchDBError
@@ -189,7 +209,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 		Runtime:      int(resData.Runtime),
 		Output:       resData.Output,
 	})
-	
+
 	if err != nil {
 		response.Code = resp_code.InsertToJudgementError
 		zap.L().Error("services-SaveSubmitCode-InsertNewSubmission", zap.Error(err))

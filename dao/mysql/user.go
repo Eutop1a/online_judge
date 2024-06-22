@@ -141,62 +141,63 @@ func GetUserID(username string) (uid int64, err error) {
 	return user.UserID, nil
 }
 
-// CheckUserIsAdmin 根据uid判断用户是不是管理员
-func CheckUserIsAdmin(uid int64) (err error) {
-	var admin Admin
-	return DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
-}
-
-// CheckUserIsAdminByUsername 根据username判断用户是不是管理员
-func CheckUserIsAdminByUsername(username string) (err error) {
-	var admin Admin
-	return DB.Model(&Admin{}).Where("username=?", username).First(&admin).Error
-}
-
-//// AddAdminUserByUserId 添加管理员用户
-//func AddAdminUserByUserId(uid int64) (err error) {
+//
+//// CheckUserIsAdmin 根据uid判断用户是不是管理员
+//func CheckUserIsAdmin(uid int64) (err error) {
+//	var admin Admin
+//	return DB.Model(&Admin{}).Where("user_id=?", uid).First(&admin).Error
+//}
+//
+//// CheckUserIsAdminByUsername 根据username判断用户是不是管理员
+//func CheckUserIsAdminByUsername(username string) (err error) {
+//	var admin Admin
+//	return DB.Model(&Admin{}).Where("username=?", username).First(&admin).Error
+//}
+//
+////// AddAdminUserByUserId 添加管理员用户
+////func AddAdminUserByUserId(uid int64) (err error) {
+////	admin := Admin{
+////		UserID: uid,
+////	}
+////	return DB.Model(&Admin{}).Create(&admin).Error
+////}
+//
+//// AddAdminUserByUsername 添加管理员用户
+//func AddAdminUserByUsername(username string) (err error) {
 //	admin := Admin{
-//		UserID: uid,
+//		UserName: username,
 //	}
 //	return DB.Model(&Admin{}).Create(&admin).Error
 //}
-
-// AddAdminUserByUsername 添加管理员用户
-func AddAdminUserByUsername(username string) (err error) {
-	admin := Admin{
-		UserName: username,
-	}
-	return DB.Model(&Admin{}).Create(&admin).Error
-}
-
-func CheckAdminUserID(uid int64, countUserID *int64) error {
-	return DB.Model(&Admin{}).Where("user_id=?", uid).Count(countUserID).Error
-}
-
-func CheckAdminUsername(username string, countUsername *int64) error {
-	return DB.Model(&Admin{}).Where("username=?", username).Count(countUsername).Error
-}
-
-func CheckUsernameAndAdminExists(username string) (userExists, adminExists bool, err error) {
-	var usernameCount int64
-
-	// 检查用户名是否在user表中
-	err = DB.Model(&User{}).Where("username=?", username).Count(&usernameCount).Error
-	if err != nil {
-		return false, false, err
-	}
-	userExists = usernameCount > 0
-
-	// 检查用户名是否在admin表中
-	usernameCount = 0
-	err = DB.Model(&Admin{}).Where("username=?", username).Count(&usernameCount).Error
-	if err != nil {
-		return false, false, err
-	}
-	adminExists = usernameCount > 0
-
-	return userExists, adminExists, nil
-}
+//
+//func CheckAdminUserID(uid int64, countUserID *int64) error {
+//	return DB.Model(&Admin{}).Where("user_id=?", uid).Count(countUserID).Error
+//}
+//
+//func CheckAdminUsername(username string, countUsername *int64) error {
+//	return DB.Model(&Admin{}).Where("username=?", username).Count(countUsername).Error
+//}
+//
+//func CheckUsernameAndAdminExists(username string) (userExists, adminExists bool, err error) {
+//	var usernameCount int64
+//
+//	// 检查用户名是否在user表中
+//	err = DB.Model(&User{}).Where("username=?", username).Count(&usernameCount).Error
+//	if err != nil {
+//		return false, false, err
+//	}
+//	userExists = usernameCount > 0
+//
+//	// 检查用户名是否在admin表中
+//	usernameCount = 0
+//	err = DB.Model(&Admin{}).Where("username=?", username).Count(&usernameCount).Error
+//	if err != nil {
+//		return false, false, err
+//	}
+//	adminExists = usernameCount > 0
+//
+//	return userExists, adminExists, nil
+//}
 
 // SetAdminByUsername 根据用户名设置为管理员
 func SetAdminByUsername(username string) (err error) {
