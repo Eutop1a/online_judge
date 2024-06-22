@@ -1,6 +1,9 @@
 package mysql
 
-import "online_judge/pkg/utils"
+import (
+	"github.com/go-sql-driver/mysql"
+	"online_judge/pkg/utils"
+)
 
 // CheckCategoryByName 通过 name 检查是否存在这个 category
 func CheckCategoryByName(categoryName string) (bool, error) {
@@ -24,16 +27,36 @@ func CheckCategoryById(categoryID string) (bool, error) {
 
 // CreateNewCategory 创建新的category
 func CreateNewCategory(categoryName string) error {
-	return DB.Create(&Category{
+	err := DB.Create(&Category{
 		Name:       categoryName,
 		CategoryID: utils.GetUUID(),
 	}).Error
+
+	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				return ErrCategoryAlreadyExist
+			}
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateCategoryDetail 更新 category name
 func UpdateCategoryDetail(categoryID, categoryName string) error {
-	return DB.Model(&Category{}).Where("category_id = ?", categoryID).
-		Updates(map[string]interface{}{"name": categoryName}).Error
+	result := DB.Model(&Category{}).Where("category_id = ?", categoryID).
+		Updates(map[string]interface{}{"name": categoryName})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return ErrCategoryNotFound
+	}
+
+	return nil
 }
 
 // DeleteCategoryById 删除 category

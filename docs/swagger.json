@@ -489,45 +489,6 @@
                 }
             }
         },
-        "/admin/users/add-admin": {
-            "post": {
-                "description": "添加管理员接口",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Admin API"
-                ],
-                "summary": "添加管理员",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.AddAdminResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/admin/users/add-super-admin": {
             "post": {
                 "description": "添加超级管理员接口",
@@ -1271,19 +1232,6 @@
         }
     },
     "definitions": {
-        "common.AddAdminResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "\"1000 删除用户成功\" \"1001 参数错误\" \"1005 没有此用户ID\" \"1008 需要登录\" \"1014 服务器内部错误\"",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "omitempty 字段为空就忽略"
-                },
-                "msg": {}
-            }
-        },
         "common.AddSuperAdminResponse": {
             "type": "object",
             "properties": {

@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"online_judge/consts/resp_code"
 	"online_judge/dao/mysql"
@@ -12,24 +11,16 @@ type AdminCategoryService struct{}
 
 // AddCategory 添加分类
 func (a *AdminCategoryService) AddCategory(categoryName string) (resp response.Response) {
-	// 检查是否已经存在该类型
-	ok, err := mysql.CheckCategoryByName(categoryName)
+	// 添加分类，categoryName 冲突的情况 mysql 会报错 ErrCategoryAlreadyExist
+	err := mysql.CreateNewCategory(categoryName)
 	if err != nil {
+		if err == mysql.ErrCategoryAlreadyExist {
+			resp.Code = resp_code.CategoryTypeAlreadyExist
+			zap.L().Error("service-AddCategory-CreateNewCategory ", zap.Error(err))
+			return
+		}
 		resp.Code = resp_code.InternalServerError
-		zap.L().Error("check category name error ", zap.Error(err))
-		return
-	}
-	if ok {
-		// 该类型已经存在
-		resp.Code = resp_code.CategoryTypeAlreadyExist
-		zap.L().Error(fmt.Sprintf("category %s already exist ", categoryName), zap.Error(err))
-		return
-	}
-	// 如果不存在则添加
-	err = mysql.CreateNewCategory(categoryName)
-	if err != nil {
-		resp.Code = resp_code.InternalServerError
-		zap.L().Error("add new category error ", zap.Error(err))
+		zap.L().Error("service-AddCategory-CreateNewCategory ", zap.Error(err))
 		return
 	}
 	resp.Code = resp_code.Success
@@ -38,23 +29,19 @@ func (a *AdminCategoryService) AddCategory(categoryName string) (resp response.R
 
 // UpdateCategory 更新分类
 func (a *AdminCategoryService) UpdateCategory(categoryID, categoryName string) (resp response.Response) {
-	// 检查要修改的categoryID是否存在
-	ok, err := mysql.CheckCategoryById(categoryID)
+	// 添加分类，categoryName 冲突的情况 mysql 会报错 ErrCategoryAlreadyExist
+	err := mysql.UpdateCategoryDetail(categoryID, categoryName)
 	if err != nil {
-		resp.Code = resp_code.InternalServerError
-		zap.L().Error("check category name error ", zap.Error(err))
-		return
-	}
-	if !ok {
-		// 该类型已经存在
-		resp.Code = resp_code.CategoryIDDoNotExist
-		zap.L().Error(fmt.Sprintf("category %s already exist ", categoryID), zap.Error(err))
-		return
-	}
-
-	err = mysql.UpdateCategoryDetail(categoryID, categoryName)
-	if err != nil {
-		zap.L().Error("update category error ", zap.String("category_id", categoryID), zap.Error(err))
+		if err == mysql.ErrCategoryNotFound {
+			resp.Code = resp_code.CategoryIDDoNotExist
+			zap.L().Error("service-UpdateCategory-UpdateCategory ",
+				zap.String("categoryID", categoryID),
+				zap.Error(err))
+			return
+		}
+		zap.L().Error("service-UpdateCategory-UpdateCategory ",
+			zap.String("category_id", categoryID),
+			zap.Error(err))
 		resp.Code = resp_code.InternalServerError
 		return
 	}

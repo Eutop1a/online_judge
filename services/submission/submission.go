@@ -16,41 +16,15 @@ import (
 	pb "online_judge/proto"
 	"online_judge/setting"
 	"strconv"
+	"strings"
 	"sync"
 )
 
 type SubmissionService struct{}
 
 func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response response.ResponseWithData) {
-	// 检查用户id是否存在
-	// 检验是否有这个用户ID
-	exist, err := mysql.CheckUserID(request.UserID)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-DeleteUser-CheckUserID ", zap.Error(err))
-		return
-	}
-	if !exist {
-		response.Code = resp_code.NotExistUserID
-		zap.L().Error("services-DeleteUser-CheckUserID "+
-			fmt.Sprintf("do not have this userID %d ", request.UserID), zap.Error(err))
-		return
-	}
-	// 检查题目id是否存在
-	exists, err := mysql.CheckProblemIDExists(request.ProblemID)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
-		return
-	}
-	if !exists {
-		response.Code = resp_code.ProblemNotExist
-		zap.L().Error("services-UpdateProblem-CheckProblemID " +
-			fmt.Sprintf("problemID %s do not exist", request.ProblemID))
-		return
-	}
-
-	err = mysql.SubmitCode(&mysql.Submission{
+	// 直接在提交的时候通过外键判断 problemID 和 userID 是否存在
+	err := mysql.SaveSubmitCode(&mysql.Submission{
 		UserID:         request.UserID,
 		SubmissionID:   request.SubmissionID,
 		ProblemID:      request.ProblemID,
@@ -60,15 +34,34 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 	})
 
 	if err != nil {
+		// 外键约束错误
+		if mysql.IsForeignKeyConstraintError(err) {
+			// userID 不存在
+			if strings.Contains(err.Error(), "submission_user_id_fkey") {
+				response.Code = resp_code.NotExistUserID
+				zap.L().Error("service-SubmitCode-SaveSubmitCode",
+					zap.String("message: user ID does not exist",
+						strconv.FormatInt(request.UserID, 10)),
+					zap.Error(err))
+			}
+			// problemID 不存在
+			if strings.Contains(err.Error(), "submission_problem_id_fkey") {
+				response.Code = resp_code.ProblemNotExist
+				zap.L().Error("service-SubmitCode-SaveSubmitCode",
+					zap.String("message: problem ID does not exist", request.ProblemID),
+					zap.Error(err))
+			}
+		}
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-SaveSubmitCode ", zap.Error(err))
 		return
 	}
+
 	// 获取全部的题目信息
 	problemDetail, err := mysql.GetEntireProblem(request.ProblemID)
 	if err != nil {
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-SaveSubmitCode ", zap.Error(err))
 		return
 	}
 	// 得到输入和输出
@@ -109,7 +102,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 	//dataBody, err := json.Marshal(data)
 	//if err != nil {
 	//	response.Code = response.JSONMarshalError
-	//	zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
+	//	zap.L().Error("services-SaveSubmitCode-Marshal ", zap.Error(err))
 	//	return
 	//}
 	//
@@ -117,14 +110,14 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 	//err = mq.SendMessage2MQ(dataBody)
 	//if err != nil {
 	//	response.Code = response.Send2MQError
-	//	zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
+	//	zap.L().Error("services-SaveSubmitCode-SendMessage2MQ ", zap.Error(err))
 	//	return
 	//}
 	//// 消费者
 	//msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
 	//if err != nil {
 	//	response.Code = response.RecvFromMQError
-	//	zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
+	//	zap.L().Error("services-SaveSubmitCode-ConsumeMessage ", zap.Error(err))
 	//	return
 	//}
 
@@ -135,7 +128,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 	//		var submitRequest pb.SubmitRequest
 	//		err := json.Unmarshal(d.Body, &submitRequest)
 	//		if err != nil {
-	//			zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
+	//			zap.L().Error("services-SaveSubmitCode-Unmarshal ", zap.Error(err))
 	//			continue
 	//		}
 	//		// 执行judgement函数
@@ -194,29 +187,31 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 		MemoryUsage:  int(resData.MemoryUsage),
 		Verdict:      verdict,
 		Runtime:      int(resData.Runtime),
+		Output:       resData.Output,
 	})
+	
 	if err != nil {
 		response.Code = resp_code.InsertToJudgementError
-		zap.L().Error("services-SubmitCode-InsertNewSubmission", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-InsertNewSubmission", zap.Error(err))
 		return
 	}
 
 	// 如果AC，先判断是否已经完成，再直接增加通过题目数量
 	finished, err := mysql.CheckIfAlreadyFinished(request.UserID, request.ProblemID)
-	//fmt.Println("services-SubmitCode-CheckIfAlreadyFinished:", finished, err)
+	//fmt.Println("services-SaveSubmitCode-CheckIfAlreadyFinished:", finished, err)
 	if err != nil { // 查询数据库错误
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
 		return
 	}
 	if finished { // 题目已经被完成
-		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished " +
+		zap.L().Error("services-SaveSubmitCode-CheckIfAlreadyFinished " +
 			fmt.Sprintf("%d had finished this problem %s", request.UserID, request.ProblemID))
 	} else { // 题目还没有被完成过
 		if resData.Status == resp_code.Accepted {
 			err = mysql.AddPassNum(resData.UserId)
 			if err != nil {
-				zap.L().Error("services-SubmitCode-AddPassNum", zap.Error(err))
+				zap.L().Error("services-SaveSubmitCode-AddPassNum", zap.Error(err))
 				response.Code = resp_code.SearchDBError
 				return
 			}
@@ -231,6 +226,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 		TotalNum    int32  `json:"total_num"`
 		MemoryUsage int32  `json:"memory_usage"`
 		Runtime     int32  `json:"runtime"`
+		Output      string `json:"output"`
 	}{
 		UserId:      strconv.FormatInt(resData.UserId, 10),
 		Status:      resData.Status,
@@ -238,6 +234,7 @@ func (s *SubmissionService) SubmitCode(request request.SubmissionReq) (response 
 		TotalNum:    resData.TotalNum,
 		MemoryUsage: resData.MemoryUsage,
 		Runtime:     resData.Runtime,
+		Output:      resData.Output,
 	}
 
 	return
@@ -258,7 +255,7 @@ func (s *SubmissionService) Judgement(data *pb.SubmitRequest) (*pb.SubmitRespons
 
 	resp, err := client.SubmitCode(context.Background(), data)
 	if err != nil {
-		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-SaveSubmitCode ", zap.Error(err))
 		return nil, err
 	}
 	return resp, nil

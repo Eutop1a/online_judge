@@ -43,7 +43,7 @@ func (s *SubmissionService) SubmitCodeWithFile(request request.SubmissionReq) (r
 		return
 	}
 
-	err = mysql.SubmitCode(&mysql.Submission{
+	err = mysql.SaveSubmitCode(&mysql.Submission{
 		UserID:         request.UserID,
 		SubmissionID:   request.SubmissionID,
 		ProblemID:      request.ProblemID,
@@ -54,14 +54,14 @@ func (s *SubmissionService) SubmitCodeWithFile(request request.SubmissionReq) (r
 
 	if err != nil {
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-SaveSubmitCode ", zap.Error(err))
 		return
 	}
 	// 获取全部的题目信息
 	problemDetail, err := mysql.GetEntireProblemWithFile(request.ProblemID)
 	if err != nil {
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-SubmitCode-SubmitCode ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-SaveSubmitCode ", zap.Error(err))
 		return
 	}
 	// 得到输入和输出
@@ -102,7 +102,7 @@ func (s *SubmissionService) SubmitCodeWithFile(request request.SubmissionReq) (r
 	//dataBody, err := json.Marshal(data)
 	//if err != nil {
 	//	response.Code = response.JSONMarshalError
-	//	zap.L().Error("services-SubmitCode-Marshal ", zap.Error(err))
+	//	zap.L().Error("services-SaveSubmitCode-Marshal ", zap.Error(err))
 	//	return
 	//}
 	//
@@ -110,14 +110,14 @@ func (s *SubmissionService) SubmitCodeWithFile(request request.SubmissionReq) (r
 	//err = mq.SendMessage2MQ(dataBody)
 	//if err != nil {
 	//	response.Code = response.Send2MQError
-	//	zap.L().Error("services-SubmitCode-SendMessage2MQ ", zap.Error(err))
+	//	zap.L().Error("services-SaveSubmitCode-SendMessage2MQ ", zap.Error(err))
 	//	return
 	//}
 	//// 消费者
 	//msgs, err := mq.ConsumeMessage(context.Background(), consts.RabbitMQProblemQueueName)
 	//if err != nil {
 	//	response.Code = response.RecvFromMQError
-	//	zap.L().Error("services-SubmitCode-ConsumeMessage ", zap.Error(err))
+	//	zap.L().Error("services-SaveSubmitCode-ConsumeMessage ", zap.Error(err))
 	//	return
 	//}
 
@@ -128,7 +128,7 @@ func (s *SubmissionService) SubmitCodeWithFile(request request.SubmissionReq) (r
 	//		var submitRequest pb.SubmitRequest
 	//		err := json.Unmarshal(d.Body, &submitRequest)
 	//		if err != nil {
-	//			zap.L().Error("services-SubmitCode-Unmarshal ", zap.Error(err))
+	//			zap.L().Error("services-SaveSubmitCode-Unmarshal ", zap.Error(err))
 	//			continue
 	//		}
 	//		// 执行judgement函数
@@ -190,26 +190,26 @@ func (s *SubmissionService) SubmitCodeWithFile(request request.SubmissionReq) (r
 	})
 	if err != nil {
 		response.Code = resp_code.InsertToJudgementError
-		zap.L().Error("services-SubmitCode-InsertNewSubmission", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-InsertNewSubmission", zap.Error(err))
 		return
 	}
 
 	// 如果AC，先判断是否已经完成，再直接增加通过题目数量
 	finished, err := mysql.CheckIfAlreadyFinished(request.UserID, request.ProblemID)
-	fmt.Println("services-SubmitCode-CheckIfAlreadyFinished:", finished, err)
+	fmt.Println("services-SaveSubmitCode-CheckIfAlreadyFinished:", finished, err)
 	if err != nil { // 查询数据库错误
 		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
+		zap.L().Error("services-SaveSubmitCode-CheckIfAlreadyFinished ", zap.Error(err))
 		return
 	}
 	if finished { // 题目已经被完成
-		zap.L().Error("services-SubmitCode-CheckIfAlreadyFinished " +
+		zap.L().Error("services-SaveSubmitCode-CheckIfAlreadyFinished " +
 			fmt.Sprintf("%d had finished this problem %s", request.UserID, request.ProblemID))
 	} else { // 题目还没有被完成过
 		if resData.Status == resp_code.Accepted {
 			err = mysql.AddPassNum(resData.UserId)
 			if err != nil {
-				zap.L().Error("services-SubmitCode-AddPassNum", zap.Error(err))
+				zap.L().Error("services-SaveSubmitCode-AddPassNum", zap.Error(err))
 				response.Code = resp_code.SearchDBError
 				return
 			}

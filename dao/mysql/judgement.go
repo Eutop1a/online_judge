@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"errors"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +15,7 @@ func CheckIfAlreadyFinished(uid int64, pid string) (finished bool, err error) {
 	err = DB.Model(&Judgement{}).Where("user_id = ? AND problem_id = ?", uid, pid).
 		Find(&tmp).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if err == gorm.ErrRecordNotFound {
 			// 没有找到匹配的记录
 			return false, nil
 		}

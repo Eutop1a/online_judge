@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"math/rand"
 )
@@ -46,7 +45,8 @@ func GetProblemRandom() (problem *Problems, err error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("len: ", len(problemsList))
+	//fmt.Println("len: ", len(problemsList))
+
 	randomIdx := rand.Intn(len(problemsList))
 	problemIdx := &problemsList[randomIdx].ID
 
@@ -62,11 +62,14 @@ func GetProblemRandom() (problem *Problems, err error) {
 
 // GetEntireProblem 获取题目的全部信息
 func GetEntireProblem(pid string) (problem *Problems, err error) {
-	err = DB.Where("problem_id = ?", pid).Preload("TestCases").First(&problem).Error
-	if err != nil {
-		return nil, err
+	result := DB.Where("problem_id = ?", pid).Preload("TestCases").First(&problem)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, gorm.ErrRecordNotFound
+		}
+		return nil, result.Error
 	}
-	return
+	return problem, nil
 }
 
 // CreateProblem 创建题目
@@ -138,13 +141,18 @@ func DeleteProblem(pid string) error {
 	}()
 
 	//TODO:删除问题本体
-	err := ts.Where("problem_id = ?", pid).Delete(&Problems{}).Error
-	if err != nil {
-		return err
+	result := ts.Where("problem_id = ?", pid).Delete(&Problems{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+	// 没有收到影响的行，说明pid不存在，返回错误
+	if result.RowsAffected == 0 {
+		return ErrProblemIDNotExist
 	}
 
 	//TODO:删除问题分类关联表的对应内容
-	err = ts.Where("problem_id = ?", pid).Delete(&ProblemCategory{}).Error
+	err := ts.Where("problem_id = ?", pid).Delete(&ProblemCategory{}).Error
 	if err != nil {
 		return err
 	}
@@ -265,4 +273,21 @@ func GetCategoryList() ([]*Category, error) {
 		return nil, err
 	}
 	return tmp, nil
+}
+
+// GetProblemsByCategoryName 根据分类名称获取题目列表
+func GetProblemsByCategoryName(categoryName string) ([]Problems, error) {
+	var problems []Problems
+
+	err := DB.Joins("JOIN problem_category ON problems.problem_id = problem_category.problem_id").
+		Joins("JOIN category ON category.category_id = problem_category.category_id").
+		Where("category.name = ?", categoryName).
+		Preload("ProblemCategories.Category").
+		Find(&problems).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return problems, nil
 }

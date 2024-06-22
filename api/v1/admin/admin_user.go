@@ -46,19 +46,19 @@ func (a *ApiAdminUser) AddSuperAdmin(c *gin.Context) {
 	switch ret.Code {
 
 	case resp_code.Success:
-		response.ResponseSuccess(c, resp_code.Success)
+		response.ResponseSuccess(c, response.CodeSuccess)
 
-	case resp_code.NotExistUsername:
+	case resp_code.UserAlreadyRoot:
+		response.ResponseError(c, response.CodeUserAlreadyRoot)
+
+	case resp_code.UsernameDoesNotExist:
 		response.ResponseError(c, response.CodeUsernameNotExist)
 
 	case resp_code.SecretError:
 		response.ResponseError(c, response.CodeErrorSecret)
 
-	case resp_code.UsernameAlreadyExist:
-		response.ResponseError(c, response.CodeUsernameAlreadyExist)
-
 	default:
-		response.ResponseError(c, response.CodeInvalidParam)
+		response.ResponseError(c, response.CodeInternalServerError)
 	}
 	return
 }
@@ -104,6 +104,7 @@ func (a *ApiAdminUser) DeleteUser(c *gin.Context) {
 	}
 }
 
+/*
 // AddAdmin 添加管理员接口
 // @Tags Admin API
 // @Summary 添加管理员
@@ -150,3 +151,4 @@ func (a *ApiAdminUser) AddAdmin(c *gin.Context) {
 		response.ResponseError(c, response.CodeInternalServerError)
 	}
 }
+*/

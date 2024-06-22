@@ -1,7 +1,6 @@
 package problem
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -145,7 +144,7 @@ func (p *ApiProblem) SearchProblem(c *gin.Context) {
 
 	data, err := ProblemService.SearchProblem(req)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if err == gorm.ErrRecordNotFound {
 			response.ResponseError(c, response.CodeProblemNotFound)
 			return
 		}
@@ -176,7 +175,7 @@ func (p *ApiProblem) GetProblemListByCategory(c *gin.Context) {
 
 	data, err := ProblemService.GetProblemListByCategory(category)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) { // 没有这个分类
+		if err == gorm.ErrRecordNotFound { // 没有这个分类
 			response.ResponseError(c, response.CodeDontHaveThisCategory)
 			return
 		}

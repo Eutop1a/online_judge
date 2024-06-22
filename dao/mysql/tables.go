@@ -18,11 +18,10 @@ type User struct {
 	Model
 	UserID           int64  `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
 	FinishProblemNum int64  `gorm:"type:int(11);default:0;column:finish_num" json:"finish_num"`
-	UserName         string `gorm:"type:varchar(255);not null;column:username" json:"username"`
+	UserName         string `gorm:"type:varchar(255);not null;column:username;uniqueIndex" json:"username"`
 	Password         string `gorm:"type:varchar(255);not null;column:password" json:"password"`
-	Email            string `gorm:"type:varchar(255);not null;column:email" json:"email"`
-
-	//Role             bool      `gorm:"type:boolean;not null;column:role" json:"role"`
+	Email            string `gorm:"type:varchar(255);not null;column:email;uniqueIndex" json:"email"`
+	Role             bool   `gorm:"type:boolean;not null;column:role" json:"role"`
 	// true is Admin, false is user
 }
 
@@ -64,7 +63,7 @@ type Problems struct {
 	ID                int                `gorm:"autoIncrement;column:id" json:"id"`                                         // primary key
 	ProblemID         string             `gorm:"type:char(36);uniqueIndex;column:problem_id" json:"problem_id"`             // unique key
 	ProblemCategories []*ProblemCategory `gorm:"foreignKey:ProblemIdentity;references:ProblemID" json:"problem_categories"` // 分类表
-	Title             string             `gorm:"type:varchar(255);not null;column:title" json:"title"`                      // problem title
+	Title             string             `gorm:"type:varchar(255);not null;column:title;uniqueIndex" json:"title"`          // problem title
 	Content           string             `gorm:"type:text;not null;column:content" json:"content"`                          // problem description
 	Difficulty        string             `gorm:"type:char(4);not null;column:difficulty" json:"difficulty"`                 // easy mid hard
 	MaxRuntime        int                `gorm:"type:bigint;not null;column:max_runtime" json:"max_runtime"`                // 时间限制
@@ -103,6 +102,7 @@ type Judgement struct {
 	Verdict      string `gorm:"type:varchar(20);column:verdict" json:"verdict"`      // 评测结果
 	MemoryUsage  int    `gorm:"type:bigint;column:memory_usage" json:"memory_usage"` // 内存用量
 	Runtime      int    `gorm:"type:bigint;not null;column:runtime" json:"runtime"`  // 运行时间
+	Output       string `gorm:"type:text;column:output" json:"output"`               // 错误信息比对输出
 }
 
 type ProblemCategory struct {
@@ -115,7 +115,7 @@ type ProblemCategory struct {
 
 type Category struct {
 	Model
-	Name       string `gorm:"type:varchar(255);not null;column:name" json:"name"`
+	Name       string `gorm:"type:varchar(255);not null;uniqueIndex;column:name" json:"name"`
 	ParentName string `gorm:"type:varchar(100);column:parent_name" json:"parent_name" ` //父级ID
 	CategoryID string `gorm:"type:varchar(36);primaryKey;column:category_id" json:"category_id"`
 }

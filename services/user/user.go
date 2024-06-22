@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"online_judge/consts/resp_code"
@@ -93,13 +92,13 @@ func (u *UserService) UpdateUserDetail(req request.UpdateUserDetailReq) (respons
 		//验证码获取及验证
 		code, err := redis.GetVerificationCode(req.Email)
 		// 验证码过期
-		if errors.Is(err, redis.Nil) {
+		if err == redis.Nil {
 			response.Code = resp_code.NeedObtainVerificationCode
 			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
 				fmt.Sprintf("do not send verify code %s", req.Email), zap.Error(err))
 			return
 		}
-		if errors.Is(err, fmt.Errorf("verify code expired")) {
+		if err == fmt.Errorf("verify code expired") {
 			response.Code = resp_code.ExpiredVerCode
 			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
 				fmt.Sprintf("expired verfiction code %s:%s ", req.Email, code), zap.Error(err))

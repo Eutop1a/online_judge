@@ -96,7 +96,7 @@ func CreateTables() (err error) {
 	// 创建表
 	models := []interface{}{
 		&User{},
-		&Admin{},
+		//&Admin{},
 		&Problems{},
 		&TestCase{},
 		&ProblemWithFile{},
