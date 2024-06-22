@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"online_judge/consts"
 	"online_judge/consts/resp_code"
 	"online_judge/dao/mysql"
@@ -20,19 +21,7 @@ type AdminProblemService struct{}
 
 // CreateProblem 创建题目
 func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemReq) (response response.Response) {
-	// 检查题目标题是否重复
-	exists, err := mysql.CheckProblemTitleExists(request.Title)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
-		return
-	}
-	if exists {
-		response.Code = resp_code.ProblemAlreadyExist
-		zap.L().Error("services-CreateProblem-CheckProblemTitle " +
-			fmt.Sprintf("title %s aleardy exist", request.Title))
-		return
-	}
+
 	// 处理分类
 	categories := make([]*mysql.ProblemCategory, 0)
 	for _, cid := range request.Category {
@@ -43,7 +32,7 @@ func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemRe
 	}
 
 	// 创建题目
-	err = mysql.CreateProblem(&mysql.Problems{
+	err := mysql.CreateProblem(&mysql.Problems{
 		ProblemID:         request.ProblemID,
 		Title:             request.Title,
 		Content:           request.Content,
@@ -55,6 +44,12 @@ func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemRe
 	})
 
 	if err != nil {
+		// 捕获到唯一索引冲突
+		if mysql.IsUniqueConstraintError(err) {
+			response.Code = resp_code.ProblemAlreadyExist
+			zap.L().Error("services-CreateProblem-CreateProblem ", zap.Error(err))
+			return
+		}
 		response.Code = resp_code.CreateProblemError
 		zap.L().Error("services-CreateProblem-CreateProblem ", zap.Error(err))
 		return
@@ -110,38 +105,17 @@ func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemRe
 	// 先获取原先的题目信息，如果request中没有对应的记录，就用原先的信息代替
 	oldProblem, err := mysql.GetEntireProblem(request.ProblemID)
 	if err != nil {
+		// 找不对对应的记录，说明题目ID有误
+		if err == gorm.ErrRecordNotFound {
+			response.Code = resp_code.ProblemNotExist
+			zap.L().Error("services-UpdateProblem-CheckProblemID ",
+				zap.String("problem_id", request.ProblemID),
+			)
+			return
+		}
 		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-UpdateProblem-GetEntireProblem ", zap.Error(err))
 		return
-	}
-
-	// 检查题目id是否存在
-	exists, err := mysql.CheckProblemIDExists(request.ProblemID)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
-		return
-	}
-	if !exists {
-		response.Code = resp_code.ProblemNotExist
-		zap.L().Error("services-UpdateProblem-CheckProblemID " +
-			fmt.Sprintf("problemID %s do not exist", request.ProblemID))
-		return
-	}
-	// 检查题目Title是否重复
-	if request.Title != "" {
-		exists, err = mysql.CheckProblemTitleExists(request.Title)
-		if err != nil {
-			response.Code = resp_code.SearchDBError
-			zap.L().Error("services-CreateProblem-CheckProblemTitle ", zap.Error(err))
-			return
-		}
-		if exists {
-			response.Code = resp_code.ProblemAlreadyExist
-			zap.L().Error("services-CreateProblem-CheckProblemTitle " +
-				fmt.Sprintf("title %s aleardy exist", request.Title))
-			return
-		}
 	}
 
 	// 初始化新的题目信息
@@ -155,10 +129,16 @@ func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemRe
 		MaxMemory:  p.defaultResolve(request.MaxMemory, oldProblem.MaxMemory).(int),
 		TestCases:  p.convertTestCases(request.TestCases),
 	}
-
 	err = mysql.UpdateProblem(newProblem, oldProblem.ProblemID, request.Category)
 
 	if err != nil {
+		if mysql.IsUniqueConstraintError(err) { // 捕获唯一索引冲突错误
+			response.Code = resp_code.ProblemAlreadyExist
+			zap.L().Error("services-UpdateProblem-UpdateProblem ",
+				zap.String("message", "problem title already exists"),
+				zap.Error(err))
+			return
+		}
 		zap.L().Error("services-UpdateProblem-UpdateProblem ", zap.Error(err))
 		response.Code = resp_code.InternalServerError
 		return
@@ -182,23 +162,16 @@ func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemRe
 
 // DeleteProblem 删除题目
 func (p *AdminProblemService) DeleteProblem(request request.AdminDeleteProblemReq) (response response.Response) {
-	// 检查题目id是否存在
-	exists, err := mysql.CheckProblemIDExists(request.ProblemID)
-	if err != nil {
-		response.Code = resp_code.SearchDBError
-		zap.L().Error("services-UpdateProblem-CheckProblemID ", zap.Error(err))
-		return
-	}
-	if !exists {
-		response.Code = resp_code.ProblemNotExist
-		zap.L().Error("services-UpdateProblem-CheckProblemID " +
-			fmt.Sprintf("problemID %s do not exist", request.ProblemID))
-		return
-	}
-
 	// 删除题目
-	err = mysql.DeleteProblem(request.ProblemID)
+	err := mysql.DeleteProblem(request.ProblemID)
 	if err != nil {
+		if err == mysql.ErrProblemIDNotExist {
+			response.Code = resp_code.ProblemNotExist
+			zap.L().Error("services-DeleteProblem-CheckProblemID ",
+				zap.String("problem_id", request.ProblemID),
+				zap.Error(err))
+			return
+		}
 		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteProblem-DeleteProblem  ", zap.Error(err))
 		return

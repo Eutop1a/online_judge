@@ -2,7 +2,6 @@ package problem
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -220,7 +219,7 @@ func (p *ProblemService) SearchProblem(req request.SearchProblemReq) (response.S
 	err := mysql.SearchProblemByMsg(&problems, searchQuery)
 	if err != nil {
 		// 没找到对应的记录
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if err == gorm.ErrRecordNotFound {
 			zap.L().Error("services-SearchProblem-SearchProblemByMsg ", zap.Error(err))
 			return data, err
 		}
@@ -250,7 +249,7 @@ func (p *ProblemService) SearchProblem(req request.SearchProblemReq) (response.S
 	}
 	return data, nil
 }
-func (p *ProblemService) GetProblemListByCategory(categoryName string) (*response.GetProblemListResp, error) {
+func (p *ProblemService) _GetProblemListByCategory(categoryName string) (*response.GetProblemListResp, error) {
 	// 先在 mysql 里面检测这个 categoryName 存在不存在
 	ok, err := mysql.CheckCategoryByName(categoryName)
 	if err != nil {
@@ -273,6 +272,40 @@ func (p *ProblemService) GetProblemListByCategory(categoryName string) (*respons
 	if err != nil {
 		zap.L().Error("services-GetProblemListByCategory-GetProblemListByCategory ", zap.Error(err))
 		return nil, err
+	}
+
+	var resp response.GetProblemListResp
+	resp.Data = make([]*response.ProblemResponse, len(problems))
+	for i, problem := range problems {
+		resp.Data[i] = &response.ProblemResponse{
+			ID:         problem.ID,
+			ProblemID:  problem.ProblemID,
+			Title:      problem.Title,
+			Difficulty: problem.Difficulty,
+			Categories: make([]response.CategoryResponse, len(problem.ProblemCategories)),
+		}
+		for j, pc := range problem.ProblemCategories {
+			if pc.Category != nil {
+				resp.Data[i].Categories[j] = response.CategoryResponse{
+					CategoryID: pc.CategoryIdentity,
+					Name:       pc.Category.Name,
+					ParentName: pc.Category.ParentName,
+				}
+			}
+		}
+	}
+	return &resp, nil
+}
+
+func (p *ProblemService) GetProblemListByCategory(categoryName string) (*response.GetProblemListResp, error) {
+	problems, err := mysql.GetProblemsByCategoryName(categoryName)
+	if err != nil {
+		zap.L().Error("services-GetProblemListByCategory GetProblemsByCategoryName", zap.Error(err))
+		return nil, err
+	}
+	if len(problems) == 0 {
+		zap.L().Error("services-GetProblemListByCategory categoryName not exist or no problems found")
+		return nil, nil
 	}
 
 	var resp response.GetProblemListResp

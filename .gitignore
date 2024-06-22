@@ -27,3 +27,6 @@ online_judge
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+submit
+
+test-file

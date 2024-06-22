@@ -13,6 +13,6 @@ func (a *ApiAdminUser) InitAdminUser(Router *gin.RouterGroup) {
 	adminUsers := Router.Group("/users")
 	{
 		adminUsers.DELETE("/:user_id", adminApi.DeleteUser) // 删除用户
-		adminUsers.POST("/add-admin", adminApi.AddAdmin)    // 添加用户为管理员
+		//adminUsers.POST("/add-admin", adminApi.AddAdmin)    // 添加用户为管理员
 	}
 }

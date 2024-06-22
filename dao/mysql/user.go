@@ -2,6 +2,8 @@ package mysql
 
 import (
 	"errors"
+	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"online_judge/consts/resp_code"
 	"online_judge/pkg/utils"
@@ -49,45 +51,36 @@ func CheckUserID(userID int64) (bool, error) {
 }
 
 // InsertNewUser 插入用户
-func InsertNewUser(uID int64, Username, password, email string) error {
-	newUser := User{
-		UserID:   uID,
-		UserName: Username,
-		Password: password,
-		Email:    email,
-	}
-
-	return DB.Create(&newUser).Error
+func InsertNewUser(user *User) error {
+	return DB.Create(&user).Error
 }
 
-func CheckUserCredentials(username, password string) (int64, bool, error) {
+// IsDuplicateEntryError 检查错误是否是唯一约束冲突错误
+func IsDuplicateEntryError(err error) bool {
+	var mysqlError *mysql.MySQLError
+	if errors.As(err, &mysqlError) {
+		// 主键冲突
+		return mysqlError.Number == ErrMySQLDuplicateEntry
+	}
+	return false
+}
+
+func CheckUserCredentials(username, password string) (*User, error) {
 	// 提取用户名和密码
 	var user User
 	err := DB.Model(&User{}).Where("username = ?", username).First(&user).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return 0, false, resp_code.ErrInvalidCredentials
+		if err == gorm.ErrRecordNotFound {
+			return nil, resp_code.ErrInvalidCredentials
 		}
-		return 0, false, err
+		return nil, err
 	}
 	// 检查密码是否正确
 	if !utils.CheckPwd(password, user.Password) {
-		return 0, false, resp_code.ErrInvalidCredentials
+		return nil, resp_code.ErrInvalidCredentials
 	}
-	// 检查是否为管理员
-	var isAdmin bool
-	err = DB.Model(&Admin{}).Where("username = ?", username).First(&Admin{}).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return 0, false, err
-		}
-	}
-	if err == nil {
-		isAdmin = true
-	} else {
-		isAdmin = false
-	}
-	return user.UserID, isAdmin, nil
+
+	return &user, nil
 }
 
 //// CheckPwd 检查密码是否正确
@@ -203,4 +196,62 @@ func CheckUsernameAndAdminExists(username string) (userExists, adminExists bool,
 	adminExists = usernameCount > 0
 
 	return userExists, adminExists, nil
+}
+
+// SetAdminByUsername 根据用户名设置为管理员
+func SetAdminByUsername(username string) (err error) {
+	result := DB.Model(&User{}).Where("username = ?", username).
+		Update("role", true)
+	// 有错误
+	if result.Error != nil {
+		return result.Error
+	}
+	// 没有被影响的行，说明username不存在
+	if result.RowsAffected == 0 {
+		return ErrUserNotFound
+	}
+	return nil
+}
+
+// SetAdminByUsername 根据用户名设置为管理员
+func _SetAdminByUsername(username string) (err error) {
+	// 开启事务
+	tx := DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			fmt.Printf("Transaction rollback due to panic: %v\n", r)
+		}
+	}()
+
+	// 锁定行
+	var user User
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("username = ?", username).First(&user).Error; err != nil {
+		tx.Rollback()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+
+	// 更新角色
+	result := tx.Model(&user).Update("role", true)
+	if result.Error != nil {
+		tx.Rollback()
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		tx.Rollback()
+		return ErrUseAlreadyRoot
+	}
+
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

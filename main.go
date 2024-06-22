@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -87,7 +86,7 @@ func main() {
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := srv.ListenAndServe(); err != nil && !(err == http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()

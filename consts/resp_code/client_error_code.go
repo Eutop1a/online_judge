@@ -10,6 +10,7 @@ var (
 const (
 	EmailAlreadyExist = 4000 + iota
 	UsernameAlreadyExist
+	UsernameDoesNotExist
 	InvalidateEmailFormat
 	ErrorVerCode
 	ExpiredVerCode
@@ -23,4 +24,5 @@ const (
 	UserIDAlreadyExist
 	NeedObtainVerificationCode
 	CategoryIsNotEmpty
+	UserAlreadyRoot
 )

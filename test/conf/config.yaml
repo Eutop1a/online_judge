@@ -1,0 +1,43 @@
+name: "online_judge"
+#mode: "release"
+mode: "dev"
+port: 65533
+version: "v0.0.1"
+start_time: "2024-3-14"
+machine_id: 1
+auth:
+  jwt_expire: 8760
+log:
+  level: "debug"
+  filename: "online_judge.log"
+  max_size: 200
+  max_age: 30
+  max_backups: 7
+
+mysql:
+  host: localhost
+  port: 3306
+  user: "root"
+  password: "123456"
+  protocal: "tcp"
+  dbname: "onlinejudge"
+  max_open_conns: 200
+  max_idle_conns: 50
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 100
+
+rabbitmq:
+  rabbit_mq: amqp
+  host: localhost
+  user: guest
+  password: guest
+  port: 5672
+
+etcd:
+  host: localhost
+  port: 2379

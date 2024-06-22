@@ -1,14 +1,5 @@
 basePath: /api/v1
 definitions:
-  common.AddAdminResponse:
-    properties:
-      code:
-        description: '"1000 删除用户成功" "1001 参数错误" "1005 没有此用户ID" "1008 需要登录" "1014 服务器内部错误"'
-        type: integer
-      data:
-        description: omitempty 字段为空就忽略
-      msg: {}
-    type: object
   common.AddSuperAdminResponse:
     properties:
       code:
@@ -606,32 +597,6 @@ paths:
           schema:
             $ref: '#/definitions/common.DeleteUserResponse'
       summary: 删除用户
-      tags:
-      - Admin API
-  /admin/users/add-admin:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 添加管理员接口
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 用户名
-        in: formData
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.AddAdminResponse'
-      summary: 添加管理员
       tags:
       - Admin API
   /admin/users/add-super-admin:
