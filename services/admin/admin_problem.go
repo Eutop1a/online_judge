@@ -21,6 +21,14 @@ type AdminProblemService struct{}
 
 // CreateProblem 创建题目
 func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemReq) (response response.Response) {
+	// problem ID 错误
+	if len(request.ProblemID) != 36 {
+		response.Code = resp_code.ProblemNotExist
+		zap.L().Error("service-CreateProblem",
+			zap.String("message: problem ID does not exist", request.ProblemID),
+		)
+		return
+	}
 
 	// 处理分类
 	categories := make([]*mysql.ProblemCategory, 0)

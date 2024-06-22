@@ -25,12 +25,12 @@ type User struct {
 	// true is Admin, false is user
 }
 
-// Admin 管理员表 从用户表定位到ID，再来这里找
-type Admin struct {
-	Model
-	UserName string `gorm:"type:varchar(255);primaryKey;column:username" json:"username"`
-	//UserID int64 `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
-}
+//// Admin 管理员表 从用户表定位到ID，再来这里找
+//type Admin struct {
+//	Model
+//	UserName string `gorm:"type:varchar(255);primaryKey;column:username" json:"username"`
+//	//UserID int64 `gorm:"type:bigint;primaryKey;column:user_id" json:"user_id"`
+//}
 
 // ProblemWithFile 题目信息
 type ProblemWithFile struct {

@@ -29,6 +29,14 @@ func (a *AdminCategoryService) AddCategory(categoryName string) (resp response.R
 
 // UpdateCategory 更新分类
 func (a *AdminCategoryService) UpdateCategory(categoryID, categoryName string) (resp response.Response) {
+	// problem ID 错误
+	if len(categoryID) != 36 {
+		resp.Code = resp_code.CategoryIDDoNotExist
+		zap.L().Error("service-UpdateCategory",
+			zap.String("message: category ID does not exist", categoryID),
+		)
+		return
+	}
 	// 添加分类，categoryName 冲突的情况 mysql 会报错 ErrCategoryAlreadyExist
 	err := mysql.UpdateCategoryDetail(categoryID, categoryName)
 	if err != nil {
@@ -52,6 +60,15 @@ func (a *AdminCategoryService) UpdateCategory(categoryID, categoryName string) (
 
 // DeleteCategory 删除分类
 func (a *AdminCategoryService) DeleteCategory(categoryID string) (resp response.Response) {
+	// problem ID 错误
+	if len(categoryID) != 36 {
+		resp.Code = resp_code.CategoryIDDoNotExist
+		zap.L().Error("service-DeleteCategory",
+			zap.String("message: category ID does not exist", categoryID),
+		)
+		return
+	}
+
 	ok, err := mysql.DeleteCategoryById(categoryID)
 	if err != nil {
 		resp.Code = resp_code.InternalServerError

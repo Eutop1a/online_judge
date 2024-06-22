@@ -74,7 +74,7 @@ func (a *ApiAdminCategory) UpdateCategory(c *gin.Context) {
 		response.ResponseSuccess(c, response.CodeSuccess)
 
 	case resp_code.CategoryIDDoNotExist:
-		response.ResponseError(c, response.CodeCategoryTypeAlreadyExist)
+		response.ResponseError(c, response.CodeCategoryIDNotExist)
 
 	default:
 		response.ResponseError(c, response.CodeInternalServerError)
@@ -110,6 +110,9 @@ func (a *ApiAdminCategory) DeleteCategory(c *gin.Context) {
 
 	case resp_code.CategoryIsNotEmpty:
 		response.ResponseError(c, response.CodeCategoryIsNotEmpty)
+
+	case resp_code.CategoryIDDoNotExist:
+		response.ResponseError(c, response.CodeCategoryIDNotExist)
 
 	default:
 		response.ResponseError(c, response.CodeInternalServerError)
