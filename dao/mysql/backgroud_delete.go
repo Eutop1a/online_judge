@@ -5,8 +5,8 @@ import (
 )
 
 // BgDeleteMysql 后台删除 mysql 中 deleted_at 为 not null 的记录
-func BgDeleteMysql() {
-	ticker := time.NewTicker(5 * time.Hour)
+func BgDeleteMysql(interval time.Duration) {
+	ticker := time.NewTicker(interval)
 	for {
 		select {
 		case <-ticker.C:

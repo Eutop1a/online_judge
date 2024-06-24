@@ -31,22 +31,24 @@ type LogConfig struct {
 }
 
 type MySQLConfig struct {
-	Host         string `mapstructure:"host"`
-	User         string `mapstructure:"user"`
-	Password     string `mapstructure:"password"`
-	Protocol     string `mapstructure:"protocol"`
-	DbName       string `mapstructure:"dbname"`
-	Port         int    `mapstructure:"port"`
-	MaxOpenConns int    `mapstructure:"max_open_conn"`
-	MaxIdelConns int    `mapstructure:"max_idle_conn"`
+	Host           string `mapstructure:"host"`
+	User           string `mapstructure:"user"`
+	Password       string `mapstructure:"password"`
+	Protocol       string `mapstructure:"protocol"`
+	DbName         string `mapstructure:"dbname"`
+	Port           int    `mapstructure:"port"`
+	MaxOpenConns   int    `mapstructure:"max_open_conn"`
+	MaxIdelConns   int    `mapstructure:"max_idle_conn"`
+	DeleteInterval int    `mapstructure:"delete_interval"`
 }
 
 type RedisConfig struct {
-	Host     string `mapstructure:"host"`
-	Password string `mapstructure:"password"`
-	Port     int    `mapstructure:"port"`
-	DB       int    `mapstructure:"db"`
-	PoolSize int    `mapstructure:"pool_size"`
+	Host                string `mapstructure:"host"`
+	Password            string `mapstructure:"password"`
+	Port                int    `mapstructure:"port"`
+	DB                  int    `mapstructure:"db"`
+	PoolSize            int    `mapstructure:"pool_size"`
+	PersistenceInterval int    `mapstructure:"persistence_interval"`
 }
 
 type RabbitMQConfig struct {

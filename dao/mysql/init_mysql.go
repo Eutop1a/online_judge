@@ -21,7 +21,8 @@ func Init(cfg *setting.MySQLConfig) (err error) {
 		return err
 	}
 	// 开启后台删除功能，删除 deleted 的记录
-	go BgDeleteMysql()
+	interval := time.Duration(cfg.DeleteInterval) * time.Hour
+	go BgDeleteMysql(interval)
 	return
 }
 

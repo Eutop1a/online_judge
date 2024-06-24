@@ -51,6 +51,7 @@ const (
 	CodeDontHaveThisCategory
 	CodeCategoryIDNotExist
 	CodeCategoryTypeAlreadyExist
+	CodeProblemListNotFound
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -91,6 +92,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeDontHaveThisCategory:     "分类不存在或对应的题目列表为空",
 	CodeCategoryIDNotExist:       "分类ID不存在",
 	CodeCategoryTypeAlreadyExist: "分类已经存在",
+	CodeProblemListNotFound:      "找不到题目列表",
 }
 
 func (c ResCode) Msg() string {

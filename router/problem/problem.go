@@ -17,4 +17,6 @@ func (p *Problem) InitProblem(Router *gin.RouterGroup) {
 	Router.POST("/title/search", problemApi.SearchProblem)               // 搜索题目
 	Router.POST("/category/search", problemApi.GetProblemListByCategory) // 根据题目分类搜索题目
 	Router.GET("/category-list", problemApi.GetCategoryList)             // 获取分类列表
+	Router.GET("/hot-search", problemApi.GetHotSearches)                 // 获取最热搜索
+	Router.GET("/recent-search", problemApi.GetRecentSearches)           // 获取最近搜索
 }

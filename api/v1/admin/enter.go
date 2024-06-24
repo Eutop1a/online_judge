@@ -1,6 +1,9 @@
 package admin
 
-import "online_judge/services"
+import (
+	"online_judge/dao/redis/cache"
+	"online_judge/services"
+)
 
 type ApiGroup struct {
 	ApiAdminUser
@@ -10,4 +13,5 @@ type ApiGroup struct {
 
 var (
 	AdminService = services.ServiceGroupApp.AdminService
+	CacheService = cache.CacheGroupApp.CacheAdmin
 )

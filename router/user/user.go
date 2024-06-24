@@ -9,6 +9,7 @@ type ApiUser struct{}
 
 func (u *ApiUser) InitApiUser(Router *gin.RouterGroup) {
 	userApi := v1.ApiGroupApp.ApiUser
+	//userApi := v1.ApiGroupApp.GetUserApiGroup()
 
 	Router.POST("/user-id", userApi.GetUserID)
 	Router.POST("/detail", userApi.GetUserDetail)

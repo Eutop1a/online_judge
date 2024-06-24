@@ -5,6 +5,27 @@ import (
 	"math/rand"
 )
 
+func GetTotalProblemCount() (int, error) {
+	var count int64
+	err := DB.Model(&Problems{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return int(count), err
+}
+
+// GetAllProblem 获取所有的 problemID
+func GetAllProblem() ([]Problems, error) {
+	var problemIDList []Problems
+	err := DB.Model(&Problems{}).Find(&problemIDList).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return problemIDList, nil
+}
+
 // GetProblemList 获取题目列表
 func GetProblemList(page, size int, count *int64) ([]Problems, error) {
 	offset := (page - 1) * size // 从哪里开始查询，例如page = 1，应该从数据库的第0条记录开始查询
