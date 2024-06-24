@@ -3,7 +3,7 @@ package admin
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"online_judge/consts"
@@ -11,7 +11,6 @@ import (
 	"online_judge/dao/mysql"
 	"online_judge/models/admin/request"
 	"online_judge/models/common/response"
-	"online_judge/pkg/define"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -63,19 +62,6 @@ func (p *AdminProblemService) CreateProblem(request request.AdminCreateProblemRe
 		return
 	}
 
-	// 添加成功后删除缓存
-	if err := p.deleteCacheByPrefix(request.RedisClient, define.GlobalCacheKeyMap.ProblemListPrefix); err != nil {
-		zap.L().Error("services-CreateProblem-deleteCacheByPrefix ", zap.Error(err))
-		response.Code = resp_code.DeleteCacheError
-		return
-	}
-	// 删除特定问题的缓存（如果存在）
-	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, request.ProblemID)
-	if err := request.RedisClient.Del(request.Ctx, cacheKey).Err(); err != nil {
-		zap.L().Error("services-CreateProblem-redisClient.Del ", zap.Error(err))
-		response.Code = resp_code.DeleteCacheError
-		return
-	}
 	response.Code = resp_code.Success
 	return
 }
@@ -151,19 +137,6 @@ func (p *AdminProblemService) UpdateProblem(request request.AdminUpdateProblemRe
 		response.Code = resp_code.InternalServerError
 		return
 	}
-	// 更新成功后删除缓存
-	if err := p.deleteCacheByPrefix(request.RedisClient, define.GlobalCacheKeyMap.ProblemListPrefix); err != nil {
-		zap.L().Error("services-CreateProblem-deleteCacheByPrefix ", zap.Error(err))
-		response.Code = resp_code.DeleteCacheError
-		return
-	}
-	// 删除特定问题的缓存（如果存在）
-	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, request.ProblemID)
-	if err := request.RedisClient.Del(request.Ctx, cacheKey).Err(); err != nil {
-		zap.L().Error("services-CreateProblem-redisClient.Del ", zap.Error(err))
-		response.Code = resp_code.DeleteCacheError
-		return
-	}
 	response.Code = resp_code.Success
 	return
 }
@@ -182,19 +155,6 @@ func (p *AdminProblemService) DeleteProblem(request request.AdminDeleteProblemRe
 		}
 		response.Code = resp_code.SearchDBError
 		zap.L().Error("services-DeleteProblem-DeleteProblem  ", zap.Error(err))
-		return
-	}
-	// 删除成功后删除缓存
-	if err := p.deleteCacheByPrefix(request.RedisClient, define.GlobalCacheKeyMap.ProblemListPrefix); err != nil {
-		zap.L().Error("services-CreateProblem-deleteCacheByPrefix ", zap.Error(err))
-		response.Code = resp_code.DeleteCacheError
-		return
-	}
-	// 删除特定问题的缓存（如果存在）
-	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, request.ProblemID)
-	if err := request.RedisClient.Del(request.Ctx, cacheKey).Err(); err != nil {
-		zap.L().Error("services-CreateProblem-redisClient.Del ", zap.Error(err))
-		response.Code = resp_code.DeleteCacheError
 		return
 	}
 	response.Code = resp_code.Success

@@ -787,6 +787,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/problem/hot-search": {
+            "get": {
+                "description": "获取最热搜索",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "获取最热搜索",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "数量限制",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1014 服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.GetProblemRandomResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/problem/id": {
             "post": {
                 "description": "获取题目ID接口",
@@ -867,6 +899,38 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "1008 需要登录",
+                        "schema": {
+                            "$ref": "#/definitions/common.GetProblemRandomResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/problem/recent-search": {
+            "get": {
+                "description": "获取最近搜索",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Problem API"
+                ],
+                "summary": "获取最近搜索",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "数量限制",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "1014 服务器内部错误",
                         "schema": {
                             "$ref": "#/definitions/common.GetProblemRandomResponse"
                         }

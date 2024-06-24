@@ -1,6 +1,9 @@
 package problem
 
-import "online_judge/services"
+import (
+	"online_judge/dao/redis/cache"
+	"online_judge/services"
+)
 
 type ApiGroup struct {
 	ApiProblem
@@ -8,4 +11,5 @@ type ApiGroup struct {
 
 var (
 	ProblemService = services.ServiceGroupApp.ProblemService
+	ProblemCache   = cache.CacheGroupApp.CacheProblem
 )

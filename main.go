@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"online_judge/dao/mysql"
 	"online_judge/dao/redis"
+	"online_judge/dao/redis/bloom"
 	"online_judge/logger"
 	"online_judge/pkg/snowflake"
 	"online_judge/router"
@@ -64,6 +65,8 @@ func main() {
 	// 雪花算法生成分布式ID
 	snowflake.Init()
 
+	// 初始化布隆过滤器
+	bloom.InitBloomFilters()
 	//// 5. init rabbitmq connection
 	//if err := mq.InitRabbitMQ(setting.Conf.RabbitMQConfig); err != nil {
 	//	fmt.Printf("init rabbitmq failed, err: %v\n", err)

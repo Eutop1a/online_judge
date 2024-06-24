@@ -53,3 +53,12 @@ func TestGetProblemsByCategoryName(t *testing.T) {
 	fmt.Println(data)
 
 }
+
+func TestGetAllProblemIDs(t *testing.T) {
+	problemIDs, err := mysql.GetAllProblemIDs()
+	require.NoError(t, err)
+	for _, problemID := range problemIDs {
+		fmt.Println(problemID)
+	}
+	fmt.Println(len(problemIDs))
+}

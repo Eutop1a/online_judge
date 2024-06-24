@@ -1,15 +1,11 @@
 package problem
 
 import (
-	"encoding/json"
-	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"online_judge/dao/mysql"
 	"online_judge/models/problem/request"
 	"online_judge/models/problem/response"
-	"online_judge/pkg/define"
-	"time"
 )
 
 type ProblemService struct{}
@@ -51,7 +47,7 @@ func (p *ProblemService) GetProblemList(req request.GetProblemListReq) (problems
 }
 
 // GetProblemDetail 获取单个题目详细信息
-func (p *ProblemService) GetProblemDetail(req request.GetProblemDetailReq) (*response.ProblemResponse, error) {
+func (p *ProblemService) GetProblemDetail(req request.GetProblemDetailReq) (*response.ProblemDetailResponse, error) {
 	// 从数据库中获取题目详细，包括测试用例和分类
 	problem, err := mysql.GetProblemDetail(req.ProblemID)
 	if err != nil {
@@ -60,11 +56,14 @@ func (p *ProblemService) GetProblemDetail(req request.GetProblemDetailReq) (*res
 	}
 
 	// 构建返回的结构体
-	problemResp := &response.ProblemResponse{
+	problemResp := &response.ProblemDetailResponse{
 		ID:         problem.ID,
 		ProblemID:  problem.ProblemID,
 		Title:      problem.Title,
+		Content:    problem.Content,
 		Difficulty: problem.Difficulty,
+		MaxRuntime: problem.MaxRuntime,
+		MaxMemory:  problem.MaxMemory,
 		Categories: make([]response.CategoryResponse, len(problem.ProblemCategories)),
 		TestCases:  make([]response.TestCaseResponse, len(problem.TestCases)),
 	}
@@ -111,108 +110,110 @@ func (p *ProblemService) GetProblemRandom(req request.GetProblemRandomReq) (*mys
 		return nil, err
 	}
 
-	// 加入redis缓存
-	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, problem.ProblemID)
-	// 将获取的题目列表数据保存到 Redis 缓存中
-	encodedData, err := json.Marshal(problem)
-	if err != nil {
-		zap.L().Error("services-GetProblemListWithCache-Marshal ", zap.Error(err))
-		return problem, nil
-	}
-
-	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
-	expiration := 5 * time.Hour
-	err = req.RedisClient.Set(req.Ctx, cacheKey, encodedData, expiration).Err()
-	if err != nil {
-		zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
-	}
+	//// 加入redis缓存
+	//cacheKey := fmt.Sprintf("%s:%s", cache.GlobalCacheKeyMap.ProblemDetailPrefix, problem.ProblemID)
+	//// 将获取的题目列表数据保存到 Redis 缓存中
+	//encodedData, err := json.Marshal(problem)
+	//if err != nil {
+	//	zap.L().Error("services-GetProblemListWithCache-Marshal ", zap.Error(err))
+	//	return problem, nil
+	//}
+	//
+	//// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
+	//expiration := 5 * time.Hour
+	//err = req.RedisClient.Set(req.Ctx, cacheKey, encodedData, expiration).Err()
+	//if err != nil {
+	//	zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
+	//}
 	return problem, nil
 }
 
-// GetProblemListWithCache 获取题目列表，使用 Redis 缓存
-func (p *ProblemService) GetProblemListWithCache(req request.GetProblemListReq) (response.GetProblemListResp, error) {
-	// 尝试从缓存中获取题目列表
-	cacheKey := fmt.Sprintf("%s:%d:%d", define.GlobalCacheKeyMap.ProblemListPrefix, req.Page, req.Size)
-	cachedData, err := req.RedisClient.Get(req.Ctx, cacheKey).Result()
-	if err == nil {
-		var problems response.GetProblemListResp
-		err = json.Unmarshal([]byte(cachedData), &problems)
-		if err != nil {
-			zap.L().Error("services-GetProblemListWithCache-Unmarshal ", zap.Error(err))
-			// 从缓存中读取的数据不符合预期的格式，需要从数据库中重新获取
-		} else {
-			return problems, nil
-		}
-	}
-
-	// 缓存中不存在数据，从数据库中获取题目列表
-	problems, err := p.GetProblemList(req)
-	if err != nil {
-		zap.L().Error("services-GetProblemListWithCache-p.GetProblemList ", zap.Error(err))
-		return problems, err
-	}
-
-	// 将获取的题目列表数据保存到 Redis 缓存中
-	encodedData, err := json.Marshal(problems)
-	if err != nil {
-		zap.L().Error("services-GetProblemListWithCache-Marshal ", zap.Error(err))
-		return problems, nil
-	}
-
-	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
-	expiration := 5 * time.Hour
-	err = req.RedisClient.Set(req.Ctx, cacheKey, encodedData, expiration).Err()
-	if err != nil {
-		zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
-	}
-
-	return problems, nil
-}
-
-// GetProblemDetailWithCache 获取单个题目详细信息
-func (p *ProblemService) GetProblemDetailWithCache(req request.GetProblemDetailReq) (*response.ProblemResponse, error) {
-	// 尝试从缓存中获取题目列表
-	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, req.ProblemID)
-
-	cachedData, err := req.RedisClient.Get(req.Ctx, cacheKey).Result()
-	if err == nil {
-		var problem response.ProblemResponse
-		err := json.Unmarshal([]byte(cachedData), &problem)
-		if err != nil {
-			zap.L().Error("services-GetProblemDetailWithCache-Unmarshal ", zap.Error(err))
-			// 从缓存中读取的数据不符合预期的格式，需要从数据库中重新获取
-		} else {
-			return &problem, nil
-		}
-	}
-
-	// 缓存中不存在数据，从数据库中获取题目列表
-	problem, err := p.GetProblemDetail(req)
-	if err != nil {
-		zap.L().Error("services-GetProblemDetailWithCache-p.GetProblemDetail ", zap.Error(err))
-		return nil, err
-	}
-
-	// 将获取的题目列表数据保存到 Redis 缓存中
-	encodedData, err := json.Marshal(problem)
-	if err != nil {
-		zap.L().Error("services-GetProblemDetailWithCache-Marshal ", zap.Error(err))
-		return problem, nil
-	}
-
-	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
-	expiration := 5 * time.Hour
-	err = req.RedisClient.Set(req.Ctx, cacheKey, encodedData, expiration).Err()
-	if err != nil {
-		zap.L().Error("services-GetProblemDetailWithCache-redisClient.Set ", zap.Error(err))
-	}
-
-	return problem, nil
-}
+// // GetProblemListWithCache 获取题目列表，使用 Redis 缓存
+//
+//	func (p *ProblemService) GetProblemListWithCache(req request.GetProblemListReq) (response.GetProblemListResp, error) {
+//		// 尝试从缓存中获取题目列表
+//		cacheKey := fmt.Sprintf("%s:%d:%d", common_define.GlobalCacheKeyMap.ProblemListPrefix, req.Page, req.Size)
+//		cachedData, err := req.RedisClient.Get(req.Ctx, cacheKey).Result()
+//		if err == nil {
+//			var problems response.GetProblemListResp
+//			err = json.Unmarshal([]byte(cachedData), &problems)
+//			if err != nil {
+//				zap.L().Error("services-GetProblemListWithCache-Unmarshal ", zap.Error(err))
+//				// 从缓存中读取的数据不符合预期的格式，需要从数据库中重新获取
+//			} else {
+//				return problems, nil
+//			}
+//		}
+//
+//		// 缓存中不存在数据，从数据库中获取题目列表
+//		problems, err := p.GetProblemList(req)
+//		if err != nil {
+//			zap.L().Error("services-GetProblemListWithCache-p.GetProblemList ", zap.Error(err))
+//			return problems, err
+//		}
+//
+//		// 将获取的题目列表数据保存到 Redis 缓存中
+//		encodedData, err := json.Marshal(problems)
+//		if err != nil {
+//			zap.L().Error("services-GetProblemListWithCache-Marshal ", zap.Error(err))
+//			return problems, nil
+//		}
+//
+//		// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
+//		expiration := 5 * time.Hour
+//		err = req.RedisClient.Set(req.Ctx, cacheKey, encodedData, expiration).Err()
+//		if err != nil {
+//			zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
+//		}
+//
+//		return problems, nil
+//	}
+//
+//
+//// GetProblemDetailWithCache 获取单个题目详细信息
+//func (p *ProblemService) GetProblemDetailWithCache(req request.GetProblemDetailReq) (*response.ProblemResponse, error) {
+//	// 尝试从缓存中获取题目列表
+//	cacheKey := fmt.Sprintf("%s:%s", common_define.GlobalCacheKeyMap.ProblemDetailPrefix, req.ProblemID)
+//
+//	cachedData, err := req.RedisClient.Get(req.Ctx, cacheKey).Result()
+//	if err == nil {
+//		var problem response.ProblemResponse
+//		err := json.Unmarshal([]byte(cachedData), &problem)
+//		if err != nil {
+//			zap.L().Error("services-GetProblemDetailWithCache-Unmarshal ", zap.Error(err))
+//			// 从缓存中读取的数据不符合预期的格式，需要从数据库中重新获取
+//		} else {
+//			return &problem, nil
+//		}
+//	}
+//
+//	// 缓存中不存在数据，从数据库中获取题目列表
+//	problem, err := p.GetProblemDetail(req)
+//	if err != nil {
+//		zap.L().Error("services-GetProblemDetailWithCache-p.GetProblemDetail ", zap.Error(err))
+//		return nil, err
+//	}
+//
+//	// 将获取的题目列表数据保存到 Redis 缓存中
+//	encodedData, err := json.Marshal(problem)
+//	if err != nil {
+//		zap.L().Error("services-GetProblemDetailWithCache-Marshal ", zap.Error(err))
+//		return problem, nil
+//	}
+//
+//	// 设置缓存的过期时间，你也可以根据具体情况设置适当的缓存时间
+//	expiration := 5 * time.Hour
+//	err = req.RedisClient.Set(req.Ctx, cacheKey, encodedData, expiration).Err()
+//	if err != nil {
+//		zap.L().Error("services-GetProblemDetailWithCache-redisClient.Set ", zap.Error(err))
+//	}
+//
+//	return problem, nil
+//}
 
 func (p *ProblemService) SearchProblem(req request.SearchProblemReq) (response.SearchProblemResp, error) {
 	var problems []mysql.Problems
-	searchQuery := "%" + req.Msg + "%"
+	searchQuery := "%" + req.Title + "%"
 
 	var data response.SearchProblemResp
 	// 根据提供的信息搜索，若没有记录则返回空，若出错返回500

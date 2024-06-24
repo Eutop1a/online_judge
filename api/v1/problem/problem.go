@@ -4,10 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"online_judge/dao/redis"
 	"online_judge/models/common/response"
 	"online_judge/models/problem/request"
-	"online_judge/pkg/define"
+	"online_judge/pkg/common_define"
 	"strconv"
 )
 
@@ -26,14 +25,18 @@ type ApiProblem struct{}
 func (p *ApiProblem) GetProblemList(c *gin.Context) {
 	var req request.GetProblemListReq
 
-	req.Size, _ = strconv.Atoi(c.DefaultQuery("size", define.DefaultSize))
-	req.Page, _ = strconv.Atoi(c.DefaultQuery("page", define.DefaultPage))
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
+	req.Size, _ = strconv.Atoi(c.DefaultQuery("size", common_define.DefaultSize))
+	req.Page, _ = strconv.Atoi(c.DefaultQuery("page", common_define.DefaultPage))
 
-	data, err := ProblemService.GetProblemListWithCache(req)
+	data, err := ProblemCache.GetProblemListWithCache(req)
+	//data, err := ProblemService.GetProblemListWithCache(req)
 	//data, err := getProblemList.GetProblemList()
 	if err != nil {
+		if err == common_define.ErrorBloomFilterNotFound {
+			response.ResponseError(c, response.CodeProblemListNotFound)
+			zap.L().Error("controller-GetProblemList-GetProblemList ", zap.Error(err))
+			return
+		}
 		response.ResponseError(c, response.CodeInternalServerError)
 		zap.L().Error("controller-GetProblemList-GetProblemList ", zap.Error(err))
 		return
@@ -56,10 +59,9 @@ func (p *ApiProblem) GetProblemList(c *gin.Context) {
 func (p *ApiProblem) GetProblemDetail(c *gin.Context) {
 	var req request.GetProblemDetailReq
 	req.ProblemID = c.Param("problem_id")
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
 
-	data, err := ProblemService.GetProblemDetailWithCache(req)
+	data, err := ProblemCache.GetProblemDetailWithCache(req)
+	//data, err := ProblemService.GetProblemDetailWithCache(req)
 	if err != nil {
 		response.ResponseError(c, response.CodeProblemIDNotExist)
 		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))
@@ -84,9 +86,6 @@ func (p *ApiProblem) GetProblemID(c *gin.Context) {
 	var req request.GetProblemIDReq
 	req.Title = c.PostForm("title")
 
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
-
 	uid, err := ProblemService.GetProblemID(req)
 	if err != nil {
 		response.ResponseError(c, response.CodeProblemTitleNotExist)
@@ -108,47 +107,10 @@ func (p *ApiProblem) GetProblemID(c *gin.Context) {
 func (p *ApiProblem) GetProblemRandom(c *gin.Context) {
 	var req request.GetProblemRandomReq
 
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
-
 	data, err := ProblemService.GetProblemRandom(req)
 	if err != nil {
 		response.ResponseError(c, response.CodeProblemIDNotExist)
 		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))
-		return
-	}
-	response.ResponseSuccess(c, data)
-}
-
-// SearchProblem 搜索题目
-// @Tags Problem API
-// @Summary 搜索题目
-// @Description 搜索题目
-// @Accept json
-// @Produce json,multipart/form-data
-// @Param msg query string true "题目名称"
-// @Success 200 {object} common.GetProblemRandomResponse "1000 获取成功"
-// @Failure 200 {object} common.GetProblemRandomResponse "1001 参数错误"
-// @Router /problem/title/search [POST]
-func (p *ApiProblem) SearchProblem(c *gin.Context) {
-	var req request.SearchProblemReq
-	req.Msg = c.Query("msg")
-	if req.Msg == "" {
-		response.ResponseError(c, response.CodeInvalidParam)
-		zap.L().Error("controller-SearchProblem-msg is empty ")
-		return
-	}
-
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
-
-	data, err := ProblemService.SearchProblem(req)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.ResponseError(c, response.CodeProblemNotFound)
-			return
-		}
-		response.ResponseError(c, response.CodeInternalServerError)
 		return
 	}
 	response.ResponseSuccess(c, data)
@@ -200,6 +162,77 @@ func (p *ApiProblem) GetProblemListByCategory(c *gin.Context) {
 // @Router /problem/category-list [GET]
 func (p *ApiProblem) GetCategoryList(c *gin.Context) {
 	data, err := ProblemService.GetCategoryList()
+	if err != nil {
+		response.ResponseError(c, response.CodeInternalServerError)
+		return
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// SearchProblem 搜索题目
+// @Tags Problem API
+// @Summary 搜索题目
+// @Description 搜索题目
+// @Accept json
+// @Produce json,multipart/form-data
+// @Param msg query string true "题目名称"
+// @Success 200 {object} common.GetProblemRandomResponse "1000 获取成功"
+// @Failure 200 {object} common.GetProblemRandomResponse "1001 参数错误"
+// @Router /problem/title/search [POST]
+func (p *ApiProblem) SearchProblem(c *gin.Context) {
+	var req request.SearchProblemReq
+	req.Title = c.Query("msg")
+	if req.Title == "" {
+		response.ResponseError(c, response.CodeInvalidParam)
+		zap.L().Error("controller-SearchProblem-msg is empty ")
+		return
+	}
+	data, err := ProblemCache.SearchProblemWithCache(req)
+	//data, err := ProblemService.SearchProblem(req)
+	if err != nil {
+		if err == common_define.ErrSearchProblem {
+			response.ResponseError(c, response.CodeProblemNotFound)
+			return
+		}
+		response.ResponseError(c, response.CodeInternalServerError)
+		return
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// GetHotSearches 获取最热搜索
+// @Tags Problem API
+// @Summary 获取最热搜索
+// @Description 获取最热搜索
+// @Accept json
+// @Produce json,multipart/form-data
+// @Param limit query string false "数量限制"
+// @Success 200 {object} common.GetProblemRandomResponse "1000 获取成功"
+// @Failure 200 {object} common.GetProblemRandomResponse "1014 服务器内部错误"
+// @Router /problem/hot-search [GET]
+func (p *ApiProblem) GetHotSearches(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", common_define.DefaultLimit))
+	data, err := ProblemCache.GetHotSearches(limit)
+	if err != nil {
+		response.ResponseError(c, response.CodeInternalServerError)
+		return
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// GetRecentSearches 获取最近搜索
+// @Tags Problem API
+// @Summary 获取最近搜索
+// @Description 获取最近搜索
+// @Accept json
+// @Produce json,multipart/form-data
+// @Param limit query string false "数量限制"
+// @Success 200 {object} common.GetProblemRandomResponse "1000 获取成功"
+// @Failure 200 {object} common.GetProblemRandomResponse "1014 服务器内部错误"
+// @Router /problem/recent-search [GET]
+func (p *ApiProblem) GetRecentSearches(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", common_define.DefaultLimit))
+	data, err := ProblemCache.GetRecentSearches(limit)
 	if err != nil {
 		response.ResponseError(c, response.CodeInternalServerError)
 		return

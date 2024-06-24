@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 	"online_judge/consts/resp_code"
 	"online_judge/dao/mysql"
-	"online_judge/dao/redis"
+	"online_judge/dao/redis/cache/verify"
 	"online_judge/models/auth/request"
 	"online_judge/models/common/response"
 	"online_judge/pkg/jwt"
@@ -45,16 +45,16 @@ func (a *AuthService) Register(request request.AuthRegisterReq) (response respon
 	//}
 
 	//验证码获取及验证
-	code, err := redis.GetVerificationCode(request.Email)
+	code, err := verify.GetVerifyCode(request.Email)
 	// 验证码过期
 	if err != nil {
 		if err == fmt.Errorf("verify code expired") {
 			response.Code = resp_code.ExpiredVerCode
-			zap.L().Warn("services-Register-GetVerificationCode verify code expired",
+			zap.L().Warn("services-Register-GetVerifyCode verify code expired",
 				zap.String("email", request.Email))
 		} else {
 			response.Code = resp_code.ErrorVerCode
-			zap.L().Warn("services-Register-GetVerificationCode error verify code",
+			zap.L().Warn("services-Register-GetVerifyCode error verify code",
 				zap.String("email", request.Email))
 		}
 		return
@@ -62,7 +62,7 @@ func (a *AuthService) Register(request request.AuthRegisterReq) (response respon
 	// 验证码错误
 	if code != request.Code {
 		response.Code = resp_code.ErrorVerCode
-		zap.L().Warn("services-Register-GetVerificationCode incorrect verify code",
+		zap.L().Warn("services-Register-GetVerifyCode incorrect verify code",
 			zap.String("email", request.Email))
 		return
 	}

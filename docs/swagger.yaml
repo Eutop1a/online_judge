@@ -790,6 +790,27 @@ paths:
       summary: 按照分类搜索题目
       tags:
       - Problem API
+  /problem/hot-search:
+    get:
+      consumes:
+      - application/json
+      description: 获取最热搜索
+      parameters:
+      - description: 数量限制
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.GetProblemRandomResponse'
+      summary: 获取最热搜索
+      tags:
+      - Problem API
   /problem/id:
     post:
       consumes:
@@ -845,6 +866,27 @@ paths:
           schema:
             $ref: '#/definitions/common.GetProblemRandomResponse'
       summary: 随机获取一个题目
+      tags:
+      - Problem API
+  /problem/recent-search:
+    get:
+      consumes:
+      - application/json
+      description: 获取最近搜索
+      parameters:
+      - description: 数量限制
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: 1014 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.GetProblemRandomResponse'
+      summary: 获取最近搜索
       tags:
       - Problem API
   /problem/title/search:

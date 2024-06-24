@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"online_judge/consts/resp_code"
-	"online_judge/dao/redis"
+	"online_judge/dao/redis/cache/verify"
 	"online_judge/models/verify/request"
 	mycaptcha "online_judge/pkg/my_captcha"
 	"online_judge/pkg/utils"
@@ -25,10 +25,10 @@ func (v *VerifyService) SendEmailCode(request request.SendEmailCodeReq) (resCode
 		return
 	}
 	// redis保存email和验证码的键值对
-	err = redis.StoreVerificationCode(request.UserEmail, code, ts)
+	err = verify.StoreVerifyCode(request.UserEmail, code, ts)
 	if err != nil {
 		resCode = resp_code.StoreVerCodeError
-		zap.L().Error("services-SendEmailCode-StoreVerificationCode ", zap.Error(err))
+		zap.L().Error("services-SendEmailCode-StoreVerifyCode ", zap.Error(err))
 		return
 	}
 
@@ -47,7 +47,7 @@ func (v *VerifyService) SendPictureCode(request request.SendPictureCodeReq) (pic
 	}
 	// 获取当前时间
 	ts := time.Now().Unix()
-	err = redis.StorePictureCode(request.Username, ans, ts)
+	err = verify.StorePictureCode(request.Username, ans, ts)
 	if err != nil {
 		zap.L().Error("services-SendCode-StorePictureCode ", zap.Error(err))
 		return "", err
@@ -57,7 +57,7 @@ func (v *VerifyService) SendPictureCode(request request.SendPictureCodeReq) (pic
 
 // CheckCode 检查图片验证码
 func (v *VerifyService) CheckCode(request request.CheckCodeReq) (bool, error) {
-	ans, err := redis.GetPictureCode(request.Username)
+	ans, err := verify.GetPictureCode(request.Username)
 	if err != nil {
 		zap.L().Error("services-CheckCode-GetPictureCode "+
 			fmt.Sprintf("do not have this username %s ", request.Username), zap.Error(err))

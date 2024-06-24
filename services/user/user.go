@@ -2,10 +2,11 @@ package user
 
 import (
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"online_judge/consts/resp_code"
 	"online_judge/dao/mysql"
-	"online_judge/dao/redis"
+	"online_judge/dao/redis/cache/verify"
 	"online_judge/models/common/response"
 	"online_judge/models/user/request"
 	"online_judge/pkg/utils"
@@ -90,24 +91,24 @@ func (u *UserService) UpdateUserDetail(req request.UpdateUserDetailReq) (respons
 		}
 
 		//验证码获取及验证
-		code, err := redis.GetVerificationCode(req.Email)
+		code, err := verify.GetVerifyCode(req.Email)
 		// 验证码过期
 		if err == redis.Nil {
 			response.Code = resp_code.NeedObtainVerificationCode
-			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
+			zap.L().Error("services-UpdateUserDetail-GetVerifyCode "+
 				fmt.Sprintf("do not send verify code %s", req.Email), zap.Error(err))
 			return
 		}
 		if err == fmt.Errorf("verify code expired") {
 			response.Code = resp_code.ExpiredVerCode
-			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
+			zap.L().Error("services-UpdateUserDetail-GetVerifyCode "+
 				fmt.Sprintf("expired verfiction code %s:%s ", req.Email, code), zap.Error(err))
 			return
 		}
 		// 验证码错误
 		if code != req.Code {
 			response.Code = resp_code.ErrorVerCode
-			zap.L().Error("services-UpdateUserDetail-GetVerificationCode "+
+			zap.L().Error("services-UpdateUserDetail-GetVerifyCode "+
 				fmt.Sprintf("error verfiction code %s:%s ", req.Email, code), zap.Error(err))
 			return
 		}

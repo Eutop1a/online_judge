@@ -2,7 +2,7 @@ package request
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 // AdminCreateProblemReq 创建题目
@@ -16,8 +16,8 @@ type AdminCreateProblemReq struct {
 	Category   []string    `form:"category" json:"category" order:"6"`       // 题目分类
 	TestCases  []*TestCase `form:"test_cases" json:"test_cases" order:"7"`   // 测试样例集
 
-	RedisClient *redis.Client   `json:"-"`
-	Ctx         context.Context `json:"-"`
+	//RedisClient *redis.Client   `json:"-"`
+	//Ctx         context.Context `json:"-"`
 }
 
 // TestCase 测试样例
@@ -38,17 +38,17 @@ type AdminUpdateProblemReq struct {
 	MaxMemory  int         `form:"max_memory" json:"max_memory" order:"5"`   // 内存限制
 	Category   []string    `form:"category" json:"category" order:"6"`       // 题目分类
 	TestCases  []*TestCase `form:"test_cases" json:"test_cases" order:"7"`   // 测试样例集
-
-	RedisClient *redis.Client   `json:"-"`
-	Ctx         context.Context `json:"-"`
+	//
+	//RedisClient *redis.Client   `json:"-"`
+	//Ctx         context.Context `json:"-"`
 }
 
 // AdminDeleteProblemReq 删除题目
 type AdminDeleteProblemReq struct {
 	ProblemID string `form:"problem_id" json:"problem_id"` // unique key
 
-	RedisClient *redis.Client   `form:"redis_client" json:"redis_client"`
-	Ctx         context.Context `form:"context" json:"context"`
+	//RedisClient *redis.Client   `form:"redis_client" json:"redis_client"`
+	//Ctx         context.Context `form:"context" json:"context"`
 }
 
 // AdminCreateProblemWithFileReq 创建测试样例为文件的题目

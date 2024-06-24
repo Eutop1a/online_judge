@@ -13,6 +13,18 @@ type ProblemResponse struct {
 	TestCases  []TestCaseResponse `json:"test_cases"`
 }
 
+type ProblemDetailResponse struct {
+	ID         int                `json:"id"`
+	ProblemID  string             `json:"problem_id"`
+	Title      string             `json:"title"`
+	Content    string             `json:"content"`
+	Difficulty string             `json:"difficulty"`
+	MaxRuntime int                `json:"max_runtime"` // 时间限制
+	MaxMemory  int                `json:"max_memory"`  // 内存限制
+	Categories []CategoryResponse `json:"categories"`
+	TestCases  []TestCaseResponse `json:"test_cases"`
+}
+
 type CategoryResponse struct {
 	CategoryID string `json:"category_id"`
 	Name       string `json:"name"`

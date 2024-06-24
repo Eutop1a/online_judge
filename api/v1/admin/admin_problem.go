@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 	"online_judge/consts"
 	"online_judge/consts/resp_code"
-	"online_judge/dao/redis"
 	"online_judge/models/admin/request"
 	"online_judge/models/common/response"
 	"online_judge/pkg/utils"
@@ -16,30 +15,6 @@ import (
 )
 
 type ApiAdminProblem struct{}
-
-/*
-// CreateProblem 创建新题目接口
-// @Tags Admin API
-// @Summary 创建新题目
-// @Description 创建新题目接口
-// @Accept application/json,multipart/form-data
-// @Produce json,multipart/form-data
-// @Param Authorization header string true "token"
-// @Param title formData string true "题目标题"
-// @Param category formData []string true "分类id"  collectionFormat(multi)
-// @Param content formData string true "题目内容"
-// @Param difficulty formData string true "题目难度"
-// @Param max_runtime formData int true "时间限制"
-// @Param max_memory formData int true "内存限制"
-// @Param test_cases formData []string true "测试样例集" collectionFormat(multi)
-// @Success 200 {object} common.CreateProblemResponse "1000 创建成功"
-// @Failure 200 {object} common.CreateProblemResponse "1001 参数错误"
-// @Failure 200 {object} common.CreateProblemResponse "1018 测试用例格式错误"
-// @Failure 200 {object} common.CreateProblemResponse "1019 题目标题已存在"
-// @Failure 200 {object} common.CreateProblemResponse "1008 需要登录"
-// @Failure 200 {object} common.CreateProblemResponse "1014 服务器内部错误"
-// @Router /admin/problem/create [POST]
-*/
 
 // CreateProblem 创建新题目接口
 // @swagger:order
@@ -88,10 +63,10 @@ func (a *ApiAdminProblem) CreateProblem(c *gin.Context) {
 		v.TID = utils.GetUUID()
 		v.PID = req.ProblemID
 	}
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
-
-	resp := AdminService.CreateProblem(req)
+	//req.RedisClient = redis.Client
+	//req.Ctx = redis.Ctx
+	resp := CacheService.CreateProblem(req)
+	//resp := AdminService.CreateProblem(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)
@@ -103,31 +78,6 @@ func (a *ApiAdminProblem) CreateProblem(c *gin.Context) {
 		response.ResponseError(c, response.CodeInternalServerError)
 	}
 }
-
-/*
-// UpdateProblem 更新题目信息接口
-// @Tags Admin API
-// @Summary 更新题目信息
-// @Description 更新题目信息接口
-// @Accept multipart/form-data
-// @Produce json
-// @Param Authorization header string true "token"
-// @Param problem_id path string true "题目ID"
-// @Param title formData string false "题目标题"
-// @Param content formData string false "题目内容"
-// @Param difficulty formData string false "题目难度"
-// @Param max_runtime formData string false "时间限制"
-// @Param max_memory formData string false "内存限制"
-// @Param category formData []string false "分类id" collectionFormat(multi)
-// @Param test_cases formData []string false "测试样例集" collectionFormat(multi)
-// @Success 200 {object} common.UpdateProblemResponse "修改成功"
-// @Failure 200 {object} common.UpdateProblemResponse "题目ID不存在"
-// @Failure 200 {object} common.UpdateProblemResponse "题目标题已存在"
-// @Failure 200 {object} common.UpdateProblemResponse "测试用例格式错误"
-// @Failure 200 {object} common.UpdateProblemResponse "需要登录"
-// @Failure 200 {object} common.UpdateProblemResponse "服务器内部错误"
-// @Router /admin/problem/{problem_id} [PUT]
-*/
 
 // UpdateProblem 更新题目信息接口
 // @Tags Admin API
@@ -167,10 +117,10 @@ func (a *ApiAdminProblem) UpdateProblem(c *gin.Context) {
 		v.PID = req.ProblemID
 	}
 
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
-
-	resp := AdminService.UpdateProblem(req)
+	//req.RedisClient = redis.Client
+	//req.Ctx = redis.Ctx
+	resp := CacheService.UpdateProblem(req)
+	//resp := AdminService.UpdateProblem(req)
 	switch resp.Code {
 	case resp_code.Success:
 		response.ResponseSuccess(c, response.CodeSuccess)
@@ -200,10 +150,10 @@ func (a *ApiAdminProblem) UpdateProblem(c *gin.Context) {
 func (a *ApiAdminProblem) DeleteProblem(c *gin.Context) {
 	var req request.AdminDeleteProblemReq
 	req.ProblemID = c.Query("problem_id")
-	req.RedisClient = redis.Client
-	req.Ctx = redis.Ctx
-
-	resp := AdminService.DeleteProblem(req)
+	//req.RedisClient = redis.Client
+	//req.Ctx = redis.Ctx
+	resp := CacheService.DeleteProblem(req)
+	//resp := AdminService.DeleteProblem(req)
 
 	switch resp.Code {
 	case resp_code.Success:
