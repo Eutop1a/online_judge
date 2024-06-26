@@ -9,7 +9,7 @@ import (
 	redis2 "online_judge/dao/redis"
 	"online_judge/models/problem/request"
 	"online_judge/models/problem/response"
-	"online_judge/pkg/common_define"
+	"online_judge/pkg/define"
 	"strings"
 	"time"
 )
@@ -19,7 +19,7 @@ func (p *CacheProblem) SearchProblemWithCache(req request.SearchProblemReq) (res
 	var problems response.SearchProblemResp
 
 	keyword := strings.ToLower(req.Title)
-	cacheKey := fmt.Sprintf("%s:%s", common_define.GlobalCacheKeyMap.ProblemSearchPrefix, keyword)
+	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemSearchPrefix, keyword)
 	// 使用 HSCAN 进行模糊查询
 	cachedData, _, err := redis2.Client.
 		HScan(redis2.Ctx, cacheKey, 0, fmt.Sprintf("*%s*", keyword), 10).Result()
@@ -88,21 +88,21 @@ func (p *CacheProblem) SearchProblemWithCache(req request.SearchProblemReq) (res
 //// RecordSearch 记录搜索关键词的热度和最近搜索
 //func (p *CacheProblem) RecordSearch(keyword string) {
 //	// 记录最热搜索
-//	redis2.Client.ZIncrBy(redis2.Ctx, common_define.GlobalCacheKeyMap.HotSearchPrefix, 1, keyword)
+//	redis2.Client.ZIncrBy(redis2.Ctx, define.GlobalCacheKeyMap.HotSearchPrefix, 1, keyword)
 //
 //	// 记录最近搜索
-//	redis2.Client.LPush(redis2.Ctx, common_define.GlobalCacheKeyMap.RecentSearchPrefix, keyword)
-//	redis2.Client.LTrim(redis2.Ctx, common_define.GlobalCacheKeyMap.RecentSearchPrefix, 0, 99) // 保留最近100条记录
+//	redis2.Client.LPush(redis2.Ctx, define.GlobalCacheKeyMap.RecentSearchPrefix, keyword)
+//	redis2.Client.LTrim(redis2.Ctx, define.GlobalCacheKeyMap.RecentSearchPrefix, 0, 99) // 保留最近100条记录
 //}
 
 //// GetHotSearches 获取最热搜索关键词
 //func (p *CacheProblem) GetHotSearches(limit int) ([]string, error) {
-//	return redis2.Client.ZRevRange(redis2.Ctx, common_define.GlobalCacheKeyMap.HotSearchPrefix, 0, int64(limit-1)).Result()
+//	return redis2.Client.ZRevRange(redis2.Ctx, define.GlobalCacheKeyMap.HotSearchPrefix, 0, int64(limit-1)).Result()
 //}
 
 // GetRecentSearches 获取最近搜索关键词
 func (p *CacheProblem) GetRecentSearches(limit int) ([]string, error) {
-	return redis2.Client.LRange(redis2.Ctx, common_define.GlobalCacheKeyMap.RecentSearchPrefix, 0, int64(limit-1)).Result()
+	return redis2.Client.LRange(redis2.Ctx, define.GlobalCacheKeyMap.RecentSearchPrefix, 0, int64(limit-1)).Result()
 }
 
 // RecordSearch 记录搜索关键词的热度和最近搜索
@@ -128,7 +128,7 @@ func (p *CacheProblem) RecordSearch(keyword string) {
     return 1
     `
 	script := redis.NewScript(luaScript)
-	_, err := script.Run(redis2.Ctx, redis2.Client, []string{common_define.GlobalCacheKeyMap.HotSearchPrefix}, keyword, currentTimestamp).Result()
+	_, err := script.Run(redis2.Ctx, redis2.Client, []string{define.GlobalCacheKeyMap.HotSearchPrefix}, keyword, currentTimestamp).Result()
 	if err != nil {
 		zap.L().Error("RecordSearch-HotSearch-LuaScript", zap.Error(err))
 	}
@@ -147,7 +147,7 @@ func (p *CacheProblem) RecordSearch(keyword string) {
     return 1
     `
 	scriptRecent := redis.NewScript(luaScriptRecent)
-	_, err = scriptRecent.Run(redis2.Ctx, redis2.Client, []string{common_define.GlobalCacheKeyMap.RecentSearchPrefix}, keyword).Result()
+	_, err = scriptRecent.Run(redis2.Ctx, redis2.Client, []string{define.GlobalCacheKeyMap.RecentSearchPrefix}, keyword).Result()
 	if err != nil {
 		zap.L().Error("RecordSearch-RecentSearch-LuaScript", zap.Error(err))
 	}
@@ -155,7 +155,7 @@ func (p *CacheProblem) RecordSearch(keyword string) {
 
 // GetHotSearches 获取最热搜索关键词
 func (p *CacheProblem) GetHotSearches(limit int) ([]string, error) {
-	hotSearchKey := common_define.GlobalCacheKeyMap.HotSearchPrefix
+	hotSearchKey := define.GlobalCacheKeyMap.HotSearchPrefix
 
 	luaScript := `
     local hotSearchKey = KEYS[1]

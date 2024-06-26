@@ -10,7 +10,7 @@ import (
 	"online_judge/dao/redis/bloom"
 	"online_judge/models/problem/request"
 	"online_judge/models/problem/response"
-	"online_judge/pkg/common_define"
+	"online_judge/pkg/define"
 	"time"
 )
 
@@ -18,7 +18,7 @@ import (
 func (p *CacheProblem) GetProblemDetailWithCache(req request.GetProblemDetailReq) (*response.ProblemDetailResponse, error) {
 	var problem *response.ProblemDetailResponse
 	// 尝试从缓存中获取题目列表
-	cacheKey := fmt.Sprintf("%s:%s", common_define.GlobalCacheKeyMap.ProblemDetailPrefix, req.ProblemID)
+	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, req.ProblemID)
 	//cachedData, err := redis2.Client.Get(redis2.Ctx, cacheKey).Result()
 	cachedData, err := redis2.Client.HGet(redis2.Ctx, cacheKey, req.ProblemID).Result()
 
@@ -28,7 +28,7 @@ func (p *CacheProblem) GetProblemDetailWithCache(req request.GetProblemDetailReq
 			zap.L().Error("cache key not exist",
 				zap.String("problem_id", req.ProblemID),
 			)
-			return nil, fmt.Errorf("problem id not found")
+			return nil, define.ErrProblemIDNotFound
 		}
 
 		// 缓存未命中，从数据库中获取题目详细信息

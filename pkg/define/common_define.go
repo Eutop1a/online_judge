@@ -1,4 +1,4 @@
-package common_define
+package define
 
 var (
 	DefaultPage  = "1"

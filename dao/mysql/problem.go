@@ -71,9 +71,12 @@ func GetProblemRandom() (problem *Problems, err error) {
 	randomIdx := rand.Intn(len(problemsList))
 	problemIdx := &problemsList[randomIdx].ID
 
-	err = DB.Where("id = ?", problemIdx).Preload("TestCases", func(db *gorm.DB) *gorm.DB {
-		return db.Limit(2)
-	}).First(&problem).Error
+	err = DB.Where("id = ?", problemIdx).
+		Preload("TestCases", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(2) // 在这里使用 Limit 方法限制 TestCases 的数量
+		}).
+		Preload("ProblemCategories.Category").
+		First(&problem).Error
 
 	if err != nil {
 		return nil, err
@@ -263,7 +266,7 @@ func GetEntireProblemWithFile(pid string) (problem *ProblemWithFile, err error) 
 
 // SearchProblemByMsg 模糊搜索题目获取题目列表
 func SearchProblemByMsg(problems *[]Problems, searchQuery string) error {
-	return DB.Model(&Problems{}).Where("title LIKE ? OR content LIKE ?", searchQuery, searchQuery).
+	return DB.Model(&Problems{}).Where("title LIKE ?", searchQuery).
 		Preload("ProblemCategories.Category").
 		Find(&problems).Error
 	//return DB.Model(&Problems{}).Select("id, problem_id, title, difficulty").

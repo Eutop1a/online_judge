@@ -10,6 +10,7 @@ import (
 	"online_judge/dao/mysql"
 	"online_judge/dao/redis"
 	"online_judge/dao/redis/bloom"
+	"online_judge/dao/redis/cache"
 	"online_judge/logger"
 	"online_judge/pkg/snowflake"
 	"online_judge/router"
@@ -62,6 +63,7 @@ func main() {
 	}
 	defer redis.Close()
 
+	cache.Init()
 	// 雪花算法生成分布式ID
 	snowflake.Init()
 

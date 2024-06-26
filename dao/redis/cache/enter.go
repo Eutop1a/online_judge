@@ -21,3 +21,7 @@ type CacheGroup struct {
 }
 
 var CacheGroupApp = new(CacheGroup)
+
+func Init() {
+	problem.ProblemIDListCacheInit()
+}

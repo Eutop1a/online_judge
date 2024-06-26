@@ -103,13 +103,48 @@ func (p *ProblemService) GetProblemID(req request.GetProblemIDReq) (problemID st
 }
 
 // GetProblemRandom 随机获取一个题目
-func (p *ProblemService) GetProblemRandom(req request.GetProblemRandomReq) (*mysql.Problems, error) {
+func (p *ProblemService) GetProblemRandom() (*response.ProblemDetailResponse, error) {
 	problem, err := mysql.GetProblemRandom()
 	if err != nil {
 		zap.L().Error("services-GetProblemRandom-GetProblemRandom", zap.Error(err))
 		return nil, err
 	}
 
+	// 构建返回的结构体
+	problemResp := &response.ProblemDetailResponse{
+		ID:         problem.ID,
+		ProblemID:  problem.ProblemID,
+		Title:      problem.Title,
+		Content:    problem.Content,
+		Difficulty: problem.Difficulty,
+		MaxRuntime: problem.MaxRuntime,
+		MaxMemory:  problem.MaxMemory,
+		Categories: make([]response.CategoryResponse, len(problem.ProblemCategories)),
+		TestCases:  make([]response.TestCaseResponse, len(problem.TestCases)),
+	}
+
+	// 赋值分类
+	for i, pc := range problem.ProblemCategories {
+		if pc.Category != nil {
+			problemResp.Categories[i] = response.CategoryResponse{
+				CategoryID: pc.CategoryIdentity,
+				Name:       pc.Category.Name,
+				ParentName: pc.Category.ParentName,
+			}
+		}
+	}
+
+	// 赋值
+	for i, tc := range problem.TestCases {
+		problemResp.TestCases[i] = response.TestCaseResponse{
+			TID:      tc.TID,
+			PID:      tc.PID,
+			Input:    tc.Input,
+			Expected: tc.Expected,
+		}
+	}
+
+	return problemResp, nil
 	//// 加入redis缓存
 	//cacheKey := fmt.Sprintf("%s:%s", cache.GlobalCacheKeyMap.ProblemDetailPrefix, problem.ProblemID)
 	//// 将获取的题目列表数据保存到 Redis 缓存中
@@ -125,14 +160,13 @@ func (p *ProblemService) GetProblemRandom(req request.GetProblemRandomReq) (*mys
 	//if err != nil {
 	//	zap.L().Error("services-GetProblemListWithCache-redisClient.Set ", zap.Error(err))
 	//}
-	return problem, nil
 }
 
 // // GetProblemListWithCache 获取题目列表，使用 Redis 缓存
 //
 //	func (p *ProblemService) GetProblemListWithCache(req request.GetProblemListReq) (response.GetProblemListResp, error) {
 //		// 尝试从缓存中获取题目列表
-//		cacheKey := fmt.Sprintf("%s:%d:%d", common_define.GlobalCacheKeyMap.ProblemListPrefix, req.Page, req.Size)
+//		cacheKey := fmt.Sprintf("%s:%d:%d", define.GlobalCacheKeyMap.ProblemListPrefix, req.Page, req.Size)
 //		cachedData, err := req.RedisClient.Get(req.Ctx, cacheKey).Result()
 //		if err == nil {
 //			var problems response.GetProblemListResp
@@ -173,7 +207,7 @@ func (p *ProblemService) GetProblemRandom(req request.GetProblemRandomReq) (*mys
 //// GetProblemDetailWithCache 获取单个题目详细信息
 //func (p *ProblemService) GetProblemDetailWithCache(req request.GetProblemDetailReq) (*response.ProblemResponse, error) {
 //	// 尝试从缓存中获取题目列表
-//	cacheKey := fmt.Sprintf("%s:%s", common_define.GlobalCacheKeyMap.ProblemDetailPrefix, req.ProblemID)
+//	cacheKey := fmt.Sprintf("%s:%s", define.GlobalCacheKeyMap.ProblemDetailPrefix, req.ProblemID)
 //
 //	cachedData, err := req.RedisClient.Get(req.Ctx, cacheKey).Result()
 //	if err == nil {
