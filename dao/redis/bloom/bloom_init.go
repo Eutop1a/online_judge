@@ -5,7 +5,7 @@ import (
 	"github.com/bits-and-blooms/bloom/v3"
 	"go.uber.org/zap"
 	"online_judge/dao/mysql"
-	"online_judge/pkg/common_define"
+	"online_judge/pkg/define"
 	"strconv"
 )
 
@@ -36,7 +36,7 @@ func ReBuildBloomFilters() {
 
 	for _, problem := range problemList {
 		cacheKeyDetail := fmt.Sprintf("%s:%s",
-			common_define.GlobalCacheKeyMap.ProblemDetailPrefix,
+			define.GlobalCacheKeyMap.ProblemDetailPrefix,
 			problem.ProblemID)
 		//cacheKeyDetail := fmt.Sprintf("%s", problem.ProblemID)
 
@@ -46,12 +46,12 @@ func ReBuildBloomFilters() {
 	// 从数据库加载所有分页信息并生成缓存键到题目列表布隆过滤器
 	totalProblems := len(problemList) // 获取题目总数
 
-	pageSize, _ := strconv.Atoi(common_define.DefaultSize) // 假设每页显示10条记录
+	pageSize, _ := strconv.Atoi(define.DefaultSize) // 假设每页显示10条记录
 	totalPages := (totalProblems + pageSize - 1) / pageSize
 
 	for page := 1; page <= totalPages; page++ {
 		cacheKey := fmt.Sprintf("%s:page-%d:size-%d",
-			common_define.GlobalCacheKeyMap.ProblemListPrefix,
+			define.GlobalCacheKeyMap.ProblemListPrefix,
 			page, pageSize)
 		ProblemListBloomFilter.AddString(cacheKey)
 	}
@@ -87,7 +87,7 @@ func ReBuildBloomFilters() {
 //
 //	for _, problem := range problemList {
 //		cacheKeyDetail := fmt.Sprintf("%s:%s",
-//			common_define.GlobalCacheKeyMap.ProblemDetailPrefix,
+//			define.GlobalCacheKeyMap.ProblemDetailPrefix,
 //			problem.ProblemID)
 //
 //		ProblemDetailBloomFilter.Add([]byte(cacheKeyDetail))
@@ -96,12 +96,12 @@ func ReBuildBloomFilters() {
 //	// 从数据库加载所有分页信息并生成缓存键到题目列表布隆过滤器
 //	totalProblems := len(problemList) // 获取题目总数
 //
-//	pageSize, _ := strconv.Atoi(common_define.DefaultSize) // 假设每页显示10条记录
+//	pageSize, _ := strconv.Atoi(define.DefaultSize) // 假设每页显示10条记录
 //	totalPages := (totalProblems + pageSize - 1) / pageSize
 //
 //	for page := 1; page <= totalPages; page++ {
 //		cacheKey := fmt.Sprintf("%s:%d:%d",
-//			common_define.GlobalCacheKeyMap.ProblemListPrefix,
+//			define.GlobalCacheKeyMap.ProblemListPrefix,
 //			page, pageSize)
 //		ProblemListBloomFilter.Add([]byte(cacheKey))
 //	}

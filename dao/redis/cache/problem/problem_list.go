@@ -10,7 +10,7 @@ import (
 	"online_judge/dao/redis/bloom"
 	"online_judge/models/problem/request"
 	"online_judge/models/problem/response"
-	"online_judge/pkg/common_define"
+	"online_judge/pkg/define"
 	"time"
 )
 
@@ -20,14 +20,14 @@ type CacheProblem struct{}
 func (p *CacheProblem) GetProblemListWithCache(req request.GetProblemListReq) (response.GetProblemListResp, error) {
 	var problems response.GetProblemListResp
 	cacheKey := fmt.Sprintf("%s:page-%d:size-%d",
-		common_define.GlobalCacheKeyMap.ProblemListPrefix, req.Page, req.Size)
+		define.GlobalCacheKeyMap.ProblemListPrefix, req.Page, req.Size)
 	cachedData, err := redis2.Client.ZRange(redis2.Ctx, cacheKey, 0, -1).Result()
 
 	if err == redis.Nil || len(cachedData) == 0 {
 		// 布隆过滤器检查
 		if !bloom.ProblemListBloomFilter.TestString(cacheKey) {
 			fmt.Println("cache key not exist")
-			return problems, common_define.ErrorBloomFilterNotFound
+			return problems, define.ErrBloomFilterNotFound
 		}
 
 		// 缓存未命中，从数据库获取数据

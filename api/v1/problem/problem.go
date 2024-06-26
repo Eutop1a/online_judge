@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 	"online_judge/models/common/response"
 	"online_judge/models/problem/request"
-	"online_judge/pkg/common_define"
+	"online_judge/pkg/define"
 	"strconv"
 )
 
@@ -25,14 +25,14 @@ type ApiProblem struct{}
 func (p *ApiProblem) GetProblemList(c *gin.Context) {
 	var req request.GetProblemListReq
 
-	req.Size, _ = strconv.Atoi(c.DefaultQuery("size", common_define.DefaultSize))
-	req.Page, _ = strconv.Atoi(c.DefaultQuery("page", common_define.DefaultPage))
+	req.Size, _ = strconv.Atoi(c.DefaultQuery("size", define.DefaultSize))
+	req.Page, _ = strconv.Atoi(c.DefaultQuery("page", define.DefaultPage))
 
 	data, err := ProblemCache.GetProblemListWithCache(req)
 	//data, err := ProblemService.GetProblemListWithCache(req)
 	//data, err := getProblemList.GetProblemList()
 	if err != nil {
-		if err == common_define.ErrorBloomFilterNotFound {
+		if err == define.ErrBloomFilterNotFound {
 			response.ResponseError(c, response.CodeProblemListNotFound)
 			zap.L().Error("controller-GetProblemList-GetProblemList ", zap.Error(err))
 			return
@@ -105,10 +105,12 @@ func (p *ApiProblem) GetProblemID(c *gin.Context) {
 // @Failure 200 {object} common.GetProblemRandomResponse "1008 需要登录"
 // @Router /problem/random [GET]
 func (p *ApiProblem) GetProblemRandom(c *gin.Context) {
-	var req request.GetProblemRandomReq
-
-	data, err := ProblemService.GetProblemRandom(req)
+	data, err := ProblemCache.ProblemIDListCacheRandom()
 	if err != nil {
+		if err == define.ErrNoProblemIDFound {
+			response.ResponseError(c, response.CodeProblemIDNotExist)
+			return
+		}
 		response.ResponseError(c, response.CodeProblemIDNotExist)
 		zap.L().Error("controller-GetProblemDetail-GetProblemDetail ", zap.Error(err))
 		return
@@ -190,7 +192,7 @@ func (p *ApiProblem) SearchProblem(c *gin.Context) {
 	data, err := ProblemCache.SearchProblemWithCache(req)
 	//data, err := ProblemService.SearchProblem(req)
 	if err != nil {
-		if err == common_define.ErrSearchProblem {
+		if err == define.ErrSearchProblem {
 			response.ResponseError(c, response.CodeProblemNotFound)
 			return
 		}
@@ -211,7 +213,7 @@ func (p *ApiProblem) SearchProblem(c *gin.Context) {
 // @Failure 200 {object} common.GetProblemRandomResponse "1014 服务器内部错误"
 // @Router /problem/hot-search [GET]
 func (p *ApiProblem) GetHotSearches(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", common_define.DefaultLimit))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", define.DefaultLimit))
 	data, err := ProblemCache.GetHotSearches(limit)
 	if err != nil {
 		response.ResponseError(c, response.CodeInternalServerError)
@@ -231,7 +233,7 @@ func (p *ApiProblem) GetHotSearches(c *gin.Context) {
 // @Failure 200 {object} common.GetProblemRandomResponse "1014 服务器内部错误"
 // @Router /problem/recent-search [GET]
 func (p *ApiProblem) GetRecentSearches(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", common_define.DefaultLimit))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", define.DefaultLimit))
 	data, err := ProblemCache.GetRecentSearches(limit)
 	if err != nil {
 		response.ResponseError(c, response.CodeInternalServerError)

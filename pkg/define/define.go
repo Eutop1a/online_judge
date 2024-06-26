@@ -1,4 +1,4 @@
-package common_define
+package define
 
 import "fmt"
 
@@ -8,6 +8,7 @@ type CacheKeyMap struct {
 	ProblemSearchPrefix string
 	HotSearchPrefix     string
 	RecentSearchPrefix  string
+	ProblemIDListPrefix string
 }
 
 var GlobalCacheKeyMap = CacheKeyMap{
@@ -16,9 +17,12 @@ var GlobalCacheKeyMap = CacheKeyMap{
 	ProblemSearchPrefix: "problem_search",
 	HotSearchPrefix:     "hot_search",
 	RecentSearchPrefix:  "recent_search",
+	ProblemIDListPrefix: "problem_id_list",
 }
 
 var (
-	ErrSearchProblem         = fmt.Errorf("problem title not found")
-	ErrorBloomFilterNotFound = fmt.Errorf("problem list not found")
+	ErrSearchProblem       = fmt.Errorf("problem title not found")
+	ErrBloomFilterNotFound = fmt.Errorf("problem list not found")
+	ErrProblemIDNotFound   = fmt.Errorf("problem id not found")
+	ErrNoProblemIDFound    = fmt.Errorf("no problem ID found in cache")
 )
