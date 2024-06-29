@@ -13,5 +13,5 @@ func (u *ApiUser) InitApiUser(Router *gin.RouterGroup) {
 
 	Router.POST("/user-id", userApi.GetUserID)
 	Router.POST("/detail", userApi.GetUserDetail)
-	Router.POST("/update", userApi.UpdateUserDetail)
+	Router.PUT("/update", userApi.UpdateUserDetail)
 }
