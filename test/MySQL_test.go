@@ -55,10 +55,10 @@ func TestGetProblemsByCategoryName(t *testing.T) {
 }
 
 func TestGetAllProblemIDs(t *testing.T) {
-	problemIDs, err := mysql.GetAllProblemIDs()
+	problems, err := mysql.GetAllProblem()
 	require.NoError(t, err)
-	for _, problemID := range problemIDs {
+	for _, problemID := range problems {
 		fmt.Println(problemID)
 	}
-	fmt.Println(len(problemIDs))
+	fmt.Println(len(problems))
 }

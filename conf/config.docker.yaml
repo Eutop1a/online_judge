@@ -21,12 +21,17 @@ mysql:
   dbname: "onlinejudge"
   max_open_conn: 200
   max_idle_conn: 50
+  # 自动删除表中标记为 Delete 的记录的时间：单位 hour
+  delete_interval: 5
 redis:
   host: redis
   port: 6379
   password: ""
   db: 0
   pool_size: 100
+  # 持久化时间：单位 hour
+  persistence_interval: 60
+
 rabbitmq:
   rabbit_mq: amqp
   host: rabbitmq

@@ -21,6 +21,7 @@ mysql:
   dbname: "onlinejudge"
   max_open_conn: 200
   max_idle_conn: 50
+  persistence_interval: 60
 redis:
   host: redis
   port: 6379
